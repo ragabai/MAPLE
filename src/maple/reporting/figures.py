@@ -12,9 +12,9 @@ from maple.reporting import analysis as A
 from maple.reporting import style as S
 from maple.stats import tests as T
 
-PFN_COLORS = {"PFN-SCM": S.SERIES[4], "PFN-A": S.SERIES[1], "PFN-B": S.SERIES[3], "PFN-C": S.SERIES[2],
-              "PFN-D": S.SERIES[0], "MAPLE-E": S.SERIES[6], "MAPLE-F": S.SERIES[0]}
-FOCUS = ["MAPLE-F", "PFN-D", "PFN-SCM", "CatBoost-T", "Stack(experts)"]
+PFN_COLORS = {"MAPLE-Net/SCM": S.SERIES[4], "MAPLE-Net/Uniform": S.SERIES[1], "MAPLE-Net/Loss": S.SERIES[3], "MAPLE-Net/Gap": S.SERIES[2],
+              "MAPLE-Net": S.SERIES[0], "MAPLE-Global": S.SERIES[6], "MAPLE": S.SERIES[0]}
+FOCUS = ["MAPLE", "MAPLE-Net", "MAPLE-Net/SCM", "CatBoost-T", "Stack(experts)"]
 FOCUS_COLORS = dict(zip(FOCUS, [S.SERIES[0], S.SERIES[6], S.SERIES[4], S.SERIES[5], S.SERIES[1]]))
 FOCUS_MARKERS = dict(zip(FOCUS, ["o", "s", "v", "D", "^"]))
 
@@ -33,54 +33,76 @@ def place_labels(ax, xs, ys, labels, fontsize=5.5, color=None, pad_px=2.0):
     fig.canvas.draw()
     r = fig.canvas.get_renderer()
     cands = [(4, 2, "left", "bottom"), (4, -2, "left", "top"), (-4, 2, "right", "bottom"), (-4, -2, "right", "top")]
-    for d in (8, 14, 20, 26, 32, 38, 44):
+    for d in (8, 14, 20, 26, 32, 38, 44, 52, 60, 70, 80):
         for sx in (1, -1):
-            for dx in (6, 18):
+            for dx in (6, 18, 30, 45):
                 cands += [(sx * dx, sgn * d, "left" if sx > 0 else "right", "center") for sgn in (1, -1)]
     pts = ax.transData.transform(np.column_stack([xs, ys]))
     from matplotlib.transforms import Bbox
     rad = 4.5 * fig.dpi / 72.0  # marker radius (s~22 pt^2) plus a small halo, in display pixels
-    placed = [Bbox.from_extents(x - rad, y - rad, x + rad, y + rad) for x, y in pts]  # points are obstacles
+    markers = [Bbox.from_extents(x - rad, y - rad, x + rad, y + rad) for x, y in pts]  # points are obstacles
+    placed = []  # label boxes placed so far
 
-    def overlap(bb):
-        tot = 0.0
-        for o in placed:
-            w = min(bb.x1, o.x1) - max(bb.x0, o.x0)
-            h = min(bb.y1, o.y1) - max(bb.y0, o.y0)
-            if w > 0 and h > 0:
-                tot += w * h
-        return tot
+    def _area(bb, o):
+        w = min(bb.x1, o.x1) - max(bb.x0, o.x0)
+        h = min(bb.y1, o.y1) - max(bb.y0, o.y0)
+        return w * h if w > 0 and h > 0 else 0.0
 
-    texts = []
-    order = np.argsort(np.asarray(ys))[::-1]
-    for i in order:
-        best = None  # (overlap, text, bbox); first zero-overlap candidate wins, else the least-overlapping one
-        for dx, dy, ha, va in cands:
-            t = ax.annotate(labels[i], (xs[i], ys[i]), xytext=(dx, dy), textcoords="offset points", fontsize=fontsize,
-                            color=color or "#52514d", ha=ha, va=va,
-                            arrowprops=None if abs(dy) <= 2 else dict(arrowstyle="-", lw=0.4, color="#9c9a92",
-                                                                      shrinkA=0, shrinkB=2))
-            e = t.get_window_extent(r)
-            bb = Bbox.from_extents(e.x0 - pad_px, e.y0 - pad_px, e.x1 + pad_px, e.y1 + pad_px)
-            ov = overlap(bb)
-            if best is None or ov < best[0]:
-                if best is not None:
-                    best[1].remove()
-                best = (ov, t, bb)
-            else:
+    def overlap(bb, own):
+        # text over text is far worse than text over a marker; a label never collides with its own marker
+        return (100.0 * sum(_area(bb, o) for o in placed)
+                + sum(_area(bb, m) for j, m in enumerate(markers) if j != own))
+
+    def run(order):
+        placed.clear()
+        texts, total = [], 0.0
+        for i in order:
+            best = None  # (overlap, text, bbox); first zero-overlap candidate wins, else the least-overlapping one
+            for dx, dy, ha, va in cands:
+                t = ax.annotate(labels[i], (xs[i], ys[i]), xytext=(dx, dy), textcoords="offset points",
+                                fontsize=fontsize, color=color or "#52514d", ha=ha, va=va,
+                                arrowprops=None if abs(dy) <= 2 else dict(arrowstyle="-", lw=0.4, color="#9c9a92",
+                                                                          shrinkA=0, shrinkB=2))
+                e = t.get_window_extent(r)  # includes the leader line, so long leaders across the plot cost more
+                bb = Bbox.from_extents(e.x0 - pad_px, e.y0 - pad_px, e.x1 + pad_px, e.y1 + pad_px)
+                ov = overlap(bb, i)
+                if best is None or ov < best[0]:
+                    if best is not None:
+                        best[1].remove()
+                    best = (ov, t, bb)
+                else:
+                    t.remove()
+                if ov == 0:
+                    break
+            placed.append(best[2])
+            texts.append((i, best[1]))
+            total += best[0]
+        return total, texts
+
+    # Greedy placement depends on the order; try a few and keep the layout with the least overlap.
+    y_arr, x_arr = np.asarray(ys), np.asarray(pts[:, 0])
+    orders = [np.argsort(y_arr)[::-1], np.argsort(y_arr), np.argsort(x_arr), np.argsort(x_arr)[::-1]]
+    kept = None
+    for order in orders:
+        total, texts = run(order)
+        if kept is None or total < kept[0]:
+            if kept is not None:
+                for _, t in kept[1]:
+                    t.remove()
+            kept = (total, texts)
+        else:
+            for _, t in texts:
                 t.remove()
-            if ov == 0:
-                break
-        placed.append(best[2])
-        texts.append((i, best[1]))
-    return [t for _, t in sorted(texts, key=lambda z: z[0])]
+        if kept[0] == 0:
+            break
+    return [t for _, t in sorted(kept[1], key=lambda z: z[0])]
 
 
 # ------------------------------------------------------------------------------------------- Fig 3
 
 def fig03_mechanism(task, P: np.ndarray, pfn_pred: np.ndarray, committee: list[str], sampler_row: dict, out: Path,
                     feature: int) -> None:
-    fig, axs = plt.subplots(1, 3, figsize=(S.COL2, 2.3), gridspec_kw={"width_ratios": [1.25, 1, 1.1]})
+    fig, axs = plt.subplots(1, 3, figsize=(S.COL2, 2.75), gridspec_kw={"width_ratios": [1.25, 1, 1.1]})
     x = task.X_qry[:, feature]
     o = np.argsort(x)
     ax = axs[0]
@@ -91,7 +113,7 @@ def fig03_mechanism(task, P: np.ndarray, pfn_pred: np.ndarray, committee: list[s
     ax.set_title("(a) probe task: experts and PFN")
     ax.set_xlabel(f"feature x{feature + 1} (standardised)")
     ax.set_ylabel("y (standardised)")
-    ax.legend(fontsize=5.2, ncol=2, loc="lower right", frameon=True, framealpha=0.92, edgecolor=S.GRID)
+    ax.legend(fontsize=5.8, ncol=2, loc="upper center", bbox_to_anchor=(0.5, -0.29))
     ax = axs[1]
     gap = (pfn_pred - P.mean(0)) ** 2
     amb = P.var(0)
@@ -141,13 +163,13 @@ def fig04_adaptation(logs: dict[str, list[dict]], out: Path) -> pd.DataFrame:
         axs[0].set_yticks(range(len(mat.index)), [i.replace("_", " ") for i in mat.index], fontsize=5.5)
         axs[0].set_xticks(range(mat.shape[1]), mat.columns, fontsize=6)
         axs[0].set_xlabel("adaptation round (every 1000 steps)")
-        axs[0].set_title("(a) PFN-D, seed 0: family probability")
+        axs[0].set_title("(a) MAPLE-Net, seed 0: family probability")
         axs[0].grid(False)
         cb = fig.colorbar(im, ax=axs[0], fraction=0.04, pad=0.02)
         cb.ax.tick_params(labelsize=6)
         cb.set_label("probability (summed over the family's cells)", fontsize=5.5)
     ax = axs[1]
-    for v, c in (("B", PFN_COLORS["PFN-B"]), ("C", PFN_COLORS["PFN-C"]), ("D", PFN_COLORS["PFN-D"])):
+    for v, c in (("B", PFN_COLORS["MAPLE-Net/Loss"]), ("C", PFN_COLORS["MAPLE-Net/Gap"]), ("D", PFN_COLORS["MAPLE-Net"])):
         curves = []
         for k, lg in logs.items():
             if k.startswith(f"{v}_s") and lg:
@@ -158,7 +180,7 @@ def fig04_adaptation(logs: dict[str, list[dict]], out: Path) -> pd.DataFrame:
             L = min(map(len, curves))
             arr = np.array([c_[:L] for c_ in curves])
             rounds = np.arange(1, L + 1)
-            ax.plot(rounds, arr.mean(0), color=c, marker="o", label=f"PFN-{v}")
+            ax.plot(rounds, arr.mean(0), color=c, marker="o", label=A.VARIANT_LABEL[v])
             if arr.shape[0] > 1:
                 ax.fill_between(rounds, arr.min(0), arr.max(0), color=c, alpha=0.15, lw=0)
     from matplotlib.ticker import MaxNLocator
@@ -178,8 +200,8 @@ def fig05_family_distribution(logs: dict[str, list[dict]], out: Path) -> pd.Data
     for v in ("B", "C", "D"):
         ps = [_family_probs(lg[-1]) for k, lg in logs.items() if k.startswith(f"{v}_s") and lg]
         if ps:
-            res[f"PFN-{v}"] = pd.concat(ps, axis=1).mean(1)
-            fams = res[f"PFN-{v}"].index
+            res[A.VARIANT_LABEL[v]] = pd.concat(ps, axis=1).mean(1)
+            fams = res[A.VARIANT_LABEL[v]].index
     if not res:
         return pd.DataFrame()
     df = pd.DataFrame(res)
@@ -223,8 +245,8 @@ def fig14_learning(train_logs: dict[str, list[dict]], sampler_logs: dict[str, li
         if curves:
             L = min(map(len, curves))
             arr = np.array([c[:L] for c in curves])
-            axs[1].plot(np.arange(1, L + 1) * 1000, arr.mean(0), marker="o", color=PFN_COLORS[f"PFN-{v}"],
-                        label=f"PFN-{v}")
+            axs[1].plot(np.arange(1, L + 1) * 1000, arr.mean(0), marker="o", color=PFN_COLORS[A.VARIANT_LABEL[v]],
+                        label=A.VARIANT_LABEL[v])
     axs[1].set_xlabel("training step")
     axs[1].set_ylabel("excess MSE on uniform probe tasks")
     axs[1].set_title("(b) held-out probe error per round")
@@ -235,15 +257,17 @@ def fig14_learning(train_logs: dict[str, list[dict]], sampler_logs: dict[str, li
 
 # ------------------------------------------------------------------------------------------- Fig 6, 7
 
-def fig_dataset_dots(tab: pd.DataFrame, out: Path, xlabel: str, log=False) -> None:
-    cols = [c for c in FOCUS if c in tab.columns]
+def fig_dataset_dots(tab: pd.DataFrame, out: Path, xlabel: str, log=False, *, methods=None) -> None:
+    cols = [c for c in (FOCUS if methods is None else methods) if c in tab.columns]
     t = tab[cols].dropna()
-    if "MAPLE-F" in t:
-        t = t.sort_values("MAPLE-F")
+    if "MAPLE" in t:
+        t = t.sort_values("MAPLE")
     fig, ax = plt.subplots(figsize=(S.COL2, 0.16 * len(t) + 0.9))
     y = np.arange(len(t))
+    colors = {**FOCUS_COLORS, "CatBoost": S.SERIES[5], "ExtraTrees": S.SERIES[1]}
+    markers = {**FOCUS_MARKERS, "CatBoost": "D", "ExtraTrees": "^"}
     for c in cols:
-        ax.scatter(t[c], y, s=16, marker=FOCUS_MARKERS[c], color=FOCUS_COLORS[c], label=c, zorder=3,
+        ax.scatter(t[c], y, s=16, marker=markers[c], color=colors[c], label=c, zorder=3,
                    edgecolor="white", lw=0.4)
     for i in range(len(t)):
         ax.plot([t.iloc[i].min(), t.iloc[i].max()], [i, i], color=S.GRID, lw=1, zorder=1)
@@ -261,8 +285,8 @@ def fig_dataset_dots(tab: pd.DataFrame, out: Path, xlabel: str, log=False) -> No
 
 def fig08_cost(eff: pd.DataFrame, out: Path) -> None:
     """eff: index=label, columns: time_s (fit+predict mean), nrmse (mean over datasets), group."""
-    fig, ax = plt.subplots(figsize=(S.COL1 + 0.9, 2.8))
-    gcol = {"classical": S.NEUTRAL, "tuned GBDT": S.SERIES[5], "PFN": S.SERIES[1], "MAPLE": S.SERIES[0],
+    fig, ax = plt.subplots(figsize=(S.COL1 + 0.9, 3.25))
+    gcol = {"classical": S.NEUTRAL, "tuned GBDT": S.SERIES[5], "MAPLE-Net (standalone)": S.SERIES[1], "MAPLE (routed)": S.SERIES[0],
             "combination": S.SERIES[6], "pretrained FM (external)": S.SERIES[7]}
     for g, sub in eff.groupby("group"):
         ax.scatter(sub.time_s, sub.nrmse, s=22, color=gcol.get(g, S.NEUTRAL), label=g, zorder=3, edgecolor="white", lw=0.4)
@@ -270,7 +294,9 @@ def fig08_cost(eff: pd.DataFrame, out: Path) -> None:
     ax.set_xlabel("mean fit + predict time per split (s, log scale)")
     ax.set_ylabel("mean NRMSE (lower is better)")
     ax.margins(x=0.22, y=0.08)
-    ax.legend(fontsize=6, loc="upper right")
+    # legend below the axes: point labels (some merged, e.g. three MAPLE-Net priors) need the whole plot area
+    ax.legend(fontsize=6, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=3, columnspacing=1.0,
+              handletextpad=0.3)
     fig.tight_layout()  # final geometry first, then labels (offsets are in display space)
     xs, ys, labs = merge_close_labels(ax, eff.time_s.to_numpy(), eff.nrmse.to_numpy(), list(eff.index))
     place_labels(ax, xs, ys, labs, fontsize=5.5, color=S.INK2)
@@ -278,7 +304,7 @@ def fig08_cost(eff: pd.DataFrame, out: Path) -> None:
 
 
 def merge_close_labels(ax, xs, ys, labels, tol_px: float = 6.0):
-    """Points closer than tol_px (display space) share one label 'a / b' anchored at their centroid."""
+    """Points closer than tol_px (display space) share one label 'a, b' anchored at their centroid."""
     pts = ax.transData.transform(np.column_stack([xs, ys]))
     groups: list[list[int]] = []
     for i in range(len(pts)):
@@ -294,7 +320,8 @@ def merge_close_labels(ax, xs, ys, labels, tol_px: float = 6.0):
         x, y = ax.transData.inverted().transform(c)
         gx.append(x)
         gy.append(y)
-        gl.append(" / ".join(sorted(labels[i] for i in g)))
+        names = sorted(labels[i] for i in g)  # "/" occurs inside names, so join with commas, two per line
+        gl.append(",\n".join(", ".join(names[k:k + 2]) for k in range(0, len(names), 2)))
     return np.array(gx), np.array(gy), gl
 
 
@@ -312,7 +339,7 @@ def fig09_ablation(abl: pd.DataFrame, out: Path) -> None:
         ax.errorbar(med, y, xerr=[med - lo, hi - med], fmt="none", ecolor=S.INK2, lw=0.7, capsize=1.5)
         ax.axvline(0, color=S.INK2, lw=0.8)
         ax.set_title(title)
-        ax.set_xlabel("median relative NRMSE change vs PFN-D (%)")
+        ax.set_xlabel("median relative NRMSE change vs MAPLE-Net (%)")
     axs[0].set_yticks(y, list(abl.index), fontsize=6)
     axs[0].invert_yaxis()
     fig.tight_layout()
@@ -347,15 +374,23 @@ def fig11_generalization(means: pd.DataFrame, cis: pd.DataFrame | None, out: Pat
     colors = [PFN_COLORS.get(c, FOCUS_COLORS.get(c, S.NEUTRAL)) for c in cols]
     fallback = iter([S.SERIES[5], S.SERIES[7], S.SERIES[3]])
     colors = [c if c != S.NEUTRAL else next(fallback, S.NEUTRAL) for c in colors]
-    fig, ax = plt.subplots(figsize=(S.COL2, 2.5))
+    fig, ax = plt.subplots(figsize=(S.COL2, 2.85))
     w = 0.8 / len(cols)
     x = np.arange(len(means))
     for i, (c, col) in enumerate(zip(cols, colors)):
-        ax.bar(x + (i - (len(cols) - 1) / 2) * w, means[c], width=w * 0.92, color=col, label=c)
+        centers = x + (i - (len(cols) - 1) / 2) * w
+        bars = ax.bar(centers, means[c], width=w * 0.92, color=col, label=c)
+        label_heights = means[c].to_numpy()
         if cis is not None and c in cis:
             lo, hi = np.array([v[0] for v in cis[c]]), np.array([v[1] for v in cis[c]])
-            ax.errorbar(x + (i - (len(cols) - 1) / 2) * w, means[c], yerr=[means[c] - lo, hi - means[c]], fmt="none",
-                        ecolor=S.INK2, lw=0.6, capsize=1)
+            ax.errorbar(centers, means[c], yerr=[means[c] - lo, hi - means[c]], fmt="none", ecolor=S.INK2, lw=0.6, capsize=1)
+            label_heights = hi
+        for bar, height in zip(bars, label_heights):
+            value = bar.get_height()
+            if np.isfinite(value):
+                ax.annotate(f"{value:.3f}", (bar.get_x() + bar.get_width() / 2, height), xytext=(0, 2),
+                            textcoords="offset points", rotation=90, ha="center", va="bottom", fontsize=6)
+    ax.margins(y=0.22)
     ax.set_xticks(x, [s.replace("ood_", "OOD: ").replace("id", "ID") for s in means.index], fontsize=6.5, rotation=15)
     ax.set_ylabel("mean NRMSE (lower is better)")
     ax.legend(ncol=len(cols), fontsize=6, loc="lower center", bbox_to_anchor=(0.5, 1.0))
@@ -365,46 +400,81 @@ def fig11_generalization(means: pd.DataFrame, cis: pd.DataFrame | None, out: Pat
 
 # ------------------------------------------------------------------------------------------- Fig 12
 
-def fig12_cd(tabs: dict[str, pd.DataFrame], out: Path, return_fig: bool = False):
-    """Critical-difference diagrams (Demšar 2006 layout): best methods on the right, labels outside the connectors."""
-    n = len(tabs)
-    fig, axs = plt.subplots(n, 1, figsize=(S.COL2, 1.55 * n), squeeze=False)
-    for ax, (title, tab) in zip(axs[:, 0], tabs.items()):
-        ranks = T.avg_ranks(tab).sort_values()
+def _tint(hex_color: str, f: float) -> str:
+    """Mix a colour with white (f = share of white); solid colour, no transparency."""
+    rgb = [int(hex_color[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(c + (255 - c) * f):02x}" for c in rgb)
+
+
+def _cd_group(label: str) -> str:
+    if A.is_routed(label):
+        return "MAPLE (network + experts, routed)"
+    if A.is_net(label):
+        return "MAPLE-Net (standalone)"
+    return "classical, tuned GBDT, stacking"
+
+
+_CD_GROUP_COLORS = {"MAPLE (network + experts, routed)": S.SERIES[0], "MAPLE-Net (standalone)": S.SERIES[1],
+                    "classical, tuned GBDT, stacking": S.INK2}
+_CD_BAND = "#f0efec"
+
+
+def fig12_cd(tabs: dict[str, pd.DataFrame], out: Path, return_fig: bool = False, *, baseline_label=None):
+    """Mean-rank plot with Nemenyi comparison intervals, one panel per training-set size.
+
+    Equivalent to a critical-difference diagram (Demsar 2006) but with one shared row per method across panels
+    (ordered by mean rank averaged over panels, best on top), so rank changes between sizes can be read directly.
+    Each method gets a dot at its mean rank and a line of length CD centred on it; two lines fail to overlap exactly
+    when the mean ranks differ by at least CD, i.e. when the Nemenyi test separates the pair. The shaded band
+    [best rank, best rank + CD] holds the methods not significantly worse than the best-ranked one.
+    """
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch, Rectangle
+
+    panels = []
+    for title, tab in tabs.items():
         k, N = tab.shape[1], tab.shape[0]
-        cd = T.nemenyi_cd(k, N)
-        ax.set_xlim(k + 0.5, 0.5)
-        ax.set_ylim(0, 1)
-        ax.axis("off")
-        ax.plot([1, k], [0.85, 0.85], color=S.INK2, lw=0.8)
-        for i in range(1, k + 1):
-            ax.plot([i, i], [0.83, 0.87], color=S.INK2, lw=0.8)
-            ax.text(i, 0.92, str(i), ha="center", fontsize=6, color=S.INK2)
-        ax.plot([1, 1 + cd], [0.98, 0.98], color=S.SERIES[7], lw=1.5)
-        ax.text(1 + cd / 2, 1.0, f"CD = {cd:.2f}", ha="center", va="bottom", fontsize=6, color=S.SERIES[7])
-        items = list(ranks.items())
-        half = (len(items) + 1) // 2
-        for j, (lab, r) in enumerate(items):
-            best = j < half  # best half on the right-hand side (low ranks)
-            yy = 0.72 - (j if best else len(items) - 1 - j) * (0.62 / max(half, 1))
-            x_end = 0.5 if best else k + 0.5  # connectors stop at the axis edge; labels sit in the margin
-            col = S.SERIES[0] if lab.startswith("MAPLE") else (S.SERIES[1] if lab.startswith("PFN") else S.INK)
-            ax.plot([r, r, x_end], [0.85, yy, yy], color=S.MUTED, lw=0.6, clip_on=False)
-            ax.annotate(f"{lab} ({r:.2f})", (x_end, yy), xytext=(3 if best else -3, 0), textcoords="offset points",
-                        ha="left" if best else "right", va="center", fontsize=5.8, color=col, annotation_clip=False)
-        rs = ranks.values
-        cliques = []
-        for i in range(len(rs)):
-            j = i
-            while j + 1 < len(rs) and rs[j + 1] - rs[i] < cd:
-                j += 1
-            if j > i and not any(a <= i and j <= b for a, b in cliques):
-                cliques.append((i, j))
-        for c_i, (a, b) in enumerate(cliques):
-            yy = 0.80 - 0.035 * c_i
-            ax.plot([rs[a] - 0.03, rs[b] + 0.03], [yy, yy], color=S.INK, lw=2)
-        ax.text(k + 0.5, 0.02, f"{title}: N = {N} datasets, k = {k}", fontsize=6.5, color=S.INK2)
-    fig.subplots_adjust(left=0.17, right=0.83, top=0.97, bottom=0.03, hspace=0.25)
+        panels.append((title, T.avg_ranks(tab), T.nemenyi_cd(k, N), N, k))
+    order = pd.concat([p[1] for p in panels], axis=1).mean(axis=1).sort_values().index.tolist()
+    row = {m: i for i, m in enumerate(order)}
+    k_max = max(p[4] for p in panels)
+    fig, axs = plt.subplots(1, len(panels), figsize=(S.COL2, 0.9 + 0.16 * len(order)), sharey=True, squeeze=False)
+    for ax, (title, ranks, cd, N, k) in zip(axs[0], panels):
+        ax.set_gid("cd-panel")
+        best = float(ranks.min())
+        ax.add_patch(Rectangle((best, -0.6), cd, len(order) + 0.2, facecolor=_CD_BAND, edgecolor="none", zorder=0,
+                               gid="cd-best-band"))
+        for m, r in ranks.items():
+            col = _CD_GROUP_COLORS[_cd_group(m)]
+            ax.plot([r - cd / 2, r + cd / 2], [row[m], row[m]], color=_tint(col, 0.62), lw=2.0,
+                    solid_capstyle="butt", zorder=2, gid="cd-interval")
+            ax.plot([r], [row[m]], marker="o", ms=4.0, color=col, mec="white", mew=0.6, zorder=3)
+        ax.set_xlim(0.4, k_max + 0.6)
+        ax.set_xticks(range(1, k_max + 1, 2))
+        ax.set_xticks(range(1, k_max + 1), minor=True)
+        ax.grid(axis="x", which="major", color=S.GRID, lw=0.5)
+        ax.grid(axis="x", which="minor", visible=False)
+        ax.grid(axis="y", color=S.GRID, lw=0.4)
+        ax.tick_params(axis="y", length=0)
+        ax.tick_params(axis="x", which="minor", length=0)
+        ax.spines["left"].set_visible(False)
+        ax.set_title(title.replace("n_train", r"$n_{\mathrm{train}}$")
+                     + f"\nN = {N} datasets, CD = {cd:.2f}", fontsize=7.5, linespacing=1.4)
+    ax0 = axs[0, 0]
+    ax0.set_yticks(range(len(order)))
+    ax0.set_yticklabels(order)
+    for t in ax0.get_yticklabels():
+        g = _cd_group(t.get_text())
+        t.set_color(S.INK if g == "classical, tuned GBDT, stacking" else _CD_GROUP_COLORS[g])
+    ax0.set_ylim(len(order) - 0.4, -0.6)
+    fig.supxlabel("mean rank over datasets (1 = lowest NRMSE)", fontsize=7.5, y=0.085)
+    handles = [Line2D([], [], color=_tint(c, 0.62), lw=2.0, marker="o", ms=4.0, mfc=c, mec="white", mew=0.6,
+                      label=baseline_label if baseline_label and g.startswith("classical") else g)
+               for g, c in _CD_GROUP_COLORS.items()]
+    handles.append(Patch(facecolor=_CD_BAND, edgecolor="none", label="within one CD of the best"))
+    fig.legend(handles=handles, loc="lower center", ncol=4, fontsize=6.5, bbox_to_anchor=(0.5, 0.0),
+               handlelength=2.2, columnspacing=1.4)
+    fig.subplots_adjust(left=0.13, right=0.99, top=0.88, bottom=0.23, wspace=0.08)
     S.save(fig, out)
     if return_fig:
         fig.canvas.draw()
@@ -415,7 +485,7 @@ def fig12_cd(tabs: dict[str, pd.DataFrame], out: Path, return_fig: bool = False)
 
 # ------------------------------------------------------------------------------------------- Fig 13
 
-def fig13_disagreement(sdf: pd.DataFrame, real_dis: pd.DataFrame, out: Path, label: str = "PFN-D") -> None:
+def fig13_disagreement(sdf: pd.DataFrame, real_dis: pd.DataFrame, out: Path, label: str = "MAPLE-Net") -> None:
     fig, axs = plt.subplots(1, 2, figsize=(S.COL2, 2.6))
     d = sdf[(sdf.label == label) & sdf.gap.notna()]
     for (name, sub), c in zip(((n, g) for n, g in d.groupby(d.suite == "id")), (S.SERIES[1], S.SERIES[0])):
@@ -445,7 +515,7 @@ def fig13_disagreement(sdf: pd.DataFrame, real_dis: pd.DataFrame, out: Path, lab
 def fig15_scaling(sc: pd.DataFrame, out: Path) -> None:
     """sc: rows with n_train, label, total_s, nrmse (means over datasets x repeats)."""
     fig, axs = plt.subplots(1, 2, figsize=(S.COL2, 2.4))
-    fixed = {"PFN-D": S.SERIES[0], "ExtraTrees": S.SERIES[5], "CatBoost": S.SERIES[7], "RF": S.SERIES[3],
+    fixed = {"MAPLE-Net": S.SERIES[0], "ExtraTrees": S.SERIES[5], "CatBoost": S.SERIES[7], "RF": S.SERIES[3],
              "XGBoost": S.SERIES[6], "LightGBM": S.SERIES[2], "Ridge": S.INK2}
     spare = iter([c for c in S.SERIES if c not in fixed.values()])
     cols = {lab: fixed.get(lab) or next(spare) for lab in sc.label.unique()}
@@ -498,6 +568,6 @@ def figS_seed_stability(seed_sd: pd.Series, rep_sd: pd.Series, out: Path) -> Non
     ax.plot([0, m], [0, m], color=S.MUTED, ls="--", lw=0.8)
     ax.set_xlabel("SD of NRMSE across split repeats")
     ax.set_ylabel("SD of NRMSE across pretraining seeds")
-    ax.set_title("PFN-D stability (n = 512, one point per dataset)", fontsize=7)
+    ax.set_title("MAPLE-Net stability (n = 512, one point per dataset)", fontsize=7)
     fig.tight_layout()
     S.save(fig, out)

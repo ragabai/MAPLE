@@ -39,14 +39,6 @@ Hollmann, N.; M{\"u}ller, S.; Eggensperger, K.; Hutter, F.
   \href{http://arxiv.org/abs/2207.01848}{{\normalfont [2207.01848]}}.
 \newblock {\url{https://doi.org/10.48550/arxiv.2207.01848}}.
 
-\bibitem[Hollmann et~al.(2025)Hollmann, M{\"u}ller, Purucker, Krishnakumar,
-  K{\"o}rfer, Hoo, Schirrmeister, and Hutter]{hollmann2025accurate}
-Hollmann, N.; M{\"u}ller, S.; Purucker, L.; Krishnakumar, A.; K{\"o}rfer, M.;
-  Hoo, S.B.; Schirrmeister, R.T.; Hutter, F.
-\newblock {Accurate predictions on small data with a tabular foundation model}.
-\newblock {\em Nature} {\bf 2025}, {\em 637},~319--326.
-\newblock {\url{https://doi.org/10.1038/s41586-024-08328-6}}.
-
 \bibitem[Nagler(2023)]{nagler2023statistical}
 Nagler, T.
 \newblock {Statistical Foundations of Prior-Data Fitted Networks}.
@@ -73,28 +65,6 @@ Zhang, X.; Robinson, D.M.; Yin, J.; Erickson, N.; Ansari, A.F.; Han, B.; Zhang,
   Systems (NeurIPS),  2025, pp. 17831--17876,
   \href{http://arxiv.org/abs/2510.21204}{{\normalfont [2510.21204]}}.
 \newblock {\url{https://doi.org/10.52202/085713-0535}}.
-
-\bibitem[Grinsztajn et~al.(2025)Grinsztajn, Fl{\"o}ge, Key, Birkel, Jund, Roof,
-  J{\"a}ger, Safaric, Alessi, Hayler, Manium, Yu, Jablonski, Hoo, Garg,
-  Robertson, B{\"u}hler, Moroshan, Purucker, Cornu, Wehrhahn, Bonetto,
-  Sch{\"o}lkopf, Gambhir, Hollmann, and Hutter]{grinsztajn2025tabpfn25}
-Grinsztajn, L.; Fl{\"o}ge, K.; Key, O.; Birkel, F.; Jund, P.; Roof, B.;
-  J{\"a}ger, B.; Safaric, D.; Alessi, S.; Hayler, A.;  et~al.
-\newblock {TabPFN-2.5: Advancing the State of the Art in Tabular Foundation
-  Models}.
-\newblock arXiv preprint,  2025,
-  \href{http://arxiv.org/abs/2511.08667}{{\normalfont [2511.08667]}}.
-\newblock {\url{https://doi.org/10.48550/arxiv.2511.08667}}.
-
-\bibitem[Qu et~al.(2025)Qu, Holzm{\"u}ller, Varoquaux, and
-  Morvan]{qu2025tabicl}
-Qu, J.; Holzm{\"u}ller, D.; Varoquaux, G.P.; Morvan, M.L.
-\newblock {TabICL: A Tabular Foundation Model for In-Context Learning on Large
-  Data}.
-\newblock In Proceedings of the International Conference on Machine Learning
-  (ICML),  2025,  \href{http://arxiv.org/abs/2502.05564}{{\normalfont
-  [2502.05564]}}.
-\newblock {\url{https://doi.org/10.48550/arxiv.2502.05564}}.
 
 \bibitem[Ma et~al.(2025)Ma, Thomas, Hosseinzadeh, Labach, Cresswell, Golestan,
   Yu, Caterini, and Volkovs]{ma2024tabdpt}
@@ -609,6 +579,13 @@ Karniadakis, G.E.; Kevrekidis, I.G.; Lu, L.; Perdikaris, P.G.; Wang, S.; Yang,
 \newblock {\em Nature Reviews Physics} {\bf 2021}.
 \newblock {\url{https://doi.org/10.1038/s42254-021-00314-5}}.
 
+\bibitem[VOLTERRA(1927)]{volterra1926fluctuations}
+VOLTERRA, V.
+\newblock {Fluctuations in the Abundance of a Species considered
+  Mathematically}.
+\newblock {\em Nature} {\bf 1927}, {\em 119},~12--13.
+\newblock {\url{https://doi.org/10.1038/119012b0}}.
+
 \bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
   Kaiser, and Polosukhin]{vaswani2017attention}
 Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones, L.; Gomez, A.N.;
@@ -707,6 +684,41 @@ Pedregosa, F.; Varoquaux, G.; Gramfort, A.; Michel, V.; Thirion, B.; Grisel,
 \newblock {Scikit-learn: Machine Learning in Python}.
 \newblock {\em Journal of Machine Learning Research} {\bf 2011}.
 \newblock {\url{https://doi.org/10.5555/1953048.2078195}}.
+
+\bibitem[Gompertz(1825)]{gompertz1825nature}
+Gompertz, B.
+\newblock {XXIV. On the nature of the function expressive of the law of human
+  mortality, and on a new mode of determining the value of life contingencies.
+  In a letter to Francis Baily, Esq. F. R. S. \&c}.
+\newblock {\em Philosophical Transactions of the Royal Society of London} {\bf
+  1825}, pp. 513--583.
+\newblock {\url{https://doi.org/10.1098/rstl.1825.0026}}.
+
+\bibitem[Kermack and McKendrick(1927)]{kermack1927contribution}
+Kermack, W.O.; McKendrick, A.G.
+\newblock {A contribution to the mathematical theory of epidemics}.
+\newblock {\em Royal Society of London. Series A, Containing Papers of a
+  Mathematical and Physical Character} {\bf 1927}, {\em 115},~700--721.
+\newblock {\url{https://doi.org/10.1098/rspa.1927.0118}}.
+
+\bibitem[Paszke et~al.(2019)Paszke, Gross, Massa, Lerer, Bradbury, Chanan,
+  Killeen, Lin, Gimelshein, Antiga, Desmaison, K{\"o}pf, Yang, DeVito, Raison,
+  Tejani, Chilamkurthy, Steiner, Fang, Bai, and Chintala]{paszke2019pytorch}
+Paszke, A.; Gross, S.; Massa, F.; Lerer, A.K.; Bradbury, J.; Chanan, G.;
+  Killeen, T.; Lin, Z.; Gimelshein, N.E.; Antiga, L.;  et~al.
+\newblock {PyTorch: An Imperative Style, High-Performance Deep Learning
+  Library}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2019,
+  \href{http://arxiv.org/abs/1912.01703}{{\normalfont [1912.01703]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1912.01703}}.
+
+\bibitem[Loshchilov and Hutter(2019)]{loshchilov2019decoupled}
+Loshchilov, I.; Hutter, F.
+\newblock {Decoupled Weight Decay Regularization}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2019,
+  \href{http://arxiv.org/abs/1711.05101}{{\normalfont [1711.05101]}}.
 
 \bibitem[Dietterich(1998)]{dietterich1998approximate}
 Dietterich, T.G.

@@ -1,4 +1,4 @@
-family,split,description,cells,mean attempts,final q (PFN-D),uniform q
+family,split,description,cells,mean attempts,final q (MAPLE-Net),uniform q
 linear,train,w^T x + b,3,1.0,0.0472095789039409,0.05555555555555555
 polynomial,train,sparse multivariate polynomial with interactions,3,1.0333333333333334,0.05826333236176342,0.05555555555555555
 exponential,train,sum a exp(b z): growth and decay,3,1.0333333333333334,0.05286348969911542,0.05555555555555555

@@ -23,11 +23,30 @@ CLASSICAL_LABELS = {
     "tabpfn_v2": "TabPFN-v2", "tabicl": "TabICL",  # external pretrained foundation models (not equal-compute)
 }
 EXTERNAL_LABELS = ("TabPFN-v2", "TabICL")
-VARIANT_LABEL = {"P0": "PFN-SCM", "A": "PFN-A", "B": "PFN-B", "C": "PFN-C", "D": "PFN-D"}
+VARIANT_LABEL = {"P0": "MAPLE-Net/SCM", "A": "MAPLE-Net/Uniform", "B": "MAPLE-Net/Loss", "C": "MAPLE-Net/Gap", "D": "MAPLE-Net"}
 VARIANT_DESC = {"P0": "conventional SCM/MLP prior", "A": "uniform mathematical prior",
                 "B": "adaptive, loss score", "C": "adaptive, disagreement score, no floor",
-                "D": "adaptive, disagreement score + floor", "MAPLE-E": "D + global routing",
-                "MAPLE-F": "D + local competence routing (full framework)"}
+                "D": "adaptive, disagreement score + floor", "MAPLE-Global": "D + global routing",
+                "MAPLE": "D + local competence routing (full framework)"}
+# Routed variants (E: global, F: local competence routing) and helpers. Names that share the "MAPLE" prefix
+# are told apart by these sets, never by prefix: "MAPLE-Net..." is a standalone network, not a routed method.
+ROUTED_LABEL = {"E": "MAPLE-Global", "F": "MAPLE"}
+NET_LABELS = tuple(VARIANT_LABEL.values())
+ROUTED_LABELS = tuple(ROUTED_LABEL.values())
+
+
+def is_net(label: str) -> bool:
+    """Standalone pretrained network (any prior), including unnamed ablation networks MAPLE-Net[...]."""
+    return label in NET_LABELS or label.startswith("MAPLE-Net[")
+
+
+def is_routed(label: str) -> bool:
+    return label in ROUTED_LABELS or label.startswith("Route-")
+
+
+def is_ours(label: str) -> bool:
+    """Any method built on the pretrained network: standalone, routed or stacked with the experts."""
+    return is_net(label) or is_routed(label) or label.startswith("Stack(MAPLE-Net")
 
 _RX = re.compile(r"^(pfn|E|F|stackpfn)_(.+)_s(\d+)$")
 
@@ -37,11 +56,11 @@ def parse_method(m: str) -> dict:
     if not mm:
         return {"family": "classical", "variant": None, "seed": None, "label": CLASSICAL_LABELS.get(m, m)}
     fam, v, s = mm.group(1), mm.group(2), int(mm.group(3))
-    vl = VARIANT_LABEL.get(v, f"PFN[{v}]")
+    vl = VARIANT_LABEL.get(v, f"MAPLE-Net[{v}]")
     if fam == "pfn":
         label = vl
     elif fam in ("E", "F"):
-        label = f"MAPLE-{fam}" if v == "D" else f"Route-{fam}({v})"
+        label = ROUTED_LABEL[fam] if v == "D" else f"Route-{fam}({v})"
     else:
         label = f"Stack({vl})"
     return {"family": "pfn" if fam == "pfn" else "routed", "variant": v, "seed": s, "label": label}

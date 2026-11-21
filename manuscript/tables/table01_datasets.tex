@@ -1,49 +1,68 @@
 \begin{table}[H]
+\begin{adjustwidth}{-\extralength}{0cm}
 \caption{Benchmark dataset characteristics (OpenML-CTR23 suite and Diabetes).}
 \label{tab:table01_datasets}
 \centering
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccccccccc}
+\fontsize{8}{10}\selectfont
+\setlength{\tabcolsep}{1.5pt}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.17\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}Xp{0.125\linewidth}>{\centering\arraybackslash}X}
 \toprule
-dataset & n & numerical & categorical & missing (\%) & target mean & target SD & target skew & size class & licence & regimes (n\_train) \\
+dataset & n & numerical & categorical & missing (\%) & target mean & target SD & target skew & size class & licence & regimes (n\_\allowbreak{}train) \\
 \midrule
 abalone & 4.18e+03 & 7 & 1 & 0 & 9.93 & 3.22 & 1.11 & medium & CC BY 4.0 & 128, 512, 2048 \\
-airfoil\_self\_noise & 1.5e+03 & 5 & 0 & 0 & 125 & 6.9 & -0.419 & small & CC BY 4.0 & 128, 512 \\
-auction\_verification & 2.04e+03 & 5 & 2 & 0 & 7.34e+03 & 1.04e+04 & 1.5 & medium & CC BY 4.0 & 128, 512 \\
-brazilian\_houses & 1.07e+04 & 5 & 4 & 0 & 5.49e+03 & 1.65e+04 & 59 & medium & CC 0: Public Domain & 128, 512, 2048 \\
-california\_housing & 2.06e+04 & 8 & 0 & 0 & 2.07e+05 & 1.15e+05 & 0.978 & large & Public & 128, 512, 2048 \\
+airfoil\_\allowbreak{}self\_\allowbreak{}noise & 1.5e+03 & 5 & 0 & 0 & 125 & 6.9 & -0.419 & small & CC BY 4.0 & 128, 512 \\
+auction\_\allowbreak{}verification & 2.04e+03 & 5 & 2 & 0 & 7.34e+03 & 1.04e+04 & 1.5 & medium & CC BY 4.0 & 128, 512 \\
+brazilian\_\allowbreak{}houses & 1.07e+04 & 5 & 4 & 0 & 5.49e+03 & 1.65e+04 & 59 & medium & CC 0: Public Domain & 128, 512, 2048 \\
+california\_\allowbreak{}housing & 2.06e+04 & 8 & 0 & 0 & 2.07e+05 & 1.15e+05 & 0.978 & large & Public & 128, 512, 2048 \\
 cars & 804 & 17 & 0 & 0 & 2.13e+04 & 9.88e+03 & 1.57 & small & Public & 128, 512 \\
-concrete\_compressive\_strength & 1.03e+03 & 8 & 0 & 0 & 35.8 & 16.7 & 0.416 & small & CC BY 4.0 & 128, 512 \\
+concrete\_\allowbreak{}compressive\_\allowbreak{}strength & 1.03e+03 & 8 & 0 & 0 & 35.8 & 16.7 & 0.416 & small & CC BY 4.0 & 128, 512 \\
 cps88wages & 2.82e+04 & 2 & 4 & 0 & 604 & 454 & 6.5 & large & Public & 128, 512, 2048 \\
-cpu\_activity & 8.19e+03 & 21 & 0 & 0 & 84 & 18.4 & -3.42 & medium & Public & 128, 512, 2048 \\
+cpu\_\allowbreak{}activity & 8.19e+03 & 21 & 0 & 0 & 84 & 18.4 & -3.42 & medium & Public & 128, 512, 2048 \\
 diamonds & 5.39e+04 & 6 & 3 & 0 & 3.93e+03 & 3.99e+03 & 1.62 & large & Public & 128, 512, 2048 \\
-energy\_efficiency & 768 & 8 & 0 & 0 & 22.3 & 10.1 & 0.36 & small & CC BY 4.0 & 128, 512 \\
+energy\_\allowbreak{}efficiency & 768 & 8 & 0 & 0 & 22.3 & 10.1 & 0.36 & small & CC BY 4.0 & 128, 512 \\
 fifa & 1.92e+04 & 27 & 1 & 0 & 9.02e+03 & 1.95e+04 & 6.47 & medium & CC0: Public Domain & 128, 512, 2048 \\
-forest\_fires & 517 & 10 & 2 & 0 & 12.8 & 63.6 & 12.8 & small & CC BY 4.0 & 128 \\
-fps\_benchmark & 2.46e+04 & 29 & 14 & 6.58 & 124 & 54.6 & 1.05 & large & CC BY & 128, 512, 2048 \\
-geographical\_origin\_of\_music & 1.06e+03 & 116 & 0 & 0 & 26.7 & 18.5 & -0.99 & small & CC BY 4.0 & 128, 512 \\
-grid\_stability & 1e+04 & 12 & 0 & 0 & 0.0157 & 0.0369 & 0.0187 & medium & CC BY 4.0 & 128, 512, 2048 \\
-health\_insurance & 2.23e+04 & 4 & 7 & 0 & 25.6 & 18.7 & -0.342 & large & GPL (>= 2) & 128, 512, 2048 \\
+forest\_\allowbreak{}fires & 517 & 10 & 2 & 0 & 12.8 & 63.6 & 12.8 & small & CC BY 4.0 & 128 \\
+fps\_\allowbreak{}benchmark & 2.46e+04 & 29 & 14 & 6.58 & 124 & 54.6 & 1.05 & large & CC BY & 128, 512, 2048 \\
+geographical\_\allowbreak{}origin\_\allowbreak{}of\_\allowbreak{}music & 1.06e+03 & 116 & 0 & 0 & 26.7 & 18.5 & -0.99 & small & CC BY 4.0 & 128, 512 \\
+grid\_\allowbreak{}stability & 1e+04 & 12 & 0 & 0 & 0.0157 & 0.0369 & 0.0187 & medium & CC BY 4.0 & 128, 512, 2048 \\
+health\_\allowbreak{}insurance & 2.23e+04 & 4 & 7 & 0 & 25.6 & 18.7 & -0.342 & large & GPL (>= 2) & 128, 512, 2048 \\
 kin8nm & 8.19e+03 & 8 & 0 & 0 & 0.714 & 0.264 & 0.0903 & medium & Public & 128, 512, 2048 \\
-kings\_county & 2.16e+04 & 17 & 4 & 0 & 5.4e+05 & 3.67e+05 & 4.02 & large & CC 0: Public Domain & 128, 512, 2048 \\
-miami\_housing & 1.39e+04 & 15 & 0 & 0 & 4e+05 & 3.17e+05 & 3.22 & medium & CC0: Public Domain & 128, 512, 2048 \\
+kings\_\allowbreak{}county & 2.16e+04 & 17 & 4 & 0 & 5.4e+05 & 3.67e+05 & 4.02 & large & CC 0: Public Domain & 128, 512, 2048 \\
+miami\_\allowbreak{}housing & 1.39e+04 & 15 & 0 & 0 & 4e+05 & 3.17e+05 & 3.22 & medium & CC0: Public Domain & 128, 512, 2048 \\
 moneyball & 1.23e+03 & 8 & 6 & 20.9 & 715 & 91.5 & 0.174 & small & Public & 128, 512 \\
-naval\_propulsion\_plant & 1.19e+04 & 14 & 0 & 0 & 0.975 & 0.0147 & -9.12e-17 & medium & CC BY 4.0 & 128, 512, 2048 \\
-physiochemical\_protein & 4.57e+04 & 9 & 0 & 0 & 7.75 & 6.12 & 0.567 & large & CC BY 4.0 & 128, 512, 2048 \\
+naval\_\allowbreak{}propulsion\_\allowbreak{}plant & 1.19e+04 & 14 & 0 & 0 & 0.975 & 0.0147 & -9.12e-17 & medium & CC BY 4.0 & 128, 512, 2048 \\
+physiochemical\_\allowbreak{}protein & 4.57e+04 & 9 & 0 & 0 & 7.75 & 6.12 & 0.567 & large & CC BY 4.0 & 128, 512, 2048 \\
 pumadyn32nh & 8.19e+03 & 32 & 0 & 0 & -0.000416 & 0.036 & -0.0505 & medium & Public & 128, 512, 2048 \\
-qsar\_fish\_toxicity & 908 & 6 & 0 & 0 & 4.06 & 1.45 & 0.252 & small & CC BY 4.0 & 128, 512 \\
-red\_wine & 1.6e+03 & 11 & 0 & 0 & 5.64 & 0.807 & 0.218 & small & CC BY 4.0 & 128, 512 \\
+\bottomrule
+\end{tabularx}
+\end{adjustwidth}
+\end{table}
+\clearpage
+\begin{table}[H]
+\begin{adjustwidth}{-\extralength}{0cm}
+\ContinuedFloat
+\caption[]{Benchmark dataset characteristics (OpenML-CTR23 suite and Diabetes). (continued)}
+\centering
+\fontsize{8}{10}\selectfont
+\setlength{\tabcolsep}{1.5pt}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.17\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}Xp{0.125\linewidth}>{\centering\arraybackslash}X}
+\toprule
+dataset & n & numerical & categorical & missing (\%) & target mean & target SD & target skew & size class & licence & regimes (n\_\allowbreak{}train) \\
+\midrule
+qsar\_\allowbreak{}fish\_\allowbreak{}toxicity & 908 & 6 & 0 & 0 & 4.06 & 1.45 & 0.252 & small & CC BY 4.0 & 128, 512 \\
+red\_\allowbreak{}wine & 1.6e+03 & 11 & 0 & 0 & 5.64 & 0.807 & 0.218 & small & CC BY 4.0 & 128, 512 \\
 sarcos & 4.89e+04 & 21 & 0 & 0 & 13.7 & 20.5 & 0.152 & large & Public & 128, 512, 2048 \\
 socmob & 1.16e+03 & 1 & 4 & 0 & 18.2 & 41 & 4.43 & small & Non-commercial scholarly and teaching purposes. & 128, 512 \\
-solar\_flare & 1.07e+03 & 2 & 8 & 0 & 0.3 & 0.835 & 3.95 & small & CC BY 4.0 & 128, 512 \\
-space\_ga & 3.11e+03 & 6 & 0 & 0 & -0.576 & 0.198 & -1.02 & medium & Public & 128, 512, 2048 \\
-student\_performance\_por & 649 & 13 & 17 & 0 & 11.9 & 3.23 & -0.911 & small & CC BY 4.0 & 128 \\
+solar\_\allowbreak{}flare & 1.07e+03 & 2 & 8 & 0 & 0.3 & 0.835 & 3.95 & small & CC BY 4.0 & 128, 512 \\
+space\_\allowbreak{}ga & 3.11e+03 & 6 & 0 & 0 & -0.576 & 0.198 & -1.02 & medium & Public & 128, 512, 2048 \\
+student\_\allowbreak{}performance\_\allowbreak{}por & 649 & 13 & 17 & 0 & 11.9 & 3.23 & -0.911 & small & CC BY 4.0 & 128 \\
 superconductivity & 2.13e+04 & 81 & 0 & 0 & 34.4 & 34.3 & 0.86 & large & CC BY 4.0 & 128, 512, 2048 \\
-video\_transcoding & 6.88e+04 & 16 & 2 & 0 & 10 & 16.1 & 4.25 & large & CC BY 4.0 & 128, 512, 2048 \\
-wave\_energy & 7.2e+04 & 36 & 0 & 0 & 3.76e+06 & 1.12e+05 & 0.144 & large & CC BY 4.0 & 128, 512, 2048 \\
-white\_wine & 4.9e+03 & 11 & 0 & 0 & 5.88 & 0.886 & 0.156 & medium & CC BY 4.0 & 128, 512, 2048 \\
+video\_\allowbreak{}transcoding & 6.88e+04 & 16 & 2 & 0 & 10 & 16.1 & 4.25 & large & CC BY 4.0 & 128, 512, 2048 \\
+wave\_\allowbreak{}energy & 7.2e+04 & 36 & 0 & 0 & 3.76e+06 & 1.12e+05 & 0.144 & large & CC BY 4.0 & 128, 512, 2048 \\
+white\_\allowbreak{}wine & 4.9e+03 & 11 & 0 & 0 & 5.88 & 0.886 & 0.156 & medium & CC BY 4.0 & 128, 512, 2048 \\
 diabetes & 442 & 10 & 0 & 0 & 152 & 77 & 0.439 & small & distributed with scikit-learn (BSD-3-Clause) & 128 \\
 \bottomrule
-\end{tabular}}
-\par\vspace{2pt}{\footnotesize Source: OpenML (dataset ids in dataset\_metadata.csv) and scikit-learn. Regimes list the training-set sizes evaluated (a regime is used only if at least 200 test rows remain). Excluded: Boston Housing (ethical concerns), Yacht Hydrodynamics (not in suite; too small).}
+\end{tabularx}
+\par\vspace{2pt}{\justifying\noindent Regimes list the training-set sizes evaluated (a regime is used only if at least 200 test rows remain). Excluded: Boston Housing (ethical concerns), Yacht Hydrodynamics (not in suite; too small).\par}
+\end{adjustwidth}
 \end{table}

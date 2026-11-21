@@ -1,0 +1,63 @@
+## 5. Experimental Setup
+
+### 5.1 Datasets and splits
+
+We use the 35 regression datasets of the curated OpenML-CTR23 suite [@fischer2023openml; @vanschoren2014openml;
+@feurer2021openml] and scikit-learn's Diabetes data [@efron2004least] ({{ tref('table01_datasets') }}). Boston Housing
+is excluded because of its ethically problematic feature, and California Housing [@pace1997sparse] is used instead.
+Yacht Hydrodynamics is not in the suite and is too small for our protocol. No dataset was removed for being
+difficult. For each dataset we subsample training sets of $n_{\mathrm{train}}\in\{128,512,2048\}$ rows, repeated
+{{ S.repeats[128] }}, {{ S.repeats[512] }} and {{ S.repeats[2048] }} times respectively. Test sets contain up to 2000
+of the remaining rows. A training-set size is used for a dataset only if at least 200 test rows remain, and skipped
+combinations are logged. All methods share identical, persisted split indices. Preprocessing, feature selection,
+hyperparameter search, routing weights and stacking weights are all fitted on the training split only.
+
+{{ table('table01_datasets') }}
+
+### 5.2 Baselines
+
+The classical baselines are the mean predictor, ridge, ElasticNet, $k$NN, random forest, ExtraTrees, histogram
+gradient boosting, RBF kernel ridge, MLP, XGBoost, LightGBM and CatBoost with library defaults [@hoerl1970ridge;
+@zou2005regularization; @breiman2001random; @geurts2006extremely; @chen2016xgboost; @ke2017lightgbm;
+@prokhorenkova2018catboost; @pedregosa2011scikit]. XGBoost, LightGBM and CatBoost are also tuned (suffix -T) with a
+fixed budget of {{ S.n_trials }} random configurations evaluated by 3-fold cross-validation on the training split.
+CatBoost (default and tuned) one-hot encodes categorical features with at most 255 levels (`one_hot_max_size` = 255)
+instead of using its target statistics. This was needed to fit the CPU budget and may weaken CatBoost slightly on
+datasets with categorical features. We also report a simple average and a non-negative stacked regression
+[@breiman1996stacked] of the five classical experts, and stacking of MAPLE-Net with the experts.
+
+FT-Transformer, SAINT and NODE require per-dataset GPU training and tuning and fall outside the CPU benchmark.
+
+### 5.3 Synthetic evaluation suites
+
+We evaluate on {{ S.n_syn_tasks }} tasks for each of eight suites. The in-distribution (ID) suite draws fresh tasks
+from the training cells. The seven structurally out-of-distribution (OOD) suites are: held-out families (Gompertz growth
+[@gompertz1825nature], SIR epidemics [@kermack1927contribution] and hyperbolic functions); nested compositions $g(h(x))$, whereas training uses additive compositions only; parameter ranges
+stretched $\times2.5$; three-way interactions, whereas training has at most pairwise; piecewise-linear functions on
+Voronoi regions; Student-$t$ and Laplace noise; and softmax-gated mixtures of 2–4 regimes. Context sizes, dimensions,
+noise and missingness have comparable distributions across suites, so OOD differences reflect structure.
+
+### 5.4 Pretraining
+
+The five standalone networks are each pretrained with three seeds for {{ S.steps }} steps on two shared GPUs, using
+PyTorch [@paszke2019pytorch] and the AdamW optimiser [@loshchilov2019decoupled]. Ablation and
+sensitivity runs use seed 0. {{ tref('table02_configuration') }} gives the full configuration.
+
+{{ table('table02_configuration') }}
+
+### 5.5 Metrics and statistical protocol
+
+We report RMSE, MAE, $R^2$ and NRMSE = RMSE/SD($y_{\mathrm{test}}$), together with training time, inference time,
+peak memory and parameter counts. For real data, the unit of analysis is the dataset: metrics are averaged over
+repeats and pretraining seeds before testing, and folds are never treated as independent datasets
+[@dietterich1998approximate]. For synthetic suites, the unit is the task. We use the Friedman test with Nemenyi
+critical differences [@friedman1937use; @demsar2006statistical]. Following [@benavoli2016should], the primary
+pairwise tests are two-sided Wilcoxon signed-rank tests [@wilcoxon1945individual] with Holm correction
+[@holm1979simple; @garcia2008extension]. Effect sizes are matched-pairs rank-biserial correlations $r_{rb}$
+[@kerby2014simple], and confidence intervals use the bootstrap [@efron1979bootstrap].
+
+Unless stated otherwise, an NRMSE difference in Section 6 is the median relative difference over datasets (real data)
+or tasks (synthetic data); "$p_{\mathrm{Holm}}$" is the Holm-adjusted p-value within the test's pre-registered
+family. W/L/T counts the wins, losses and ties of the first-named method. We treat median relative differences
+below 1% as practically negligible, even when they are statistically significant. We report raw p-values for
+exploratory comparisons.

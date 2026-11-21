@@ -12,15 +12,15 @@ from maple.stats import tests as T
 from maple.utils import PROJECT_ROOT, write_json
 
 STATS = PROJECT_ROOT / "results" / "statistics"
-REF = "MAPLE-F"
+REF = "MAPLE"
 MAIN_SET = ["Ridge", "kNN", "RF", "ExtraTrees", "HistGB", "MLP", "XGBoost-T", "LightGBM-T", "CatBoost-T",
-            "Stack(experts)", "PFN-SCM", "PFN-A", "PFN-D", "MAPLE-E", "MAPLE-F"]
+            "Stack(experts)", "MAPLE-Net/SCM", "MAPLE-Net/Uniform", "MAPLE-Net", "MAPLE-Global", "MAPLE"]
 FULL_SET = ["Mean", "Ridge", "ElasticNet", "kNN", "RF", "ExtraTrees", "HistGB", "RBF-KRR", "MLP", "XGBoost",
             "LightGBM", "CatBoost", "XGBoost-T", "LightGBM-T", "CatBoost-T", "Avg(experts)", "Stack(experts)",
-            "PFN-SCM", "PFN-A", "PFN-B", "PFN-C", "PFN-D", "Stack(PFN-D)", "MAPLE-E", "MAPLE-F",
+            "MAPLE-Net/SCM", "MAPLE-Net/Uniform", "MAPLE-Net/Loss", "MAPLE-Net/Gap", "MAPLE-Net", "Stack(MAPLE-Net)", "MAPLE-Global", "MAPLE",
             "TabPFN-v2", "TabICL"]  # last two: external references, never in MAIN_SET (pre-registered Friedman set)
 OOD_SUITES = ["ood_families", "ood_nested", "ood_params", "ood_interact3", "ood_voronoi", "ood_noise", "ood_mixed"]
-PFN_LABELS = ["PFN-SCM", "PFN-A", "PFN-B", "PFN-C", "PFN-D"]
+PFN_LABELS = ["MAPLE-Net/SCM", "MAPLE-Net/Uniform", "MAPLE-Net/Loss", "MAPLE-Net/Gap", "MAPLE-Net"]
 
 
 def _wtab(df: pd.DataFrame, ref: str) -> dict:
@@ -74,26 +74,26 @@ def real_stats(df: pd.DataFrame, regimes) -> dict:
             res["methods"] = list(tab.columns)
         allm = A.per_dataset(df, "nrmse", reg, complete=False, labels=[l for l in FULL_SET if l in set(df.label)])
         rq = {}
-        rq["RQ4_A_vs_P0"] = _pair(allm, "PFN-A", "PFN-SCM")
-        rq["RQ4_D_vs_P0"] = _pair(allm, "PFN-D", "PFN-SCM")
-        rq["RQ1_real_D_vs_A"] = _pair(allm, "PFN-D", "PFN-A")
-        rq["RQ2_real_C_vs_B"] = _pair(allm, "PFN-C", "PFN-B")
-        for b in ("PFN-D", "Avg(experts)", "Stack(experts)", "Stack(PFN-D)", "MAPLE-E"):
-            rq[f"RQ5_F_vs_{b}"] = _pair(allm, "MAPLE-F", b)
+        rq["RQ4_A_vs_P0"] = _pair(allm, "MAPLE-Net/Uniform", "MAPLE-Net/SCM")
+        rq["RQ4_D_vs_P0"] = _pair(allm, "MAPLE-Net", "MAPLE-Net/SCM")
+        rq["RQ1_real_D_vs_A"] = _pair(allm, "MAPLE-Net", "MAPLE-Net/Uniform")
+        rq["RQ2_real_C_vs_B"] = _pair(allm, "MAPLE-Net/Gap", "MAPLE-Net/Loss")
+        for b in ("MAPLE-Net", "Avg(experts)", "Stack(experts)", "Stack(MAPLE-Net)", "MAPLE-Global"):
+            rq[f"RQ5_F_vs_{b}"] = _pair(allm, "MAPLE", b)
         for b in ("CatBoost-T", "XGBoost-T", "LightGBM-T", "CatBoost", "RF", "ExtraTrees"):
-            rq[f"RQ6_F_vs_{b}"] = _pair(allm, "MAPLE-F", b)
+            rq[f"RQ6_F_vs_{b}"] = _pair(allm, "MAPLE", b)
         _holm_family(rq, ["RQ4_A_vs_P0", "RQ4_D_vs_P0"])
         _holm_family(rq, ["RQ1_real_D_vs_A", "RQ2_real_C_vs_B"])
         _holm_family(rq, [k for k in rq if k.startswith("RQ5_")])
         _holm_family(rq, [k for k in rq if k.startswith("RQ6_")])
         res["rq"] = rq
-        # exploratory (not pre-registered; raw p, no family correction): does PFN-D add to the stacked committee?
-        res["exploratory"] = {"StackPFN_vs_StackExperts": _pair(allm, "Stack(PFN-D)", "Stack(experts)"),
-                              "E_vs_F": _pair(allm, "MAPLE-E", "MAPLE-F"),
-                              "F_vs_TabPFN-v2": _pair(allm, "MAPLE-F", "TabPFN-v2"),
-                              "F_vs_TabICL": _pair(allm, "MAPLE-F", "TabICL"),
-                              "D_vs_TabPFN-v2": _pair(allm, "PFN-D", "TabPFN-v2"),
-                              "D_vs_TabICL": _pair(allm, "PFN-D", "TabICL")}
+        # exploratory (not pre-registered; raw p, no family correction): does MAPLE-Net add to the stacked committee?
+        res["exploratory"] = {"StackPFN_vs_StackExperts": _pair(allm, "Stack(MAPLE-Net)", "Stack(experts)"),
+                              "E_vs_F": _pair(allm, "MAPLE-Global", "MAPLE"),
+                              "F_vs_TabPFN-v2": _pair(allm, "MAPLE", "TabPFN-v2"),
+                              "F_vs_TabICL": _pair(allm, "MAPLE", "TabICL"),
+                              "D_vs_TabPFN-v2": _pair(allm, "MAPLE-Net", "TabPFN-v2"),
+                              "D_vs_TabICL": _pair(allm, "MAPLE-Net", "TabICL")}
         res["avg_rank_full"] = T.avg_ranks(allm.dropna()).to_dict() if allm.dropna().shape[0] else {}
         res["n_datasets_full"] = int(allm.dropna().shape[0])
         out[str(reg)] = res
@@ -107,7 +107,7 @@ def synthetic_stats(sdf: pd.DataFrame) -> dict:
         per = sdf.groupby(["suite", "task", "label"])[metric].mean().unstack("label")  # seeds averaged, no dropna
         out[f"{metric}_suite_mean"] = per.groupby(level="suite").mean().round(6).to_dict()
         out[f"{metric}_suite_median"] = per.groupby(level="suite").median().round(6).to_dict()
-        pt = A.per_task(sdf, metric, labels=["PFN-A", "PFN-D"])
+        pt = A.per_task(sdf, metric, labels=["MAPLE-Net/Uniform", "MAPLE-Net"])
         id_ = pt.xs("id", level="suite") if "id" in pt.index.get_level_values(0) else None
         ood = pt[pt.index.get_level_values(0).isin(OOD_SUITES)]
         pid = per.xs("id", level="suite") if "id" in per.index.get_level_values(0) else None
@@ -118,12 +118,12 @@ def synthetic_stats(sdf: pd.DataFrame) -> dict:
                 gap[l] = {"id": float(pid[l].mean()), "ood": float(pood[l].mean()),
                           "gap": float(pood[l].mean() - pid[l].mean())}
         out[f"{metric}_generalization_gap"] = gap
-        rq1 = {"id": _pair(id_, "PFN-D", "PFN-A") if id_ is not None else {}, "pooled_ood": _pair(ood, "PFN-D", "PFN-A")}
+        rq1 = {"id": _pair(id_, "MAPLE-Net", "MAPLE-Net/Uniform") if id_ is not None else {}, "pooled_ood": _pair(ood, "MAPLE-Net", "MAPLE-Net/Uniform")}
         rq1_suites = {}
         ps = []
         for s in OOD_SUITES:
             if s in pt.index.get_level_values(0):
-                r = _pair(pt.xs(s, level="suite"), "PFN-D", "PFN-A")
+                r = _pair(pt.xs(s, level="suite"), "MAPLE-Net", "MAPLE-Net/Uniform")
                 rq1_suites[s] = r
                 ps.append(r.get("p", np.nan))
         if ps and not np.isnan(ps).all():
@@ -134,17 +134,17 @@ def synthetic_stats(sdf: pd.DataFrame) -> dict:
         rq1["per_suite"] = rq1_suites
         _holm_family(rq1, ["id", "pooled_ood"])
         out[f"RQ1_{metric}"] = rq1
-        p4 = A.per_task(sdf, metric, labels=["PFN-A", "PFN-SCM"])
+        p4 = A.per_task(sdf, metric, labels=["MAPLE-Net/Uniform", "MAPLE-Net/SCM"])
         p4id = p4[p4.index.get_level_values(0) == "id"]
         p4ood = p4[p4.index.get_level_values(0).isin(OOD_SUITES)]
-        rq4 = {"id_A_vs_P0": _pair(p4id, "PFN-A", "PFN-SCM"), "ood_A_vs_P0": _pair(p4ood, "PFN-A", "PFN-SCM")}
+        rq4 = {"id_A_vs_P0": _pair(p4id, "MAPLE-Net/Uniform", "MAPLE-Net/SCM"), "ood_A_vs_P0": _pair(p4ood, "MAPLE-Net/Uniform", "MAPLE-Net/SCM")}
         _holm_family(rq4, ["id_A_vs_P0", "ood_A_vs_P0"])
         out[f"RQ4_synthetic_{metric}"] = rq4
         # RQ2: C vs B overall and by noise level (pre-registered metric: nrmse; nrmse_f reported alongside)
-        p2 = A.per_task(sdf, metric, labels=["PFN-B", "PFN-C"])
-        noise = sdf[sdf.label == "PFN-B"].groupby(["suite", "task"])["noise_rel"].first().reindex(p2.index)
-        rq2 = {"all": _pair(p2, "PFN-C", "PFN-B"), "high_noise": _pair(p2[noise >= noise.median()], "PFN-C", "PFN-B"),
-               "low_noise": _pair(p2[noise < noise.median()], "PFN-C", "PFN-B"), "noise_median": float(noise.median())}
+        p2 = A.per_task(sdf, metric, labels=["MAPLE-Net/Loss", "MAPLE-Net/Gap"])
+        noise = sdf[sdf.label == "MAPLE-Net/Loss"].groupby(["suite", "task"])["noise_rel"].first().reindex(p2.index)
+        rq2 = {"all": _pair(p2, "MAPLE-Net/Gap", "MAPLE-Net/Loss"), "high_noise": _pair(p2[noise >= noise.median()], "MAPLE-Net/Gap", "MAPLE-Net/Loss"),
+               "low_noise": _pair(p2[noise < noise.median()], "MAPLE-Net/Gap", "MAPLE-Net/Loss"), "noise_median": float(noise.median())}
         _holm_family(rq2, ["all", "high_noise", "low_noise"])
         out[f"RQ2_{metric}"] = rq2
     out["RQ2"] = out["RQ2_nrmse"]
@@ -167,13 +167,13 @@ def synthetic_stats(sdf: pd.DataFrame) -> dict:
                   "spearman_loss_vs_excess": float(spearmanr(d.loss, d.excess)[0]),
                   "by_suite": {s: float(spearmanr(g.gap, g.excess)[0]) for s, g in d.groupby("suite") if len(g) > 10}}
     out["RQ3"] = rq3
-    # external reference models vs PFN-D on synthetic suites (exploratory; unit = task)
+    # external reference models vs MAPLE-Net on synthetic suites (exploratory; unit = task)
     ext = {}
     for l in A.EXTERNAL_LABELS:
         if l in set(sdf.label):
-            pt = A.per_task(sdf, "nrmse", labels=["PFN-D", l])
-            ext[l] = {"id": _pair(pt[pt.index.get_level_values(0) == "id"], "PFN-D", l),
-                      "pooled_ood": _pair(pt[pt.index.get_level_values(0).isin(OOD_SUITES)], "PFN-D", l)}
+            pt = A.per_task(sdf, "nrmse", labels=["MAPLE-Net", l])
+            ext[l] = {"id": _pair(pt[pt.index.get_level_values(0) == "id"], "MAPLE-Net", l),
+                      "pooled_ood": _pair(pt[pt.index.get_level_values(0).isin(OOD_SUITES)], "MAPLE-Net", l)}
     out["external"] = ext
     # pretraining-seed spread of the main variants (scale against which seed-0 ablation effects are read)
     spread = {}

@@ -1,49 +1,52 @@
 \begin{table}[H]
-\caption{MAE on the real-data benchmark (n\_train = 128); mean $\pm$ SD over 10 split repeats (PFN rows: also over 3 pretraining seeds).}
+\begin{adjustwidth}{-\extralength}{0cm}
+\caption{MAE on the real-data benchmark (n\_train = 128); mean $\pm$ SD over 10 split repeats (MAPLE also averaged over 3 pretraining seeds).}
 \label{tab:table04_mae_n128}
 \centering
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lccccccccccc}
+\fontsize{9}{11}\selectfont
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{l>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X}
 \toprule
-dataset & Ridge & RF & ExtraTrees & XGBoost-T & LightGBM-T & CatBoost-T & Stack(experts) & PFN-SCM & PFN-A & PFN-D & MAPLE-F \\
+dataset & Ridge & RF & ExtraTrees & CatBoost & MAPLE \\
 \midrule
-abalone & 1.66 $\pm$ 0.0457 & 1.75 $\pm$ 0.0692 & 1.76 $\pm$ 0.0563 & 1.79 $\pm$ 0.0775 & 1.87 $\pm$ 0.107 & 1.74 $\pm$ 0.0653 & 1.63 $\pm$ 0.0435 & \textbf{1.61} $\pm$ 0.0484 & 1.67 $\pm$ 0.0497 & 1.67 $\pm$ 0.0544 & \underline{1.63} $\pm$ 0.0426 \\
-airfoil\_self\_noise & 3.82 $\pm$ 0.0768 & 2.94 $\pm$ 0.163 & 2.78 $\pm$ 0.165 & 2.72 $\pm$ 0.177 & 2.87 $\pm$ 0.304 & 2.5 $\pm$ 0.231 & 2.54 $\pm$ 0.163 & 2.87 $\pm$ 0.261 & \textbf{2.25} $\pm$ 0.273 & \underline{2.34} $\pm$ 0.309 & 2.34 $\pm$ 0.24 \\
-auction\_verification & 5.1e+03 $\pm$ 187 & \textbf{1.53e+03} $\pm$ 102 & \underline{1.63e+03} $\pm$ 196 & 2.08e+03 $\pm$ 209 & 2.45e+03 $\pm$ 421 & 1.79e+03 $\pm$ 187 & 1.88e+03 $\pm$ 274 & 4.43e+03 $\pm$ 1.04e+03 & 2.42e+03 $\pm$ 928 & 2.43e+03 $\pm$ 886 & 1.71e+03 $\pm$ 204 \\
-brazilian\_houses & 1.94e+03 $\pm$ 279 & 1.87e+03 $\pm$ 232 & 1.86e+03 $\pm$ 222 & 1.86e+03 $\pm$ 238 & 1.94e+03 $\pm$ 184 & 1.81e+03 $\pm$ 258 & 1.79e+03 $\pm$ 238 & 1.77e+03 $\pm$ 229 & \underline{1.74e+03} $\pm$ 242 & \textbf{1.74e+03} $\pm$ 251 & 1.75e+03 $\pm$ 225 \\
-california\_housing & 5.29e+04 $\pm$ 1.89e+03 & 5.98e+04 $\pm$ 2.36e+03 & 5.81e+04 $\pm$ 2.6e+03 & 5.69e+04 $\pm$ 2.69e+03 & 6.1e+04 $\pm$ 5.97e+03 & 5.58e+04 $\pm$ 2.37e+03 & \underline{4.99e+04} $\pm$ 1.67e+03 & \textbf{4.68e+04} $\pm$ 1.38e+03 & 5.57e+04 $\pm$ 2.22e+03 & 5.54e+04 $\pm$ 2.16e+03 & 5.07e+04 $\pm$ 1.5e+03 \\
-cars & 2.25e+03 $\pm$ 71.5 & 2.1e+03 $\pm$ 121 & 2.02e+03 $\pm$ 217 & 2.14e+03 $\pm$ 166 & 2.48e+03 $\pm$ 389 & 2.09e+03 $\pm$ 164 & 2e+03 $\pm$ 162 & \underline{1.82e+03} $\pm$ 117 & 1.86e+03 $\pm$ 137 & 1.85e+03 $\pm$ 151 & \textbf{1.81e+03} $\pm$ 161 \\
-concrete\_compressive\_strength & 8.78 $\pm$ 0.234 & 6.17 $\pm$ 0.363 & 5.61 $\pm$ 0.233 & 5.21 $\pm$ 0.333 & 5.45 $\pm$ 0.298 & 5.06 $\pm$ 0.211 & 4.93 $\pm$ 0.17 & \underline{4.89} $\pm$ 0.195 & 5.03 $\pm$ 0.155 & 5.05 $\pm$ 0.153 & \textbf{4.87} $\pm$ 0.16 \\
-cps88wages & 250 $\pm$ 8.54 & 266 $\pm$ 13.9 & 277 $\pm$ 19.6 & 257 $\pm$ 12.9 & 266 $\pm$ 12.4 & 249 $\pm$ 9.74 & 247 $\pm$ 11.6 & \underline{243} $\pm$ 14.1 & 244 $\pm$ 15.5 & \textbf{243} $\pm$ 13.3 & 246 $\pm$ 15 \\
-cpu\_activity & 5.74 $\pm$ 0.891 & 2.68 $\pm$ 0.22 & \underline{2.35} $\pm$ 0.181 & 3.03 $\pm$ 0.51 & 5.15 $\pm$ 1.09 & 2.99 $\pm$ 0.397 & 2.51 $\pm$ 0.607 & 3.52 $\pm$ 0.212 & 2.55 $\pm$ 0.143 & 2.55 $\pm$ 0.153 & \textbf{2.26} $\pm$ 0.303 \\
-diabetes & 45.6 $\pm$ 1.08 & 49 $\pm$ 1.55 & 47.8 $\pm$ 1.74 & 48.4 $\pm$ 2.11 & 48.5 $\pm$ 1.27 & 48.3 $\pm$ 1.71 & 46.2 $\pm$ 1.55 & \textbf{44.9} $\pm$ 1.17 & \underline{45.4} $\pm$ 1.45 & 45.5 $\pm$ 1.4 & 46 $\pm$ 1.77 \\
-diamonds & 853 $\pm$ 88.7 & 787 $\pm$ 62.5 & 744 $\pm$ 52.5 & 779 $\pm$ 106 & 922 $\pm$ 164 & \textbf{680} $\pm$ 56.8 & 763 $\pm$ 65.4 & 768 $\pm$ 29.4 & 747 $\pm$ 39.4 & 750 $\pm$ 37 & \underline{739} $\pm$ 41.9 \\
-energy\_efficiency & 2.19 $\pm$ 0.0608 & 0.701 $\pm$ 0.11 & 0.556 $\pm$ 0.0756 & \underline{0.513} $\pm$ 0.0825 & 0.792 $\pm$ 0.322 & \textbf{0.488} $\pm$ 0.0453 & 0.581 $\pm$ 0.0854 & 1.88 $\pm$ 0.0403 & 1.74 $\pm$ 0.0769 & 1.72 $\pm$ 0.0851 & 0.575 $\pm$ 0.0982 \\
-fifa & 8.03e+03 $\pm$ 730 & \underline{5.08e+03} $\pm$ 217 & 5.16e+03 $\pm$ 284 & 5.54e+03 $\pm$ 338 & 6.19e+03 $\pm$ 565 & 5.29e+03 $\pm$ 252 & 5.29e+03 $\pm$ 318 & 5.39e+03 $\pm$ 233 & 5.1e+03 $\pm$ 271 & \textbf{5.06e+03} $\pm$ 254 & 5.17e+03 $\pm$ 232 \\
-forest\_fires & 18 $\pm$ 1 & 21.6 $\pm$ 2.99 & 20.4 $\pm$ 1.98 & 21.1 $\pm$ 4.52 & 19.9 $\pm$ 2.19 & 18 $\pm$ 1.15 & 18.4 $\pm$ 1.39 & \textbf{16.6} $\pm$ 1.09 & 17 $\pm$ 1.15 & \underline{16.7} $\pm$ 1.05 & 18 $\pm$ 0.886 \\
-fps\_benchmark & \underline{17.1} $\pm$ 1.8 & 32.3 $\pm$ 2.76 & 37.7 $\pm$ 3.36 & 23.7 $\pm$ 1.82 & 26.2 $\pm$ 2.6 & \textbf{13.1} $\pm$ 1.63 & 27.1 $\pm$ 2.19 & 37.6 $\pm$ 1.49 & 37.1 $\pm$ 1.48 & 37.2 $\pm$ 1.43 & 28.1 $\pm$ 2.28 \\
-geographical\_origin\_of\_music & 14.2 $\pm$ 0.491 & 13.5 $\pm$ 0.541 & \textbf{13.3} $\pm$ 0.563 & 13.6 $\pm$ 0.666 & 14 $\pm$ 0.707 & \underline{13.3} $\pm$ 0.575 & 13.5 $\pm$ 0.556 & 13.8 $\pm$ 0.544 & 13.6 $\pm$ 0.53 & 13.7 $\pm$ 0.532 & 13.4 $\pm$ 0.579 \\
-grid\_stability & 0.018 $\pm$ 0.000606 & 0.0199 $\pm$ 0.000777 & 0.019 $\pm$ 0.000742 & 0.0155 $\pm$ 0.001 & 0.0151 $\pm$ 0.000736 & 0.0142 $\pm$ 0.000719 & \underline{0.0135} $\pm$ 0.000618 & 0.017 $\pm$ 0.00059 & 0.0138 $\pm$ 0.000605 & 0.014 $\pm$ 0.000581 & \textbf{0.0135} $\pm$ 0.000646 \\
-health\_insurance & 13.1 $\pm$ 0.416 & 12.6 $\pm$ 0.293 & 12.8 $\pm$ 0.412 & 13.1 $\pm$ 0.828 & 13.2 $\pm$ 0.492 & 13 $\pm$ 0.65 & 12.7 $\pm$ 0.313 & 12.6 $\pm$ 0.361 & \textbf{12.3} $\pm$ 0.348 & \underline{12.3} $\pm$ 0.322 & 12.5 $\pm$ 0.272 \\
-kin8nm & 0.166 $\pm$ 0.00516 & 0.166 $\pm$ 0.00417 & 0.161 $\pm$ 0.0042 & 0.166 $\pm$ 0.00571 & 0.165 $\pm$ 0.00721 & 0.155 $\pm$ 0.00509 & \underline{0.141} $\pm$ 0.0066 & 0.159 $\pm$ 0.00707 & 0.151 $\pm$ 0.0057 & 0.151 $\pm$ 0.00562 & \textbf{0.141} $\pm$ 0.00629 \\
-kings\_county & 1.46e+05 $\pm$ 2.61e+04 & 1.18e+05 $\pm$ 5.67e+03 & 1.17e+05 $\pm$ 6.84e+03 & 1.25e+05 $\pm$ 8.93e+03 & 1.37e+05 $\pm$ 1.85e+04 & \textbf{1.06e+05} $\pm$ 3.84e+03 & 1.27e+05 $\pm$ 1.26e+04 & 1.26e+05 $\pm$ 7.8e+03 & \underline{1.12e+05} $\pm$ 5.74e+03 & 1.13e+05 $\pm$ 5.49e+03 & 1.13e+05 $\pm$ 4.98e+03 \\
-miami\_housing & 1.22e+05 $\pm$ 1.12e+04 & 9.26e+04 $\pm$ 6.2e+03 & 8.3e+04 $\pm$ 7.16e+03 & 9.47e+04 $\pm$ 1.18e+04 & 1.03e+05 $\pm$ 1.92e+04 & 8.13e+04 $\pm$ 6.52e+03 & 8.3e+04 $\pm$ 5.68e+03 & 8.11e+04 $\pm$ 7.62e+03 & \underline{7.69e+04} $\pm$ 8.03e+03 & \textbf{7.68e+04} $\pm$ 7.82e+03 & 7.82e+04 $\pm$ 8e+03 \\
-moneyball & 18.2 $\pm$ 0.377 & 22.2 $\pm$ 0.392 & 21.5 $\pm$ 0.587 & 21.4 $\pm$ 1.01 & 22.5 $\pm$ 1.36 & 21.2 $\pm$ 0.974 & \textbf{17.8} $\pm$ 0.504 & 18.4 $\pm$ 0.535 & 19.5 $\pm$ 0.326 & 19.5 $\pm$ 0.373 & \underline{18.1} $\pm$ 0.711 \\
-naval\_propulsion\_plant & 0.00514 $\pm$ 0.000127 & 0.00522 $\pm$ 0.000369 & \underline{0.00407} $\pm$ 0.000425 & 0.00462 $\pm$ 0.000384 & 0.00525 $\pm$ 0.000793 & 0.00431 $\pm$ 0.00026 & \textbf{0.00399} $\pm$ 0.000263 & 0.0127 $\pm$ 0.00018 & 0.0126 $\pm$ 0.000198 & 0.0127 $\pm$ 0.000206 & 0.00413 $\pm$ 0.000485 \\
-physiochemical\_protein & 4.42 $\pm$ 0.096 & 4.37 $\pm$ 0.109 & \underline{4.26} $\pm$ 0.102 & 4.4 $\pm$ 0.121 & 4.53 $\pm$ 0.107 & 4.42 $\pm$ 0.172 & 4.29 $\pm$ 0.0686 & \textbf{4.16} $\pm$ 0.071 & 4.32 $\pm$ 0.116 & 4.34 $\pm$ 0.122 & 4.27 $\pm$ 0.0751 \\
-pumadyn32nh & 0.0281 $\pm$ 0.000491 & 0.0253 $\pm$ 0.00134 & \textbf{0.0242} $\pm$ 0.00115 & 0.0256 $\pm$ 0.00212 & 0.0282 $\pm$ 0.00213 & 0.0261 $\pm$ 0.00113 & \underline{0.0246} $\pm$ 0.00139 & 0.0279 $\pm$ 0.000672 & 0.0274 $\pm$ 0.000799 & 0.0273 $\pm$ 0.000877 & 0.0256 $\pm$ 0.00125 \\
-qsar\_fish\_toxicity & 0.731 $\pm$ 0.0338 & 0.731 $\pm$ 0.0212 & 0.705 $\pm$ 0.0187 & 0.745 $\pm$ 0.0239 & 0.77 $\pm$ 0.0565 & 0.702 $\pm$ 0.026 & 0.694 $\pm$ 0.0303 & \textbf{0.679} $\pm$ 0.0255 & \underline{0.683} $\pm$ 0.0233 & 0.685 $\pm$ 0.0238 & 0.684 $\pm$ 0.0261 \\
-red\_wine & 0.534 $\pm$ 0.0111 & 0.527 $\pm$ 0.0125 & 0.52 $\pm$ 0.0103 & 0.538 $\pm$ 0.0139 & 0.55 $\pm$ 0.0311 & 0.528 $\pm$ 0.012 & 0.522 $\pm$ 0.0118 & \textbf{0.515} $\pm$ 0.0134 & 0.517 $\pm$ 0.0132 & \underline{0.517} $\pm$ 0.0122 & 0.519 $\pm$ 0.0122 \\
-sarcos & 4.55 $\pm$ 0.253 & 7.63 $\pm$ 0.464 & 6.43 $\pm$ 0.573 & 6.84 $\pm$ 0.487 & 7.56 $\pm$ 0.716 & 6.75 $\pm$ 0.443 & \textbf{4.47} $\pm$ 0.247 & 5.15 $\pm$ 0.394 & 5.41 $\pm$ 0.42 & 5.46 $\pm$ 0.439 & \underline{4.52} $\pm$ 0.244 \\
-socmob & 12 $\pm$ 2.6 & 9.7 $\pm$ 1.09 & 9.61 $\pm$ 1.55 & 11.7 $\pm$ 1.93 & 12.9 $\pm$ 1.8 & \textbf{8.62} $\pm$ 0.389 & 9.93 $\pm$ 1.34 & 9.88 $\pm$ 0.993 & 9.42 $\pm$ 1.06 & \underline{9.34} $\pm$ 0.934 & 9.52 $\pm$ 1.34 \\
-solar\_flare & 0.435 $\pm$ 0.0199 & 0.448 $\pm$ 0.0188 & 0.467 $\pm$ 0.0388 & 0.422 $\pm$ 0.0136 & 0.447 $\pm$ 0.021 & 0.426 $\pm$ 0.0246 & 0.434 $\pm$ 0.0169 & 0.44 $\pm$ 0.02 & \underline{0.42} $\pm$ 0.0204 & \textbf{0.418} $\pm$ 0.0173 & 0.425 $\pm$ 0.0153 \\
-space\_ga & 0.0993 $\pm$ 0.0035 & 0.1 $\pm$ 0.00306 & 0.1 $\pm$ 0.00313 & 0.103 $\pm$ 0.00671 & 0.103 $\pm$ 0.0043 & 0.1 $\pm$ 0.00401 & \textbf{0.0933} $\pm$ 0.00437 & 0.096 $\pm$ 0.00318 & 0.0995 $\pm$ 0.00364 & 0.0995 $\pm$ 0.00346 & \underline{0.0938} $\pm$ 0.00376 \\
-student\_performance\_por & 2.07 $\pm$ 0.0593 & 2.08 $\pm$ 0.089 & 2.19 $\pm$ 0.104 & 2.11 $\pm$ 0.0656 & 2.25 $\pm$ 0.162 & 2.08 $\pm$ 0.0438 & 2.07 $\pm$ 0.0539 & \textbf{2.04} $\pm$ 0.052 & 2.05 $\pm$ 0.0492 & 2.05 $\pm$ 0.0487 & \underline{2.05} $\pm$ 0.0554 \\
-superconductivity & 16.6 $\pm$ 0.524 & 13 $\pm$ 0.39 & \textbf{12.2} $\pm$ 0.453 & 12.8 $\pm$ 0.408 & 13.2 $\pm$ 0.861 & 12.7 $\pm$ 0.332 & 12.7 $\pm$ 0.518 & 14.9 $\pm$ 0.685 & 15.8 $\pm$ 0.743 & 15.8 $\pm$ 0.718 & \underline{12.7} $\pm$ 0.438 \\
-video\_transcoding & 7.24 $\pm$ 0.989 & 5.25 $\pm$ 0.782 & \underline{4.39} $\pm$ 0.759 & 5.25 $\pm$ 0.813 & 5.53 $\pm$ 1.08 & \textbf{4.24} $\pm$ 0.455 & 4.71 $\pm$ 0.539 & 5.86 $\pm$ 1.34 & 5.08 $\pm$ 1.25 & 5.02 $\pm$ 1.23 & 4.53 $\pm$ 0.627 \\
-wave\_energy & 7.44e+04 $\pm$ 2.77e+03 & 7.16e+04 $\pm$ 3.19e+03 & 6.79e+04 $\pm$ 2.94e+03 & 6.99e+04 $\pm$ 4.1e+03 & 7.12e+04 $\pm$ 4.03e+03 & 6.71e+04 $\pm$ 3.37e+03 & \textbf{6.48e+04} $\pm$ 3.33e+03 & 7.36e+04 $\pm$ 2.8e+03 & 7.2e+04 $\pm$ 1.77e+03 & 7.23e+04 $\pm$ 1.41e+03 & \underline{6.57e+04} $\pm$ 2.94e+03 \\
-white\_wine & 0.625 $\pm$ 0.0254 & 0.604 $\pm$ 0.0187 & \underline{0.597} $\pm$ 0.0168 & 0.617 $\pm$ 0.0239 & 0.621 $\pm$ 0.0246 & 0.604 $\pm$ 0.0176 & 0.603 $\pm$ 0.0198 & 0.603 $\pm$ 0.0191 & 0.6 $\pm$ 0.0166 & 0.6 $\pm$ 0.0165 & \textbf{0.595} $\pm$ 0.017 \\
+abalone & \underline{1.66} $\pm$ 0.0457 & 1.75 $\pm$ 0.0692 & 1.76 $\pm$ 0.0563 & 1.75 $\pm$ 0.0511 & \textbf{1.63} $\pm$ 0.0426 \\
+airfoil\_\allowbreak{}self\_\allowbreak{}noise & 3.82 $\pm$ 0.0768 & 2.94 $\pm$ 0.163 & 2.78 $\pm$ 0.165 & \underline{2.34} $\pm$ 0.16 & \textbf{2.34} $\pm$ 0.24 \\
+auction\_\allowbreak{}verification & 5.1e+03 $\pm$ 187 & \textbf{1.53e+03} $\pm$ 102 & \underline{1.63e+03} $\pm$ 196 & 1.7e+03 $\pm$ 181 & 1.71e+03 $\pm$ 204 \\
+brazilian\_\allowbreak{}houses & 1.94e+03 $\pm$ 279 & 1.87e+03 $\pm$ 232 & 1.86e+03 $\pm$ 222 & \underline{1.82e+03} $\pm$ 232 & \textbf{1.75e+03} $\pm$ 225 \\
+california\_\allowbreak{}housing & \underline{5.29e+04} $\pm$ 1.89e+03 & 5.98e+04 $\pm$ 2.36e+03 & 5.81e+04 $\pm$ 2.6e+03 & 5.63e+04 $\pm$ 2.61e+03 & \textbf{5.07e+04} $\pm$ 1.5e+03 \\
+cars & 2.25e+03 $\pm$ 71.5 & 2.1e+03 $\pm$ 121 & \underline{2.02e+03} $\pm$ 217 & 2.16e+03 $\pm$ 163 & \textbf{1.81e+03} $\pm$ 161 \\
+concrete\_\allowbreak{}compressive\_\allowbreak{}strength & 8.78 $\pm$ 0.234 & 6.17 $\pm$ 0.363 & 5.61 $\pm$ 0.233 & \underline{5.31} $\pm$ 0.165 & \textbf{4.87} $\pm$ 0.16 \\
+cps88wages & \underline{250} $\pm$ 8.54 & 266 $\pm$ 13.9 & 277 $\pm$ 19.6 & 272 $\pm$ 14.6 & \textbf{246} $\pm$ 15 \\
+cpu\_\allowbreak{}activity & 5.74 $\pm$ 0.891 & 2.68 $\pm$ 0.22 & \underline{2.35} $\pm$ 0.181 & 3.47 $\pm$ 0.373 & \textbf{2.26} $\pm$ 0.303 \\
+diabetes & \textbf{45.6} $\pm$ 1.08 & 49 $\pm$ 1.55 & 47.8 $\pm$ 1.74 & 48.6 $\pm$ 1.83 & \underline{46} $\pm$ 1.77 \\
+diamonds & 853 $\pm$ 88.7 & 787 $\pm$ 62.5 & 744 $\pm$ 52.5 & \textbf{677} $\pm$ 54.3 & \underline{739} $\pm$ 41.9 \\
+energy\_\allowbreak{}efficiency & 2.19 $\pm$ 0.0608 & 0.701 $\pm$ 0.11 & \textbf{0.556} $\pm$ 0.0756 & 0.592 $\pm$ 0.0529 & \underline{0.575} $\pm$ 0.0982 \\
+fifa & 8.03e+03 $\pm$ 730 & \textbf{5.08e+03} $\pm$ 217 & \underline{5.16e+03} $\pm$ 284 & 5.17e+03 $\pm$ 269 & 5.17e+03 $\pm$ 232 \\
+forest\_\allowbreak{}fires & \underline{18} $\pm$ 1 & 21.6 $\pm$ 2.99 & 20.4 $\pm$ 1.98 & 19.3 $\pm$ 1.25 & \textbf{18} $\pm$ 0.886 \\
+fps\_\allowbreak{}benchmark & \textbf{17.1} $\pm$ 1.8 & 32.3 $\pm$ 2.76 & 37.7 $\pm$ 3.36 & \underline{17.3} $\pm$ 1.8 & 28.1 $\pm$ 2.28 \\
+geographical\_\allowbreak{}origin\_\allowbreak{}of\_\allowbreak{}music & 14.2 $\pm$ 0.491 & 13.5 $\pm$ 0.541 & \underline{13.3} $\pm$ 0.563 & \textbf{13.2} $\pm$ 0.526 & 13.4 $\pm$ 0.579 \\
+grid\_\allowbreak{}stability & 0.018 $\pm$ 0.000606 & 0.0199 $\pm$ 0.000777 & 0.019 $\pm$ 0.000742 & \underline{0.0164} $\pm$ 0.000649 & \textbf{0.0135} $\pm$ 0.000646 \\
+health\_\allowbreak{}insurance & 13.1 $\pm$ 0.416 & \underline{12.6} $\pm$ 0.293 & 12.8 $\pm$ 0.412 & 13.1 $\pm$ 0.32 & \textbf{12.5} $\pm$ 0.272 \\
+kin8nm & 0.166 $\pm$ 0.00516 & 0.166 $\pm$ 0.00417 & 0.161 $\pm$ 0.0042 & \underline{0.154} $\pm$ 0.00525 & \textbf{0.141} $\pm$ 0.00629 \\
+kings\_\allowbreak{}county & 1.46e+05 $\pm$ 2.61e+04 & 1.18e+05 $\pm$ 5.67e+03 & 1.17e+05 $\pm$ 6.84e+03 & \textbf{1.05e+05} $\pm$ 3.96e+03 & \underline{1.13e+05} $\pm$ 4.98e+03 \\
+miami\_\allowbreak{}housing & 1.22e+05 $\pm$ 1.12e+04 & 9.26e+04 $\pm$ 6.2e+03 & 8.3e+04 $\pm$ 7.16e+03 & \underline{8.28e+04} $\pm$ 6.61e+03 & \textbf{7.82e+04} $\pm$ 8e+03 \\
+moneyball & \underline{18.2} $\pm$ 0.377 & 22.2 $\pm$ 0.392 & 21.5 $\pm$ 0.587 & 21.5 $\pm$ 0.549 & \textbf{18.1} $\pm$ 0.711 \\
+naval\_\allowbreak{}propulsion\_\allowbreak{}plant & 0.00514 $\pm$ 0.000127 & 0.00522 $\pm$ 0.000369 & \textbf{0.00407} $\pm$ 0.000425 & 0.00435 $\pm$ 0.000362 & \underline{0.00413} $\pm$ 0.000485 \\
+physiochemical\_\allowbreak{}protein & 4.42 $\pm$ 0.096 & 4.37 $\pm$ 0.109 & \textbf{4.26} $\pm$ 0.102 & 4.29 $\pm$ 0.145 & \underline{4.27} $\pm$ 0.0751 \\
+pumadyn32nh & 0.0281 $\pm$ 0.000491 & \underline{0.0253} $\pm$ 0.00134 & \textbf{0.0242} $\pm$ 0.00115 & 0.0258 $\pm$ 0.00073 & 0.0256 $\pm$ 0.00125 \\
+qsar\_\allowbreak{}fish\_\allowbreak{}toxicity & 0.731 $\pm$ 0.0338 & 0.731 $\pm$ 0.0212 & \underline{0.705} $\pm$ 0.0187 & 0.711 $\pm$ 0.0174 & \textbf{0.684} $\pm$ 0.0261 \\
+red\_\allowbreak{}wine & 0.534 $\pm$ 0.0111 & 0.527 $\pm$ 0.0125 & \underline{0.52} $\pm$ 0.0103 & 0.527 $\pm$ 0.011 & \textbf{0.519} $\pm$ 0.0122 \\
+sarcos & \underline{4.55} $\pm$ 0.253 & 7.63 $\pm$ 0.464 & 6.43 $\pm$ 0.573 & 7.11 $\pm$ 0.32 & \textbf{4.52} $\pm$ 0.244 \\
+socmob & 12 $\pm$ 2.6 & 9.7 $\pm$ 1.09 & 9.61 $\pm$ 1.55 & \textbf{8.38} $\pm$ 0.473 & \underline{9.52} $\pm$ 1.34 \\
+solar\_\allowbreak{}flare & \underline{0.435} $\pm$ 0.0199 & 0.448 $\pm$ 0.0188 & 0.467 $\pm$ 0.0388 & 0.447 $\pm$ 0.0193 & \textbf{0.425} $\pm$ 0.0153 \\
+space\_\allowbreak{}ga & 0.0993 $\pm$ 0.0035 & 0.1 $\pm$ 0.00306 & 0.1 $\pm$ 0.00313 & \underline{0.0992} $\pm$ 0.00303 & \textbf{0.0938} $\pm$ 0.00376 \\
+student\_\allowbreak{}performance\_\allowbreak{}por & \underline{2.07} $\pm$ 0.0593 & 2.08 $\pm$ 0.089 & 2.19 $\pm$ 0.104 & 2.09 $\pm$ 0.0429 & \textbf{2.05} $\pm$ 0.0554 \\
+superconductivity & 16.6 $\pm$ 0.524 & 13 $\pm$ 0.39 & \textbf{12.2} $\pm$ 0.453 & \underline{12.7} $\pm$ 0.372 & 12.7 $\pm$ 0.438 \\
+video\_\allowbreak{}transcoding & 7.24 $\pm$ 0.989 & 5.25 $\pm$ 0.782 & \underline{4.39} $\pm$ 0.759 & \textbf{4.16} $\pm$ 0.282 & 4.53 $\pm$ 0.627 \\
+wave\_\allowbreak{}energy & 7.44e+04 $\pm$ 2.77e+03 & 7.16e+04 $\pm$ 3.19e+03 & 6.79e+04 $\pm$ 2.94e+03 & \underline{6.64e+04} $\pm$ 2.87e+03 & \textbf{6.57e+04} $\pm$ 2.94e+03 \\
+white\_\allowbreak{}wine & 0.625 $\pm$ 0.0254 & 0.604 $\pm$ 0.0187 & \underline{0.597} $\pm$ 0.0168 & 0.602 $\pm$ 0.0165 & \textbf{0.595} $\pm$ 0.017 \\
 \bottomrule
-\end{tabular}}
-\par\vspace{2pt}{\footnotesize Lower is better; best in bold, second best underlined. MAE in the original target units. Abbreviations: RF, random forest; -T, tuned with a 10-trial random search (3-fold CV on the training split); Stack(experts), non-negative stacking of Ridge, kNN, ExtraTrees, HistGB, RBF kernel ridge; PFN-SCM, PFN pretrained on the conventional SCM/MLP prior (P0); PFN-A, uniform mathematical prior; PFN-D, disagreement-adaptive prior with floor; MAPLE-F, PFN-D with local competence routing.}
+\end{tabularx}
+\par\vspace{2pt}{\justifying\noindent Lower is better; best in bold, second best underlined. MAE is in the original target units. RF = random forest. MAPLE uses local competence routing.\par}
+\end{adjustwidth}
 \end{table}

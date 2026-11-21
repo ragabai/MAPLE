@@ -2,8 +2,9 @@
 \caption{Main experimental configuration.}
 \label{tab:table02_configuration}
 \centering
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lc}
+\fontsize{9}{11}\selectfont
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
 \toprule
 setting & value \\
 \midrule
@@ -12,7 +13,7 @@ PFN parameters & 4,026,369 \\
 Pretraining steps & 15,000 (AdamW, lr 0.0003, wd 0.01, warm-up 500, cosine) \\
 Batch & token budget 32,768; context n \textasciitilde{} log-U[16, 1024]; d \textasciitilde{} log-U[1, 32]; 128 queries \\
 Prior cells & 18 training families $\times$ 3 complexity levels = 54 \\
-Sampler & $\tau$ = 0.2, $\gamma$ = 0.1 (D), EMA $\lambda$ = 0.5, clip B = 4.0 \\
+Sampler & $\tau$ = 0.2, $\gamma$ = 0.1 (MAPLE-Net), EMA $\lambda$ = 0.5, clip B = 4.0 \\
 Adaptation & every U = 1000 steps, m = 4 probe tasks/cell, probe n = 128 \\
 Committee & ridge, knn, extratrees, hgb, rbf \\
 Pretraining seeds & 0, 1, 2 (ablations: seed 0) \\
@@ -20,10 +21,8 @@ Real-data regimes & n\_train $\in$ [128, 512, 2048]; repeats \{128: 10, 512: 5, 
 Routing & 5-fold OOF on training split; $\beta$, $\kappa$ selected on 150 synthetic tasks from the learned prior \\
 HPO budget (-T) & 10 random configurations, 3-fold CV on the training split \\
 CatBoost categoricals & one-hot for <= 255 levels (one\_hot\_max\_size = 255), default and -T \\
-External references & TabPFN v2 weights (tabpfn 9.2.0); TabICL v2 regressor (tabicl 2.2.0); library defaults, GPU; not in the pre-registered comparison set \\
 Synthetic evaluation & 200 tasks per suite $\times$ 8 suites \\
 Statistics & unit = dataset (real) / task (synthetic); Friedman + Nemenyi; Wilcoxon signed-rank with Holm; rank-biserial r; bootstrap 95\% CI \\
 \bottomrule
-\end{tabular}}
-\par\vspace{2pt}{\footnotesize All values are read from configs/*.yaml and the trained checkpoint.}
+\end{tabularx}
 \end{table}

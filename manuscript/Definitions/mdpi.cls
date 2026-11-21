@@ -851,8 +851,7 @@
 			}
 			\fancyfoot[R]{
 			\fontsize{8}{8}\selectfont
-			{%
-			}{\url{https://doi.org/\@doinum}}}%
+		\ifx\@doinum\@empty\else\url{https://doi.org/\@doinum}\fi}%
 		}
 	}
 }
@@ -1808,7 +1807,7 @@
       \isPreprints{}{%
         \rfoot{%
 	   \fontsize{8}{8}\selectfont%
-	  {\url{https://doi.org/\@doinum}}%
+	  \ifx\@doinum\@empty\else\url{https://doi.org/\@doinum}\fi%
      }
   }
 }

@@ -22,7 +22,7 @@ GRID, AXIS = "#e1e0d9", "#c3c2b7"
 NEUTRAL = "#b5b3ab"  # de-emphasised baselines
 
 # Fixed entity -> colour map (stable across all figures).
-METHOD_COLORS = {"MAPLE-F": SERIES[0], "MAPLE-E": SERIES[6], "D": SERIES[0], "C": SERIES[2], "B": SERIES[3],
+METHOD_COLORS = {"MAPLE": SERIES[0], "MAPLE-Global": SERIES[6], "D": SERIES[0], "C": SERIES[2], "B": SERIES[3],
                  "A": SERIES[1], "P0": SERIES[4], "catboost": SERIES[5], "catboost_tuned": SERIES[5],
                  "xgboost": SERIES[7], "xgboost_tuned": SERIES[7]}
 

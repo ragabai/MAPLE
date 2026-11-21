@@ -91,30 +91,30 @@ def build_report(stats: dict, df: pd.DataFrame, sdf: pd.DataFrame) -> tuple[str,
                      f"{f['chi2']:.1f}, p = {fmt_p(f['p'])}; Nemenyi critical difference = {r['nemenyi_cd']:.2f}.")
         rq = r.get("rq", {})
         L += ["", "**Key comparisons (RQ4–RQ6).**", ""]
-        pairs = [("RQ4_A_vs_P0", "PFN-A", "PFN-SCM"), ("RQ4_D_vs_P0", "PFN-D", "PFN-SCM"),
-                 ("RQ1_real_D_vs_A", "PFN-D", "PFN-A"), ("RQ2_real_C_vs_B", "PFN-C", "PFN-B"),
-                 ("RQ5_F_vs_PFN-D", "MAPLE-F", "PFN-D"), ("RQ5_F_vs_Stack(experts)", "MAPLE-F", "Stack(experts)"),
-                 ("RQ5_F_vs_Stack(PFN-D)", "MAPLE-F", "Stack(PFN-D)"), ("RQ5_F_vs_MAPLE-E", "MAPLE-F", "MAPLE-E"),
-                 ("RQ6_F_vs_CatBoost-T", "MAPLE-F", "CatBoost-T"), ("RQ6_F_vs_XGBoost-T", "MAPLE-F", "XGBoost-T"),
-                 ("RQ6_F_vs_LightGBM-T", "MAPLE-F", "LightGBM-T")]
+        pairs = [("RQ4_A_vs_P0", "MAPLE-Net/Uniform", "MAPLE-Net/SCM"), ("RQ4_D_vs_P0", "MAPLE-Net", "MAPLE-Net/SCM"),
+                 ("RQ1_real_D_vs_A", "MAPLE-Net", "MAPLE-Net/Uniform"), ("RQ2_real_C_vs_B", "MAPLE-Net/Gap", "MAPLE-Net/Loss"),
+                 ("RQ5_F_vs_MAPLE-Net", "MAPLE", "MAPLE-Net"), ("RQ5_F_vs_Stack(experts)", "MAPLE", "Stack(experts)"),
+                 ("RQ5_F_vs_Stack(MAPLE-Net)", "MAPLE", "Stack(MAPLE-Net)"), ("RQ5_F_vs_MAPLE-Global", "MAPLE", "MAPLE-Global"),
+                 ("RQ6_F_vs_CatBoost-T", "MAPLE", "CatBoost-T"), ("RQ6_F_vs_XGBoost-T", "MAPLE", "XGBoost-T"),
+                 ("RQ6_F_vs_LightGBM-T", "MAPLE", "LightGBM-T")]
         for k, a, b in pairs:
             L.append(f"- {verdict(rq.get(k, {}), a, b)}")
         ex = r.get("exploratory", {})
         if ex:
             L += ["", "**Exploratory (not pre-registered; raw p).**", ""]
-            for k, a, b in (("StackPFN_vs_StackExperts", "Stack(PFN-D)", "Stack(experts)"), ("E_vs_F", "MAPLE-E", "MAPLE-F")):
+            for k, a, b in (("StackPFN_vs_StackExperts", "Stack(MAPLE-Net)", "Stack(experts)"), ("E_vs_F", "MAPLE-Global", "MAPLE")):
                 L.append(f"- {verdict(ex.get(k, {}), a, b)}")
-        if "MAPLE-F" in full and len(full):
-            classical = [c for c in full.columns if not c.startswith(("PFN", "MAPLE", "Stack(PFN", "TabPFN", "TabICL"))]
+        if "MAPLE" in full and len(full):
+            classical = [c for c in full.columns if not (A.is_ours(c) or c in A.EXTERNAL_LABELS)]
             best_cls = full[classical].min(axis=1)
-            ben = full.index[full["MAPLE-F"] < best_cls].tolist()
-            notb = full.index[full["MAPLE-F"] >= best_cls].tolist()
-            L += ["", f"**Datasets that benefited.** MAPLE-F beat the best classical method on {len(ben)}/{len(full)} "
+            ben = full.index[full["MAPLE"] < best_cls].tolist()
+            notb = full.index[full["MAPLE"] >= best_cls].tolist()
+            L += ["", f"**Datasets that benefited.** MAPLE beat the best classical method on {len(ben)}/{len(full)} "
                   f"datasets: {', '.join(ben) if ben else 'none'}.",
                   f"**Datasets that did not benefit.** {', '.join(notb) if notb else 'none'}."]
             summary["real"][reg] = {"n_datasets": len(full), "best": best, "ranks": ranks.round(3).to_dict(),
                                     "benefited": ben, "not_benefited": notb,
-                                    "maple_mean_nrmse": float(full["MAPLE-F"].mean()),
+                                    "maple_mean_nrmse": float(full["MAPLE"].mean()),
                                     "best_classical_mean_nrmse": float(best_cls.mean()),
                                     "rq": {k: {kk: (float(vv) if isinstance(vv, (int, float, np.floating)) else vv)
                                                for kk, vv in v.items()} for k, v in rq.items() if v}}
@@ -134,22 +134,22 @@ def build_report(stats: dict, df: pd.DataFrame, sdf: pd.DataFrame) -> tuple[str,
               "**What happened.** Mean NRMSE on in-distribution and pooled out-of-distribution suites:", "",
               gap.round(3).sort_values("ood").to_markdown(), ""]
         rq1 = syn.get("RQ1_nrmse", {})
-        L += [f"- RQ1 (ID): {verdict(rq1.get('id', {}), 'PFN-D', 'PFN-A')}",
-              f"- RQ1 (pooled OOD): {verdict(rq1.get('pooled_ood', {}), 'PFN-D', 'PFN-A')}"]
+        L += [f"- RQ1 (ID): {verdict(rq1.get('id', {}), 'MAPLE-Net', 'MAPLE-Net/Uniform')}",
+              f"- RQ1 (pooled OOD): {verdict(rq1.get('pooled_ood', {}), 'MAPLE-Net', 'MAPLE-Net/Uniform')}"]
         for s, rec in rq1.get("per_suite", {}).items():
             if rec:
                 L.append(f"  - {s}: median rel. diff {rec['median_diff'] * 100:.1f}%, Holm-adjusted p across suites = "
                          f"{fmt_p(rec.get('p_holm_across_suites'))}")
         rq2 = syn.get("RQ2", {})
         rq2f = syn.get("RQ2_nrmse_f", {})
-        L += [f"- RQ2 (all tasks, NRMSE, pre-registered): {verdict(rq2.get('all', {}), 'PFN-C', 'PFN-B')}",
-              f"- RQ2 (high-noise tasks): {verdict(rq2.get('high_noise', {}), 'PFN-C', 'PFN-B')}",
-              f"- RQ2 (low-noise tasks): {verdict(rq2.get('low_noise', {}), 'PFN-C', 'PFN-B')}",
+        L += [f"- RQ2 (all tasks, NRMSE, pre-registered): {verdict(rq2.get('all', {}), 'MAPLE-Net/Gap', 'MAPLE-Net/Loss')}",
+              f"- RQ2 (high-noise tasks): {verdict(rq2.get('high_noise', {}), 'MAPLE-Net/Gap', 'MAPLE-Net/Loss')}",
+              f"- RQ2 (low-noise tasks): {verdict(rq2.get('low_noise', {}), 'MAPLE-Net/Gap', 'MAPLE-Net/Loss')}",
               f"- RQ2 (all tasks, excess NRMSE vs noise-free target, supplementary): "
-              f"{verdict(rq2f.get('all', {}), 'PFN-C', 'PFN-B')}"]
+              f"{verdict(rq2f.get('all', {}), 'MAPLE-Net/Gap', 'MAPLE-Net/Loss')}"]
         rq4 = syn.get("RQ4_synthetic_nrmse", {})
-        L += [f"- Prior comparison (ID): {verdict(rq4.get('id_A_vs_P0', {}), 'PFN-A', 'PFN-SCM')}",
-              f"- Prior comparison (OOD): {verdict(rq4.get('ood_A_vs_P0', {}), 'PFN-A', 'PFN-SCM')}"]
+        L += [f"- Prior comparison (ID): {verdict(rq4.get('id_A_vs_P0', {}), 'MAPLE-Net/Uniform', 'MAPLE-Net/SCM')}",
+              f"- Prior comparison (OOD): {verdict(rq4.get('ood_A_vs_P0', {}), 'MAPLE-Net/Uniform', 'MAPLE-Net/SCM')}"]
         rq3 = syn.get("RQ3", {})
         if rq3:
             L += ["", "**Does disagreement track error (RQ3)?** Task-level Spearman correlation between the "
@@ -160,7 +160,7 @@ def build_report(stats: dict, df: pd.DataFrame, sdf: pd.DataFrame) -> tuple[str,
                          f"(the regime where Prop. 4 makes Δ̄ informative); for comparison ρ(loss, excess) = "
                          f"{r3['spearman_loss_vs_excess']:.2f}.")
         if len(sdf):
-            fb = family_breakdown(sdf, ["PFN-A", "PFN-D", "ExtraTrees", "CatBoost", "PFN-SCM"])
+            fb = family_breakdown(sdf, ["MAPLE-Net/Uniform", "MAPLE-Net", "ExtraTrees", "CatBoost", "MAPLE-Net/SCM"])
             L += ["", "**By structure and noise (mean NRMSE).**", "", fb.round(3).to_markdown(), ""]
             summary["synthetic"]["breakdown"] = fb.round(4).to_dict()
         r3r = syn.get("RQ3_real", {})
@@ -174,12 +174,12 @@ def build_report(stats: dict, df: pd.DataFrame, sdf: pd.DataFrame) -> tuple[str,
     # ------------------------------------------------------------------ ablations
     ab = stats.get("ablation", {})
     if ab:
-        L += ["## Ablations and sensitivity (one-factor changes from PFN-D, seed 0)", ""]
+        L += ["## Ablations and sensitivity (one-factor changes from MAPLE-Net, seed 0)", ""]
         for n, rec in sorted(ab.items()):
             s = rec.get("synthetic", {})
             if s:
                 ch = s["delta_vs_ref"] * 100
-                L.append(f"- {n}: median relative NRMSE change vs PFN-D on synthetic tasks {ch:+.1f}% "
+                L.append(f"- {n}: median relative NRMSE change vs MAPLE-Net on synthetic tasks {ch:+.1f}% "
                          f"(positive = worse; raw p = {fmt_p(s['p'])})"
                          + (f"; real n=512 {rec['real512']['delta_vs_ref'] * 100:+.1f}% (raw p = {fmt_p(rec['real512']['p'])})"
                             if rec.get("real512") else ""))

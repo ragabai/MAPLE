@@ -1,0 +1,76 @@
+## 4. Theoretical Analysis
+
+This section states what can be proved about the sampler of Section 3.4 for a fixed PFN: what objective it solves,
+how far it can move from the base prior, how stable and how accurately estimated it is, and when its label-free
+score measures the PFN's excess error. Appendix A gives the proofs, and the test suite checks each statement
+numerically. Section 4.4 lists open questions about the coupled dynamics of the sampler and network.
+
+### 4.1 Variational characterisation and robustness
+
+**Proposition 1 (Gibbs variational principle).** For $p^{0}$ with full support, $s\in\mathbb{R}^{M}$ and $\tau>0$, the
+problem $\max_{q\in\Delta_M}\langle q,s\rangle-\tau\,\mathrm{KL}(q\|p^{0})$ has the unique solution
+$q^{*}=\mathrm{Gibbs}(p^{0},s/\tau)$, with optimal value $\tau\log\sum_c p^{0}_c e^{s_c/\tau}$. Moreover, for $\rho>0$ and
+non-constant $s$ with $\rho<\log(1/p^{0}(\arg\max s))$, every maximiser of $\langle q,s\rangle$ over the KL ball
+$\{q:\mathrm{KL}(q\|p^{0})\le\rho\}$ is a Gibbs distribution for some finite $\tau(\rho)$ [@donsker1975asymptotic;
+@bental2013robust].
+
+With the loss score $s_c=R_c(\theta)$, alternating Proposition 1 with gradient steps is a KL-smoothed form of
+distributionally robust optimisation over the task prior, related to Group DRO [@sagawa2020distributionally]. With
+the gap score, the same update tilts the prior towards cells where the PFN and the committee disagree.
+
+### 4.2 No collapse, stability and finite-sample accuracy
+
+**Proposition 2 (no collapse, bounded tilt).** For $p^{0}=u$: $q_c\ge\gamma/M$;
+$q^{*}_a/q^{*}_b\le e^{\operatorname{osc}(s)/\tau}$; and $\mathrm{KL}(q\|u)\le(1-\gamma)\operatorname{osc}(s)/\tau$.
+
+**Proposition 3 (stability).** For all $s,s'$:
+$\|q(s)-q(s')\|_1\le(1-\gamma)\operatorname{osc}(s-s')/(2\tau)\le(1-\gamma)\|s-s'\|_\infty/\tau$.
+
+*Proof sketch.* Along $s(t)=s+t(s'-s)$, $\dot q_c=\tau^{-1}q_c(v_c-\langle q,v\rangle)$, so $\|\dot q\|_1$ is
+$\tau^{-1}$ times the mean absolute deviation of $v$ under $q$. That deviation is at most $\operatorname{osc}(v)/2$, by
+Cauchy–Schwarz and Popoviciu's inequality. Integrating over $t\in[0,1]$ gives the bound.
+
+**Theorem 1 (finite-sample accuracy of the sampler).** With $m$ independent probe tasks per cell, scores clipped to
+$[0,B]$ and $\theta$ fixed within the round, with probability at least $1-\delta$:
+
+$$
+\max_c|\hat s_c-s_c|\le B\sqrt{\frac{\log(2M/\delta)}{2m}},\qquad
+\|q(\hat s)-q(s)\|_1\le\frac{(1-\gamma)B}{\tau}\sqrt{\frac{\log(2M/\delta)}{2m}}.
+$$
+
+*Proof.* Apply Hoeffding's inequality [@hoeffding1963probability] to each cell, take a union bound over the $M$
+cells, and apply Proposition 3. With an exponential moving average of factor $\lambda$ and stationary scores, $m$ can
+be replaced by $m(1+\lambda)/(1-\lambda)$.
+
+**Proposition 5 (bounded distortion of the base prior).** If $0\le\ell\le L$, then
+$|\mathbb{E}_{G_q}\ell-\mathbb{E}_{G_u}\ell|\le L\,\mathrm{TV}(q,u)\le L\sqrt{(1-\gamma)\operatorname{osc}(s)/(2\tau)}$.
+
+Propositions 2, 3 and 5 together say that the sampler moves away from the uniform prior only in proportion to the
+range of its scores divided by the temperature. A small score range therefore keeps it close to uniform, which is
+what we observe in Section 6.3.
+
+### 4.3 When disagreement tracks excess error
+
+**Proposition 4 (disagreement and error).** If $\theta,f_1,\dots,f_K$ depend only on the context and the query noise is
+independent of it, then (a) $\mathbb{E}(\theta-y)^2=\|\theta-f^{*}\|^2+\mathbb{E}\sigma^2(x)$; (b)
+$|\sqrt{\bar\Delta}-\|\theta-f^{*}\||\le\|\bar f-f^{*}\|$, so if $\|\bar f-f^{*}\|\le\eta\|\theta-f^{*}\|$ with
+$\eta<1$, then $(1-\eta)^2\|\theta-f^{*}\|^2\le\bar\Delta\le(1+\eta)^2\|\theta-f^{*}\|^2$; (c) the ambiguity
+decomposition $(\bar f-y)^2=\frac1K\sum_k(f_k-y)^2-A$ holds pointwise [@krogh1995neural]; and (d) by (a), the
+difference of test MSEs $\mathbb{E}(\theta-y)^2-\mathbb{E}(\bar f-y)^2=\|\theta-f^{*}\|^2-\|\bar f-f^{*}\|^2$ contains no
+noise term.
+
+Part (a) shows that a loss-based score contains the irreducible noise additively. Part (b) shows that the label-free
+gap tracks the PFN's excess error whenever the committee is more accurate than the PFN. When the committee is worse
+($\eta\ge1$), $\bar\Delta$ also measures the committee's own error, a failure mode known from query-by-committee
+[@burbidge2007active] that Section 6.3 tests empirically. Part (d) gives a label-computable proxy for the difference
+of excess errors, which we use on real data, where $f^{*}$ is unknown.
+
+### 4.4 Cost and open questions
+
+One adaptation round costs $M m(C_{\mathrm{PFN}}+\sum_k C_{\mathrm{fit},k})$. One PFN forward pass costs
+$O(L[(n^2+n\,n_q)d_m+(n+n_q)d_m^2])$, with no $n_q^2$ term because queries do not attend to each other.
+
+Three conjectures remain unproved. (C1) When the sampler adapts slowly relative to the PFN, $q_t$ tracks the
+KL-regularised robust solution for the current $\theta_t$. (C2) Disagreement-based sampling is more robust than
+loss-based sampling when noise varies across tasks. (C3) Gains on structural OOD suites transfer to real data only
+to the extent that real data resemble the mathematical prior. Section 6 examines C2 and C3 empirically.

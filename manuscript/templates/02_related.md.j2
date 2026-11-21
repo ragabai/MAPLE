@@ -4,9 +4,7 @@
 datasets sampled from a prior over data-generating mechanisms. It learns to approximate the posterior predictive
 distribution in a single forward pass [@muller2022transformers]. TabPFN applied this idea to small tabular
 classification problems with structural-causal-model and Bayesian-neural-network priors [@hollmann2023tabpfn].
-TabPFN v2 extended it to regression and larger tables [@hollmann2025accurate], and TabPFN-2.5 scaled it further
-[@grinsztajn2025tabpfn25]. Related models use different architectures or data: TabICL scales in-context learning to
-large tables [@qu2025tabicl], and TabDPT pretrains on real rather than synthetic tables [@ma2024tabdpt]. A
+TabDPT pretrains on real tables [@ma2024tabdpt]. A
 statistical analysis attributes PFN bias to the prior and PFN variance to the context size [@nagler2023statistical].
 Several studies show that the choice of prior governs generalisation. Forest-generated tasks improve in-context
 classifiers [@breejen2024fine], drift-aware priors handle temporal shift [@helli2024drift], and Mitra builds a
@@ -14,7 +12,8 @@ curated mixture of synthetic priors chosen for diversity, distinctiveness and re
 [@zhang2025mitra]. PFNs trained on parametric mathematical priors also exist for Bayesian optimisation and
 learning-curve extrapolation [@muller2023pfns4bo; @adriaensen2023efficient]. Across this literature the prior is
 fixed, or chosen by an outer loop over complete training runs (calibration, configuration search, mixture
-selection). We are not aware of work that re-weights a PFN's prior *within* a single pretraining run.
+selection). Our review of 125 references found no method that re-weights a
+PFN's prior *within* a single pretraining run; this is a bounded search, not proof of absence.
 
 **In-context learning of function classes.** Transformers trained on linear, sparse, tree and network function
 classes learn to regress in context [@garg2022what]. Above a threshold of pretraining task diversity, they

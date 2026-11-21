@@ -1,10 +1,23 @@
-{%- set R = S.stats.real -%}
-{%- set SY = S.stats.synthetic -%}
-{%- set T11 = S.tables.table11_summary -%}
-{%- set ns = namespace(ext_best=true) -%}
-{%- for g in ['128', '512', '2048'] -%}{%- set best = (T11['mean NRMSE (n=' ~ g ~ ')'] | dictsort(by='value'))[0][0] -%}{%- if best not in ['TabPFN-v2', 'TabICL'] -%}{%- set ns.ext_best = false -%}{%- endif -%}{%- endfor -%}
 ---
-title: "Adaptive Mathematical Priors Steered by Expert Disagreement for Tabular Prior-Data Fitted Networks: Theory and a Pre-Registered Evaluation"
-abstract: "Prior-data fitted networks (PFNs) learn tabular prediction from synthetic tasks, so their accuracy depends on the prior. We ask whether re-weighting a mathematical prior during pretraining, towards cells where the PFN disagrees with a committee of classical experts, yields a better regressor at equal compute. MAPLE combines a {{ S.n_cells }}-cell mathematical task generator, a KL-regularised adaptive sampler with proofs of non-collapse, stability, finite-sample accuracy and bounded prior distortion, and competence routing between the PFN and the experts. In a pre-registered evaluation on {{ R['128'].n_datasets_full }} regression datasets at three training-set sizes and eight synthetic suites, the adaptive sampler was indistinguishable from a uniform prior (pooled out-of-distribution difference {{ pct(-SY.RQ1_nrmse.pooled_ood.median_diff) }}, Holm-adjusted p = {{ num(SY.RQ1_nrmse.pooled_ood.p_holm_family, 2) }}): disagreement scores varied too little across cells to move it. The mathematical prior beat a structural-causal-model prior by {{ pct(S.stats.ablation.P0.synthetic.delta_vs_ref, 0) }} on synthetic suites but not on real data. Routing reduced the PFN's median error by {{ reduction(R['128'].rq['RQ5_F_vs_PFN-D']) }} to {{ reduction(R['2048'].rq['RQ5_F_vs_PFN-D']) }} and, with 128 training rows, outperformed tuned CatBoost (Holm-adjusted p = {{ num(R['128'].rq['RQ6_F_vs_CatBoost-T'].p_holm_family, 3) }}); with more rows, stacking the experts alone was as accurate.{% if ns.ext_best %} Large pretrained foundation models (TabPFN v2, TabICL), run as external references, had the lowest mean error at every size.{% endif %} At this scale, pretraining compute and prior complexity matter more than adaptive weighting."
+title: "MAPLE: Disagreement-Guided Prior Adaptation and Competence Routing for Tabular Regression"
+authors:
+  - name: Mohamed A. Mahdi
+    affiliation: Information and Computer Science Department, College of Computer Science and Engineering, University of Ha’il, Ha’il, 55476, Saudi Arabia
+    email: m.mahdi@uoh.edu.sa
+  - name: Mohammed Gamal Ragab
+    affiliation: Department of Computing, Universiti Teknologi PETRONAS, Seri Iskandar, 32610, Perak, Malaysia
+    email: mohammed.ragab@utp.edu.my
+  - name: Ayed Alwadain
+    affiliation: Department of Software Engineering, College of Computer and Information Sciences, King Saud University, Riyadh, Saudi Arabia
+    email: aalwadain@ksu.edu.sa
+  - name: Amgad Muneer
+    affiliation: The University of Texas MD Anderson Cancer Center
+    email: muneeramgad@gmail.com
+abstract: >-
+  Prior-data fitted networks (PFNs) learn from synthetic tasks, making their generalization critically dependent on the underlying pretraining prior. However, whether dynamically adapting this prior improves predictive performance under fixed computational budgets remains unclear.
+  We introduce MAPLE, a framework for adaptive mathematical prior sampling guided by label-free disagreement between a PFN and a committee of classical regressors. MAPLE organizes {{ S.n_families }} mathematical function families into {{ S.n_cells }} task cells and employs a Kullback–Leibler-regularized sampler with theoretical guarantees of non-collapse, stability, finite-sample accuracy, and bounded prior distortion. A competence-based routing mechanism further combines PFN and expert predictions at inference.
+  We evaluated MAPLE on {{ S.stats.real['128'].n_datasets_full }} real-world regression datasets across three training-set sizes and eight synthetic benchmark suites under matched pretraining budgets. Contrary to the central hypothesis, adaptive sampling did not improve over a uniform mathematical prior (pooled out-of-distribution difference: {{ pct(-S.stats.synthetic.RQ1_nrmse.pooled_ood.median_diff) }}; Holm-adjusted p = {{ num(S.stats.synthetic.RQ1_nrmse.pooled_ood.p_holm_family, 3) }}), primarily because disagreement scores provided insufficient separation between task cells. Although mathematical priors reduced synthetic out-of-distribution error by {{ pct(S.stats.synthetic.RQ4_synthetic_nrmse.ood_A_vs_P0.median_diff, 0) }} relative to a structural-causal-model prior, this improvement did not translate to real-world datasets.
+  Competence routing consistently improved performance over the standalone PFN and outperformed tuned CatBoost with 128 training samples (Holm-adjusted p = {{ num(S.stats.real['128'].rq['RQ6_F_vs_CatBoost-T'].p_holm_family, 3) }}). At larger sample sizes, classical expert stacking achieved comparable or better performance.
+  These findings establish theoretical and empirical boundaries for disagreement-guided prior adaptation and demonstrate that pretraining scale, prior complexity, and expert integration are more consequential than adaptive reweighting within the investigated computational regime.
 keywords: [prior-data fitted networks, tabular regression, synthetic pretraining, adaptive sampling, expert disagreement, distributionally robust optimisation, mathematical priors, out-of-distribution generalisation]
 ---

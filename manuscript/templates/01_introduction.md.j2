@@ -5,52 +5,51 @@ small to medium-sized, heterogeneous and noisy, and gradient-boosted trees remai
 [@grinsztajn2022why; @mcelfresh2023when]. Prior-data fitted networks (PFNs) offer an alternative. A transformer is
 pretrained once on millions of synthetic datasets drawn from a prior, then predicts on a new dataset in a single
 forward pass, approximating Bayesian posterior prediction under that prior [@muller2022transformers;
-@hollmann2023tabpfn; @hollmann2025accurate]. Because a PFN can only be as good as its prior
-[@nagler2023statistical], much recent progress has come from *designing priors*: structural causal models, forest
+@hollmann2023tabpfn]. Because a PFN can only be as good as its prior
+[@nagler2023statistical], much recent progress has come from designing priors: structural causal models, forest
 priors and curated mixtures of priors [@breejen2024fine; @zhang2025mitra].
 
 In current practice the prior is fixed before training, or improved by an outer loop that retrains the whole model
-for each candidate prior [@hollmann2025accurate; @grinsztajn2025tabpfn25; @zhang2025mitra]. Each outer iteration
-costs a full pretraining run. Within a run, every region of the prior receives training effort in fixed
-proportions, whether or not the model has already learned it. This raises a natural question: can the prior be
-re-weighted *during* pretraining, towards the parts the model has not yet learned, at little extra cost?
+for each candidate prior [@zhang2025mitra]. Each outer iteration
+costs a full pretraining run, and within a run every region of the prior receives training effort in fixed
+proportions, whether or not the model has already learned it. We ask whether the prior can instead be re-weighted
+during pretraining, towards the parts the model has not yet learned, at little extra cost.
 
-Answering this question requires two things: a prior whose parts are meaningful and can be re-weighted, and a
-signal that says which parts are under-learned. For the first, we use *mathematical* priors. Interpretable families
-of functions, such as polynomial, exponential, saturating, oscillatory, piecewise and ODE-generated relationships,
-are organised into cells (family × complexity). For the second, a label-based loss is an obvious choice, but by
-Proposition 4 the expected squared loss contains the irreducible noise variance additively, so a loss-driven
-sampler can chase noise. We instead use the **disagreement between the PFN and a committee of cheap classical
-experts** fitted on the same context. This signal needs no labels at the query points and contains no additive noise
-term, and it tracks the PFN's excess error when the committee is the more accurate party.
+Two ingredients are needed: a prior whose parts are meaningful and can be re-weighted, and a signal that says which
+parts are under-learned. For the first, we use mathematical priors. Interpretable families of functions, such as
+polynomial, exponential, saturating, oscillatory, piecewise and ODE-generated relationships, are organised into
+cells (family × complexity). For the second, the training loss is the obvious candidate, but its expectation
+contains the irreducible noise variance additively (Proposition 4), so a loss-driven sampler can chase noise. We
+use instead the disagreement between the PFN and a committee of cheap classical experts fitted on the same context.
+This signal needs no labels at the query points, contains no additive noise term, and tracks the PFN's excess error
+whenever the committee is the more accurate party.
 
-The research hypothesis is that adaptive mathematical task generation, guided by such disagreement, yields a
-computationally efficient tabular regressor that generalises better to unseen datasets than conventional synthetic
-pretraining, ensembles, and individual models. We treat this as a hypothesis to test rather than a claim. All
-comparisons are made at equal pretraining compute, and the research questions and statistical tests were fixed
-before the main experiments.
+Our hypothesis is that adaptive mathematical task generation guided by this disagreement yields a computationally
+efficient tabular regressor that generalises better to unseen datasets than conventional synthetic pretraining,
+ensembles and individual models. We test it at equal pretraining compute, with research questions and statistical
+tests fixed before the main experiments, and we report the outcome in full: the adaptive sampler did not improve
+accuracy, and the paper analyses why.
 
-**Contributions.**
+The paper makes five contributions.
 
-1. **Mechanism.** A disagreement-steered adaptive sampler for PFN pretraining over a cell-structured mathematical
-   prior. The sampler is the closed-form solution of a KL-regularised objective (equivalently, a KL-ball
-   distributionally robust problem over the task prior) with a uniform floor. We pair it with competence routing
-   between the PFN and classical experts at inference, whose two hyperparameters are chosen on synthetic tasks only.
-2. **Analysis.** Proofs that the sampler cannot collapse, is Lipschitz-stable in the cell scores, is estimated to
-   accuracy $O(B\tau^{-1}\sqrt{\log(M/\delta)/m})$ from $m$ probe tasks per cell, and distorts the base prior by a
-   bounded amount. We also characterise exactly when label-free disagreement tracks excess error (Propositions 1–5,
+1. A disagreement-steered adaptive sampler for PFN pretraining over a cell-structured mathematical prior. The
+   sampler is the closed-form solution of a KL-regularised objective (equivalently, a KL-ball distributionally robust
+   problem over the task prior) with a uniform floor. It is paired with competence routing between the PFN and
+   classical experts at inference, whose two hyperparameters are chosen on synthetic tasks only.
+2. An analysis of the sampler: it cannot collapse, is Lipschitz-stable in the cell scores, is estimated to accuracy
+   $O(B\tau^{-1}\sqrt{\log(M/\delta)/m})$ from $m$ probe tasks per cell, and distorts the base prior by a bounded
+   amount. We also characterise exactly when label-free disagreement tracks excess error (Propositions 1–5,
    Theorem 1).
-3. **Generator.** A configurable generator of 18 mathematical and scientific function families with correlated,
-   irrelevant, redundant, categorical and missing features and heteroscedastic noise. It comes with seven
-   structurally out-of-distribution test suites that differ from training in structure, not merely in random seed.
-4. **Evidence.** A controlled empirical study: {{ S.stats.real['128'].n_datasets_full }} public regression datasets
-   at three training-set sizes, eight synthetic suites, 13 classical and tuned baselines, seven PFN variants with three
-   pretraining seeds, ablations and sensitivity analyses, plus two large pretrained tabular foundation models
-   (TabPFN v2 and TabICL) as external reference points. Pre-registered tests are reported in full, including where
-   the hypothesis is not supported.
-5. **Artifacts.** An open, restartable pipeline that regenerates every table, figure and number in this paper from
-   append-only raw records.
+3. A configurable generator of 18 mathematical and scientific function families with correlated, irrelevant,
+   redundant, categorical and missing features and heteroscedastic noise, together with seven out-of-distribution
+   test suites, each of which changes one structural aspect of the tasks relative to training (function families,
+   composition, parameter range, interaction order, partition, noise law or regime mixing).
+4. A controlled empirical study on {{ S.stats.real['128'].n_datasets_full }} public regression datasets at three
+   training-set sizes and eight synthetic suites, with classical and tuned baselines, three pretraining seeds for
+   the main variants, and ablation and sensitivity analyses.
+5. An open, restartable pipeline that regenerates every table, figure and number in this paper from append-only raw
+   records.
 
-Section 2 reviews related work. Sections 3–5 present the formulation, method and theory. Section 6 describes the
-experimental protocol. Sections 7–9 report results, ablations and statistics. Section 10 discusses the findings and
-their limitations, and Section 11 concludes.
+Section 2 reviews related work. Section 3 presents the MAPLE framework and Section 4 its theoretical analysis.
+Section 5 describes the experimental protocol, and Section 6 reports the results, including ablations. Section 7
+discusses the findings and their limitations, and Section 8 concludes.

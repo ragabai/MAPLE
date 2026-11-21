@@ -1,24 +1,26 @@
 \begin{table}[H]
+\begin{adjustwidth}{-\extralength}{0cm}
 \caption{Positioning of MAPLE relative to the closest prior work (literature assessment, not an experimental result).}
 \label{tab:table_novelty}
 \centering
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccccccc}
+\fontsize{8}{10}\selectfont
+\setlength{\tabcolsep}{1.5pt}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.20\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X}
 \toprule
-work & synthetic ICL pretraining & math/scientific families & online & label-free & committee & diversity floor & guarantees & tabular regression \\
+work & synthetic ICL pretraining & math/\allowbreak{}scientific families & online & label-free & committee & diversity floor & guarantees & tabular regression \\
 \midrule
 TabPFN & $\checkmark$ & $\times$ & $\times$ & – & $\times$ & – & – & $\times$ \\
-TabPFN v2 / 2.5 & $\checkmark$ & $\times$ & $\times$ (offline) & – & $\times$ & – & – & $\checkmark$ \\
 Mitra & $\checkmark$ & \textasciitilde{} & $\times$ (offline mixture) & – & $\times$ & \textasciitilde{} & $\times$ & $\checkmark$ \\
 Garg et al. 2022 & $\checkmark$ & \textasciitilde{} & $\times$ (fixed schedule) & – & $\times$ & – & $\times$ & $\checkmark$ \\
 Bandit ACL (Graves et al.) & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & \textasciitilde{} & $\checkmark$ & $\times$ \\
-PLR / PAIRED & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & \textasciitilde{} & \textasciitilde{} & $\times$ \\
+PLR /\allowbreak{} PAIRED & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & \textasciitilde{} & \textasciitilde{} & $\times$ \\
 Value-disagreement sampling & $\times$ & $\times$ & $\checkmark$ & $\checkmark$ & \textasciitilde{} & $\times$ & $\times$ & $\times$ \\
-Adaptive task sampling / TR-MAML & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & \textasciitilde{} & $\times$ \\
+Adaptive task sampling /\allowbreak{} TR-MAML & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & \textasciitilde{} & $\times$ \\
 Group DRO & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ \\
 Query-by-committee & $\times$ & $\times$ & $\checkmark$ (points) & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ \\
 MAPLE (this work) & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 \bottomrule
-\end{tabular}}
-\par\vspace{2pt}{\footnotesize $\checkmark$ = has the property; \textasciitilde{} = partially; $\times$ = does not. Columns: online = task distribution adapted within one training run; label-free = adaptation signal needs no target values; committee = signal from heterogeneous classical learners; guarantees = stability/concentration results for the sampler.}
+\end{tabularx}
+\par\vspace{2pt}{\justifying\noindent $\checkmark$ = has the property; \textasciitilde{} = partially; $\times$ = does not. Columns: online = task distribution adapted within one training run; label-free = adaptation signal needs no target values; committee = signal from heterogeneous classical learners; guarantees = stability/concentration results for the sampler.\par}
+\end{adjustwidth}
 \end{table}

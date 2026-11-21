@@ -62,6 +62,44 @@ def _latex_escape(s: str) -> str:
     return out
 
 
+def _breakable_tex(s: str) -> str:
+    return _latex_escape(s).replace(r"\_", r"\_\allowbreak{}").replace("/", r"/\allowbreak{}")
+
+
+_CENTER = r">{\centering\arraybackslash}X"
+_LEFT = r">{\raggedright\arraybackslash}X"
+_ROWS_PER_PART = {"table01_datasets": 24, "table10_statistics": 21}
+
+
+def _table_columns(name: str, cols: list, wrap: dict[str, str] | None) -> str:
+    if wrap:
+        return "l" + "".join(wrap.get(c, "l") for c in cols)
+    if name == "table12_generator":
+        return r"p{0.15\linewidth}c" + _LEFT + "c" + _CENTER * 3
+    if name == "table01_datasets":
+        return r">{\raggedright\arraybackslash}p{0.17\linewidth}" + _CENTER * 8 + r"p{0.125\linewidth}" + _CENTER
+    if name == "table10_statistics":
+        return r">{\raggedright\arraybackslash}p{0.29\linewidth}rr" + _CENTER * 6
+    if len(cols) >= 6:
+        width = "0.13" if len(cols) >= 14 else "0.15" if len(cols) >= 10 else "0.20"
+        return rf">{{\raggedright\arraybackslash}}p{{{width}\linewidth}}" + _CENTER * len(cols)
+    return "l" + (_LEFT if len(cols) == 1 else _CENTER * len(cols))
+
+
+def _tex_heading(value: str, narrow: bool) -> str:
+    text = _breakable_tex(value)
+    if narrow:
+        for name, lines in {"ExtraTrees": r"Extra\\Trees", "CatBoost": r"Cat\\Boost", "Stack(experts)": r"Stack\\(experts)",
+                            "XGBoost": r"XG\\Boost", "LightGBM": r"Light\\GBM",
+                            "TabPFN": r"Tab\\PFN", "TabICL": r"Tab\\ICL"}.items():
+            if text.startswith(name):
+                return rf"\shortstack{{{lines}{text[len(name):]}}}"
+        if text.startswith("MAPLE-Net"):
+            lines = _latex_escape(value).replace("MAPLE-Net", r"MAPLE\\-Net", 1).replace("/", r"/\\")
+            return rf"\shortstack{{{lines}}}"
+    return text
+
+
 def write_table(df: pd.DataFrame, path_stem: str | Path, caption: str, notes: str = "", sd: pd.DataFrame | None = None,
                 lower_is_better: bool | None = True, axis: int = 1, fmt: str = "{:.3f}", label: str | None = None,
                 index_name: str | None = None, mark_cols: list[str] | None = None,
@@ -88,17 +126,41 @@ def write_table(df: pd.DataFrame, path_stem: str | Path, caption: str, notes: st
     if notes:
         md += ["", notes]
     stem.with_suffix(".md").write_text("\n".join(md) + "\n", encoding="utf-8")
-    tex = ["\\begin{table}[H]", f"\\caption{{{_latex_escape(caption)}}}", f"\\label{{{label or 'tab:' + stem.name}}}", "\\centering",
-           *(["\\begin{tabularx}{\\textwidth}{l" + "".join(wrap.get(c, "l") for c in cols) + "}"] if wrap else
-             ["\\resizebox{\\textwidth}{!}{%", "\\begin{tabular}{l" + "c" * len(cols) + "}"]), "\\toprule",
-           _latex_escape(index_name or df.index.name or "") + " & " + " & ".join(_latex_escape(c) for c in cols) + " \\\\",
-           "\\midrule"]
+    full_width = (len(cols) >= 6 or stem.name == "table13_rq_verdicts"
+                  or stem.name.startswith(("table03_rmse_", "table04_mae_", "table05_r2_")))
+    narrow = len(cols) >= 10 or stem.name == "table_novelty"
+    font = r"\fontsize{8}{10}\selectfont" if narrow else r"\fontsize{9}{11}\selectfont"
+    width = r"\linewidth" if full_width else r"\textwidth"
+    spec = _table_columns(stem.name, cols, wrap)
+    padding = "1" if len(cols) >= 14 else "1.5" if narrow else "2"
+    header = _latex_escape(index_name or df.index.name or "") + " & " + " & ".join(_tex_heading(c, narrow) for c in cols)
+    rows = []
     for r in df.index:
-        tex.append(_latex_escape(r) + " & " + " & ".join(_cell(df.loc[r, c], get_sd(r, c), fmt, marks.loc[r, c], "tex")
-                                                         for c in cols) + " \\\\")
-    tex += ["\\bottomrule", "\\end{tabularx}" if wrap else "\\end{tabular}}"]
-    if notes:
-        tex.append(f"\\par\\vspace{{2pt}}{{\\footnotesize {_latex_escape(notes)}}}")
-    tex.append("\\end{table}")
+        cells = [_cell(df.loc[r, c], get_sd(r, c), fmt, marks.loc[r, c], "tex") for c in cols]
+        if narrow and sd is not None:
+            cells = [r"\shortstack{" + cell.replace(r" $\pm$ ", r"\\$\pm$", 1) + "}"
+                     if r" $\pm$ " in cell else cell for cell in cells]
+        row_label = _breakable_tex(r) if full_width else _latex_escape(r)
+        rows.append(row_label + " & " + " & ".join(cells) + r" \\")
+    part_size = _ROWS_PER_PART.get(stem.name, 24 if narrow and sd is not None else len(rows) or 1)
+    tex = []
+    for start in range(0, len(rows) or 1, part_size):
+        if start:
+            tex.append(r"\clearpage")
+        tex.append(r"\begin{table}[H]")
+        if full_width:
+            tex.append(r"\begin{adjustwidth}{-\extralength}{0cm}")
+        if start:
+            tex.extend([r"\ContinuedFloat", rf"\caption[]{{{_latex_escape(caption)} (continued)}}"])
+        else:
+            tex.extend([rf"\caption{{{_latex_escape(caption)}}}", rf"\label{{{label or 'tab:' + stem.name}}}"])
+        tex += [r"\centering", font, rf"\setlength{{\tabcolsep}}{{{padding}pt}}",
+                rf"\begin{{tabularx}}{{{width}}}{{{spec}}}", r"\toprule", header + r" \\", r"\midrule",
+                *rows[start:start + part_size], r"\bottomrule", r"\end{tabularx}"]
+        if notes and start + part_size >= len(rows):
+            tex.append(rf"\par\vspace{{2pt}}{{\justifying\noindent {_latex_escape(notes)}\par}}")
+        if full_width:
+            tex.append(r"\end{adjustwidth}")
+        tex.append(r"\end{table}")
     stem.with_suffix(".tex").write_text("\n".join(tex) + "\n", encoding="utf-8")
     return [stem.with_suffix(s) for s in (".csv", ".xlsx", ".md", ".tex")]

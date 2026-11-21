@@ -1,9 +1,10 @@
 \begin{table}[H]
-\caption{Sensitivity of PFN-D to sampler and training hyperparameters (pretraining seed 0; synthetic suites).}
+\caption{Sensitivity of MAPLE-Net to sampler and training hyperparameters (pretraining seed 0; synthetic suites).}
 \label{tab:table08_sensitivity}
 \centering
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lccc}
+\fontsize{9}{11}\selectfont
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\textwidth}{l>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X}
 \toprule
 setting & run & ID NRMSE & OOD NRMSE \\
 \midrule
@@ -32,6 +33,6 @@ max complexity = 0 & complexity\_0 & 0.4387 & 0.5396 \\
 max complexity = 1 & complexity\_1 & 0.4294 & 0.5265 \\
 max complexity = 2 & D & 0.4326 & 0.5255 \\
 \bottomrule
-\end{tabular}}
-\par\vspace{2pt}{\footnotesize Lower is better. Default values: $\tau$ = 0.2, $\gamma$ = 0.1, m = 4, $\lambda$ = 0.5, U = 1000, 5 experts, full budget, max complexity 2 (row 'D'). OOD = mean over 7 OOD suites.}
+\end{tabularx}
+\par\vspace{2pt}{\justifying\noindent Lower is better. Default values: $\tau$ = 0.2, $\gamma$ = 0.1, m = 4, $\lambda$ = 0.5, U = 1000, 5 experts, full budget, max complexity 2 (row 'D'). OOD = mean over 7 OOD suites.\par}
 \end{table}

@@ -36,7 +36,8 @@ $\|\theta-f^{*}\|\le\|\theta-\bar f\|+\|\bar f-f^{*}\|$. Under $\|\bar f-f^{*}\|
 $(1-\eta)\|\theta-f^{*}\|\le\|\theta-\bar f\|\le(1+\eta)\|\theta-f^{*}\|$; squaring gives the claim. (c) For reals
 $a_1,\dots,a_K$ with mean $\bar a$ and any $y$,
 $\frac1K\sum_k(a_k-y)^2=(\bar a-y)^2+\frac1K\sum_k(a_k-\bar a)^2$, because the cross term
-$\frac{2}{K}(\bar a-y)\sum_k(a_k-\bar a)$ is zero. $\square$
+$\frac{2}{K}(\bar a-y)\sum_k(a_k-\bar a)$ is zero. (d) Apply (a) to $\theta$ and to $\bar f$, both of which
+depend only on the context, and subtract. $\square$
 
 **Proof of Theorem 1.** For a fixed cell $c$, the per-task scores $Y_{c,1},\dots,Y_{c,m}$ are independent and lie in
 $[0,B]$. Hoeffding's inequality gives $P(|\hat s_c-s_c|\ge\epsilon)\le 2e^{-2m\epsilon^2/B^2}$. A union bound over the $M$
@@ -54,8 +55,8 @@ $\frac{L}{2}\|q-u\|_1=L\,\mathrm{TV}(q,u)$. Pinsker's inequality and Proposition
 
 ## B. Additional Results
 
-{{ tref('table10_statistics') }} lists every pairwise real-data comparison against MAPLE-F, with Holm correction
-across the comparisons within each training-set size. {{ tref('table05_r2_n512') }} gives per-dataset $R^2$ at
+{{ tref('table10_statistics') }} lists selected pairwise real-data comparisons against MAPLE. Holm correction uses
+the full main comparison set at each training-set size. {{ tref('table05_r2_n512') }} gives per-dataset $R^2$ at
 $n_{\mathrm{train}}$ = 512 with standard deviations over split repeats. The per-dataset RMSE and MAE tables (in the
 original target units) for all three training-set sizes, the $R^2$ tables for $n_{\mathrm{train}}$ = 128 and 2048, the
 per-dataset MAE figure and the seed-stability and residual figures are provided as supplementary material.
