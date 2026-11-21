@@ -4,13 +4,13 @@
 Information and Computer Science Department, College of Computer Science and Engineering, University of Ha’il, Ha’il, 55476, Saudi Arabia  
 m.mahdi@uoh.edu.sa
 
-**Mohammed Gamal Ragab**  
-Department of Computing, Universiti Teknologi PETRONAS, Seri Iskandar, 32610, Perak, Malaysia  
-mohammed.ragab@utp.edu.my
-
 **Ayed Alwadain**  
 Department of Software Engineering, College of Computer and Information Sciences, King Saud University, Riyadh, Saudi Arabia  
 aalwadain@ksu.edu.sa
+
+**Mohammed Gamal Ragab**  
+Department of Computing, Universiti Teknologi PETRONAS, Seri Iskandar, 32610, Perak, Malaysia  
+mohammed.ragab@utp.edu.my
 
 **Amgad Muneer**  
 The University of Texas MD Anderson Cancer Center  

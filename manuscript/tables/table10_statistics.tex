@@ -1,4 +1,4 @@
-\begin{table}[H]
+\begin{table}[!htb]
 \begin{adjustwidth}{-\extralength}{0cm}
 \caption{Pairwise statistical comparisons against MAPLE on real data (dataset = unit; NRMSE averaged over repeats and seeds).}
 \label{tab:table10_statistics}
@@ -30,22 +30,6 @@ n=512 MAPLE vs MAPLE-Global & 33 & 176 & 0.0626 & 0.125 & -0.373 & -0.572 & [-0.
 n=2048 MAPLE vs Ridge & 22 & 13 & 4.2e-05 & 0.000336 & 0.897 & 45.1 & [21.9, 58.2] & 20/2/0 \\
 n=2048 MAPLE vs kNN & 22 & 0 & 4.77e-07 & 6.68e-06 & 1 & 26 & [17.4, 61.3] & 22/0/0 \\
 n=2048 MAPLE vs RF & 22 & 6 & 6.68e-06 & 6.01e-05 & 0.953 & 11.6 & [3.7, 27.3] & 21/1/0 \\
-\bottomrule
-\end{tabularx}
-\end{adjustwidth}
-\end{table}
-\clearpage
-\begin{table}[H]
-\begin{adjustwidth}{-\extralength}{0cm}
-\ContinuedFloat
-\caption[]{Pairwise statistical comparisons against MAPLE on real data (dataset = unit; NRMSE averaged over repeats and seeds). (continued)}
-\centering
-\fontsize{9}{11}\selectfont
-\setlength{\tabcolsep}{2pt}
-\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.29\linewidth}rr>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X}
-\toprule
-comparison & N & W & p & p (Holm, all comparisons in regime) & r\_\allowbreak{}rb & median rel. diff (\%) & 95\% CI (\%) & W/\allowbreak{}L/\allowbreak{}T \\
-\midrule
 n=2048 MAPLE vs ExtraTrees & 22 & 43 & 0.00528 & 0.0264 & 0.66 & 7.93 & [0.7, 19.3] & 16/6/0 \\
 n=2048 MAPLE vs MLP & 22 & 75 & 0.0984 & 0.295 & 0.407 & 4.29 & [-1.5, 7.8] & 14/8/0 \\
 n=2048 MAPLE vs MAPLE-Net/\allowbreak{}SCM & 22 & 4 & 3.34e-06 & 4.34e-05 & 0.968 & 37.4 & [13.1, 53.3] & 20/2/0 \\

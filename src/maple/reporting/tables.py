@@ -68,7 +68,7 @@ def _breakable_tex(s: str) -> str:
 
 _CENTER = r">{\centering\arraybackslash}X"
 _LEFT = r">{\raggedright\arraybackslash}X"
-_ROWS_PER_PART = {"table01_datasets": 24, "table10_statistics": 21}
+_ROWS_PER_PART = {"table01_datasets": 24, "table10_statistics": 27}
 
 
 def _table_columns(name: str, cols: list, wrap: dict[str, str] | None) -> str:
@@ -145,9 +145,7 @@ def write_table(df: pd.DataFrame, path_stem: str | Path, caption: str, notes: st
     part_size = _ROWS_PER_PART.get(stem.name, 24 if narrow and sd is not None else len(rows) or 1)
     tex = []
     for start in range(0, len(rows) or 1, part_size):
-        if start:
-            tex.append(r"\clearpage")
-        tex.append(r"\begin{table}[H]")
+        tex.append(r"\begin{table}[!htb]")
         if full_width:
             tex.append(r"\begin{adjustwidth}{-\extralength}{0cm}")
         if start:
