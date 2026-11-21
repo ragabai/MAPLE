@@ -1,0 +1,293 @@
+{%- set R = S.stats.real -%}
+{%- set SY = S.stats.synthetic -%}
+{%- set SM = S.summary -%}
+{%- set T11 = S.tables.table11_summary -%}
+{%- set T6 = S.tables.table06_efficiency_n512 -%}
+{%- set T9 = S.tables.table09_generalization -%}
+{%- set AD = SM.adaptation -%}
+## 7. Results
+
+All numbers in this section are regenerated from the raw records by the scripts in the repository. Unless stated
+otherwise, NRMSE differences are median relative differences over datasets (real data) or tasks (synthetic data),
+and "$p_{\mathrm{Holm}}$" is the Holm-adjusted p-value of a two-sided Wilcoxon signed-rank test within its
+pre-registered family. W/L/T counts are wins, losses and ties of the first-named method.
+
+### 7.1 Real-data benchmark
+
+{{ tref('table11_summary') }} reports mean NRMSE, mean rank and win counts for every method at the three
+training-set sizes. {{ R['128'].n_datasets }}, {{ R['512'].n_datasets }} and {{ R['2048'].n_datasets }} datasets
+are large enough for $n_{\mathrm{train}}$ = 128, 512 and 2048 respectively (each split keeps at least 200 test
+rows).
+
+{{ table('table11_summary') }}
+
+**Overall ranking.** The Friedman test rejects equal performance of the 15 main methods at every size
+($\chi^2$ = {{ num(R['128'].friedman.chi2, 1) }}, {{ num(R['512'].friedman.chi2, 1) }} and
+{{ num(R['2048'].friedman.chi2, 1) }}; all {{ pval(R['2048'].friedman.p) }}). {{ fref('fig12_critical_difference') }}
+shows the mean ranks with Nemenyi critical differences. At $n_{\mathrm{train}}$ = 128, global routing (MAPLE-E) has
+the best mean rank ({{ num(R['128'].friedman.avg_ranks['MAPLE-E'], 2) }}), followed by MAPLE-F
+({{ num(R['128'].friedman.avg_ranks['MAPLE-F'], 2) }}) and the stacked classical experts
+({{ num(R['128'].friedman.avg_ranks['Stack(experts)'], 2) }}). At 512 and 2048 the stacked experts rank first
+({{ num(R['512'].friedman.avg_ranks['Stack(experts)'], 2) }} and {{ num(R['2048'].friedman.avg_ranks['Stack(experts)'], 2) }}),
+with MAPLE-E, MAPLE-F and tuned CatBoost within one critical difference. The three standalone PFNs rank level with
+tuned CatBoost at $n_{\mathrm{train}}$ = 128 (PFN-D: {{ num(R['128'].friedman.avg_ranks['PFN-D'], 2) }}; CatBoost-T:
+{{ num(R['128'].friedman.avg_ranks['CatBoost-T'], 2) }}) but fall to ranks
+{{ num(R['512'].friedman.avg_ranks['PFN-D'], 2) }} and {{ num(R['2048'].friedman.avg_ranks['PFN-D'], 2) }} at the
+larger sizes.
+
+{{ figure('fig12_critical_difference', 'Critical-difference diagrams over the 15 main methods for the three training-set sizes (mean rank over datasets; NRMSE averaged over split repeats and pretraining seeds). Thick bars join methods whose mean ranks differ by less than the Nemenyi critical difference (CD, $\\alpha$ = 0.05).') }}
+
+{%- macro sig(rec) -%}{{ 'significant' if rec.get('p_holm_family', rec.get('p', 1)) < 0.05 else 'not significant' }}{%- endmacro -%}
+**Routing versus the PFN alone (RQ5).** Routing the PFN together with the classical experts reduces PFN-D's error
+at every size, by a median of {{ reduction(R['128'].rq['RQ5_F_vs_PFN-D']) }} at $n_{\mathrm{train}}$ = 128
+({{ stat(R['128'].rq['RQ5_F_vs_PFN-D']) }}), {{ reduction(R['512'].rq['RQ5_F_vs_PFN-D']) }} at 512
+({{ stat(R['512'].rq['RQ5_F_vs_PFN-D']) }}) and {{ reduction(R['2048'].rq['RQ5_F_vs_PFN-D']) }} at 2048
+({{ stat(R['2048'].rq['RQ5_F_vs_PFN-D']) }}). The growing margin reflects the PFN's decline with
+$n_{\mathrm{train}}$ rather than an improvement of the router. The second half of H5, that MAPLE-F is no worse than
+stacking, does not hold at every size. Against the stacked experts, the median difference is
+{{ gain(R['128'].rq['RQ5_F_vs_Stack(experts)']) }} in MAPLE-F's favour at 128
+({{ stat(R['128'].rq['RQ5_F_vs_Stack(experts)']) }}; {{ sig(R['128'].rq['RQ5_F_vs_Stack(experts)']) }}), whereas
+MAPLE-F has higher median error at 512 ({{ pct(-R['512'].rq['RQ5_F_vs_Stack(experts)'].median_diff) }};
+{{ stat(R['512'].rq['RQ5_F_vs_Stack(experts)']) }}; {{ sig(R['512'].rq['RQ5_F_vs_Stack(experts)']) }}) and at 2048
+({{ pct(-R['2048'].rq['RQ5_F_vs_Stack(experts)'].median_diff) }};
+{{ stat(R['2048'].rq['RQ5_F_vs_Stack(experts)']) }}; {{ sig(R['2048'].rq['RQ5_F_vs_Stack(experts)']) }}). Against
+stacking that includes PFN-D, MAPLE-F has higher median error at 512
+({{ pct(-R['512'].rq['RQ5_F_vs_Stack(PFN-D)'].median_diff) }}; {{ stat(R['512'].rq['RQ5_F_vs_Stack(PFN-D)']) }};
+{{ sig(R['512'].rq['RQ5_F_vs_Stack(PFN-D)']) }}). All of these deficits are below the 1% threshold we set for
+practical relevance. Local routing did not improve on global routing: at $n_{\mathrm{train}}$ = 128, MAPLE-E had
+{{ pct(-R['128'].rq['RQ5_F_vs_MAPLE-E'].median_diff) }} lower median error than MAPLE-F
+({{ stat(R['128'].rq['RQ5_F_vs_MAPLE-E'], flip=True) }}; {{ sig(R['128'].rq['RQ5_F_vs_MAPLE-E']) }}), and the
+difference was not significant at the larger sizes either.
+
+**Does the PFN add information to the experts?** In an exploratory comparison (raw p-values), stacking with PFN-D
+had lower error than stacking the experts alone at $n_{\mathrm{train}}$ = 128
+({{ stat(R['128'].exploratory['StackPFN_vs_StackExperts']) }}), but not at 512
+({{ stat(R['512'].exploratory['StackPFN_vs_StackExperts']) }}) or 2048
+({{ stat(R['2048'].exploratory['StackPFN_vs_StackExperts']) }}). At the larger sizes the two stackers produced
+identical errors on {{ R['512'].exploratory['StackPFN_vs_StackExperts'].ties }} and
+{{ R['2048'].exploratory['StackPFN_vs_StackExperts'].ties }} datasets respectively.
+
+**Comparison with tuned gradient boosting (RQ6, exploratory).** At $n_{\mathrm{train}}$ = 128, MAPLE-F reduced the
+median error of tuned CatBoost by {{ reduction(R['128'].rq['RQ6_F_vs_CatBoost-T']) }}
+({{ stat(R['128'].rq['RQ6_F_vs_CatBoost-T']) }}), of tuned XGBoost by {{ reduction(R['128'].rq['RQ6_F_vs_XGBoost-T']) }}
+({{ stat(R['128'].rq['RQ6_F_vs_XGBoost-T']) }}) and of tuned LightGBM by
+{{ reduction(R['128'].rq['RQ6_F_vs_LightGBM-T']) }} ({{ stat(R['128'].rq['RQ6_F_vs_LightGBM-T']) }}). At 512 the
+difference to tuned CatBoost is {{ sig(R['512'].rq['RQ6_F_vs_CatBoost-T']) }}
+({{ gain(R['512'].rq['RQ6_F_vs_CatBoost-T']) }} in MAPLE-F's favour; {{ stat(R['512'].rq['RQ6_F_vs_CatBoost-T']) }}),
+and at 2048 tuned CatBoost has the lower median error
+({{ pct(-R['2048'].rq['RQ6_F_vs_CatBoost-T'].median_diff) }};
+{{ stat(R['2048'].rq['RQ6_F_vs_CatBoost-T'], flip=True) }}; {{ sig(R['2048'].rq['RQ6_F_vs_CatBoost-T']) }}).
+
+{%- set EXL = ['TabPFN-v2', 'TabICL'] -%}
+{%- if R['128'].exploratory.get('F_vs_TabPFN-v2') %}
+**External reference: large pretrained foundation models (exploratory).** TabPFN v2 and TabICL, run with their
+library defaults, are not equal-compute comparisons: both were pretrained with far more compute and data than our
+PFN.
+{%- for g in ['128', '512', '2048'] %}{% set col = T11['mean NRMSE (n=' ~ g ~ ')'] %}{% set best = (col | dictsort(by='value'))[0] %}
+At $n_{\mathrm{train}}$ = {{ g }} the lowest mean NRMSE was {{ best[0] }}'s ({{ num(best[1]) }}; MAPLE-F
+{{ num(col['MAPLE-F']) }}, tuned CatBoost {{ num(col['CatBoost-T']) }}).
+{%- endfor %}
+The median of (model − MAPLE-F)/MAPLE-F NRMSE was {% for g in ['128', '512', '2048'] %}{{ pct(R[g].exploratory['F_vs_TabPFN-v2'].median_diff, signed=True) }}{{ ', ' if not loop.last else '' }}{% endfor %}
+for TabPFN v2 and {% for g in ['128', '512', '2048'] %}{{ pct(R[g].exploratory['F_vs_TabICL'].median_diff, signed=True) }}{{ ', ' if not loop.last else '' }}{% endfor %}
+for TabICL at the three sizes (negative = more accurate than MAPLE-F; at $n_{\mathrm{train}}$ = 512, TabPFN v2:
+{{ stat(R['512'].exploratory['F_vs_TabPFN-v2'], flip=True) }}; TabICL: {{ stat(R['512'].exploratory['F_vs_TabICL'], flip=True) }}). Their cost per split was also low: {{ num(T6['fit time (s)']['TabPFN-v2'], 2) }} s to fit and
+{{ num(T6['predict time (s)']['TabPFN-v2'], 2) }} s to predict for TabPFN v2, and {{ num(T6['fit time (s)']['TabICL'], 2) }} s
+and {{ num(T6['predict time (s)']['TabICL'], 2) }} s for TabICL, on a GPU. The gap between these models and every
+method trained at our budget, including the routed MAPLE variants, is far larger than any effect of the adaptive
+prior, and it bounds the practical relevance of our findings (Section 10).
+{% endif %}
+**Per-dataset results.** {{ fref('fig06_nrmse_datasets') }} shows NRMSE per dataset at $n_{\mathrm{train}}$ = 512.
+MAPLE-F was more accurate than the best classical method on {{ SM.real['128'].benefited | length }} of
+{{ R['128'].n_datasets_full }} datasets at 128, {{ SM.real['512'].benefited | length }} of
+{{ R['512'].n_datasets_full }} at 512 and {{ SM.real['2048'].benefited | length }} of {{ R['2048'].n_datasets_full }}
+at 2048. The standalone PFN failed on a few datasets: on naval propulsion plant its NRMSE was
+{{ num(R['512'].nrmse_per_dataset['PFN-D']['naval_propulsion_plant'], 2) }} at $n_{\mathrm{train}}$ = 512, no better
+than predicting the training mean, whereas tuned CatBoost reached
+{{ num(R['512'].nrmse_per_dataset['CatBoost-T']['naval_propulsion_plant'], 2) }} and MAPLE-F
+{{ num(R['512'].nrmse_per_dataset['MAPLE-F']['naval_propulsion_plant'], 2) }}. This is consistent with the router
+down-weighting the PFN where its out-of-fold error is large. We did not diagnose the PFN failures further.
+
+{{ figure('fig06_nrmse_datasets', 'Per-dataset NRMSE at n_train = 512 (mean over split repeats; PFN rows also over three pretraining seeds) for MAPLE-F, PFN-D, PFN-SCM, tuned CatBoost and the stacked experts. Grey segments span the range across the five methods. Lower is better.') }}
+
+### 7.2 Cost and scaling
+
+{{ tref('table06_efficiency_n512') }} lists fit time, prediction time and memory at $n_{\mathrm{train}}$ = 512, and
+{{ fref('fig08_cost_accuracy') }} places each method on the cost–accuracy plane. Tuned CatBoost is the most
+expensive method, at {{ num(T6['fit time (s)']['CatBoost-T'], 0) }} s mean fit time per split on one CPU thread
+({{ S.n_trials }} random configurations with 3-fold cross-validation). MAPLE-F's fit time,
+{{ num(T6['fit time (s)']['MAPLE-F'], 1) }} s, is dominated by the out-of-fold fits of the five experts; the PFN
+itself needs {{ num(T6['fit time (s)']['PFN-D'], 2) }} s to preprocess the training split and
+{{ num(T6['predict time (s)']['PFN-D'], 2) }} s to predict. The PFN, TabPFN v2 and TabICL run on a GPU while the other methods
+run on one CPU thread, so these timings are not a like-for-like hardware comparison. Pretraining costs about
+{{ num(T6['pretraining (GPU-h, one-off)']['PFN-D'], 1) }} GPU-hours per checkpoint, paid once.
+
+{{ table('table06_efficiency_n512') }}
+
+{{ figure('fig08_cost_accuracy', 'Cost–accuracy trade-off at n_train = 512: mean fit-plus-predict time per split (log scale) against mean NRMSE over datasets. Points closer than a few pixels share one label. PFN, TabPFN v2 and TabICL timings are GPU inference; all other methods ran on one CPU thread.') }}
+
+{%- set T14 = S.tables.table14_scaling -%}
+{%- set NS = T14['PFN-D NRMSE'] | list | sort -%}
+{{ fref('fig15_scaling') }} follows three datasets from $n_{\mathrm{train}}$ = {{ NS[0] }} to {{ NS[-1] }} (the sizes
+available for all three). With the smallest training sets the PFN is the most accurate method (mean NRMSE
+{{ num(T14['PFN-D NRMSE'][NS[0]]) }}, against {{ num(T14['CatBoost NRMSE'][NS[0]]) }} for CatBoost), and its
+inference time stays almost flat. Its accuracy, however, stops improving after {{ NS[-2] }} training rows
+({{ num(T14['PFN-D NRMSE'][NS[-2]]) }} at {{ NS[-2] }}, {{ num(T14['PFN-D NRMSE'][NS[-1]]) }} at {{ NS[-1] }}),
+while every tree ensemble keeps improving (CatBoost: {{ num(T14['CatBoost NRMSE'][NS[-1]]) }} at {{ NS[-1] }}).
+Above 1024 training rows the PFN sees random 1024-row contexts averaged over bags, so it cannot use all the data;
+its pretraining contexts were also no larger than this. The scaling behaviour of the standalone PFN is therefore
+limited by design, and it explains why its rank falls with $n_{\mathrm{train}}$ in
+{{ fref('fig12_critical_difference') }}.
+
+{{ figure('fig15_scaling', 'Scaling with training-set size on three datasets (California housing, kin8nm, physicochemical protein; three repeats each), for the sizes available for all three. (a) Fit-plus-predict time; (b) mean NRMSE. PFN-D uses GPU inference with 1024-row context bagging above 1024 training rows; the other methods use one CPU thread and default hyperparameters.') }}
+
+### 7.3 Synthetic generalisation
+
+{{ tref('table09_generalization') }} and {{ fref('fig11_generalization') }} report mean NRMSE on the in-distribution
+(ID) suite and the seven structurally out-of-distribution (OOD) suites. Among the methods trained at our budget,
+the mathematical-prior PFNs are the most accurate on the ID suite (PFN-D: {{ num(T9['PFN-D']['id']) }}; ExtraTrees: {{ num(T9['ExtraTrees']['id']) }};
+CatBoost: {{ num(T9['CatBoost']['id']) }}). Averaged over the OOD suites they are level with ExtraTrees (PFN-D:
+{{ num(T9['PFN-D']['OOD mean']) }}; ExtraTrees: {{ num(T9['ExtraTrees']['OOD mean']) }}). ExtraTrees is better on
+nested compositions, Voronoi regions and regime mixtures, whereas the PFNs are better on held-out families,
+stretched parameters, three-way interactions and heavy-tailed noise. The PFN trained on the SCM prior is far less
+accurate on every suite (ID {{ num(T9['PFN-SCM']['id']) }}, OOD {{ num(T9['PFN-SCM']['OOD mean']) }}). This result is
+expected to favour the mathematical prior, because all synthetic suites come from the same generator. On real data
+(RQ4) the two priors are statistically indistinguishable at every size (Section 9).
+{%- if SY.get('external') and SY.external.get('TabPFN-v2') %} The external foundation models were also run on every
+synthetic task. Relative to PFN-D, the median of (model − PFN-D)/PFN-D NRMSE was
+{{ pct(SY.external['TabPFN-v2'].id.median_diff, signed=True) }} (ID) and
+{{ pct(SY.external['TabPFN-v2'].pooled_ood.median_diff, signed=True) }} (pooled OOD) for TabPFN v2, and
+{{ pct(SY.external['TabICL'].id.median_diff, signed=True) }} and {{ pct(SY.external['TabICL'].pooled_ood.median_diff, signed=True) }}
+for TabICL (negative = more accurate than PFN-D; mean NRMSE ID/OOD: TabPFN v2 {{ num(T9['TabPFN-v2']['id']) }} /
+{{ num(T9['TabPFN-v2']['OOD mean']) }}, TabICL {{ num(T9['TabICL']['id']) }} / {{ num(T9['TabICL']['OOD mean']) }}).
+{%- if SY.external['TabPFN-v2'].id.median_diff > 0 and R['512'].exploratory['D_vs_TabPFN-v2'].median_diff < 0 %} On tasks drawn from our own generator, the small PFN
+pretrained on that generator is therefore more accurate than TabPFN v2, whereas on real data the order reverses.
+{%- elif SY.external['TabPFN-v2'].id.median_diff < 0 %} TabPFN v2 is more accurate than PFN-D even on the
+in-distribution suite, drawn from the generator PFN-D was pretrained on ({{ stat(SY.external['TabPFN-v2'].id, flip=True) }}), so the advantage of the large model is not specific to real data.{% endif %}{% endif %}
+
+{{ table('table09_generalization') }}
+
+{{ figure('fig11_generalization', 'Mean NRMSE per synthetic suite (200 tasks each; PFN bars averaged over three pretraining seeds). Error bars: 95% bootstrap confidence intervals over tasks. ID = fresh tasks from the training cells; the seven OOD suites differ from training in structure.') }}
+
+**Adaptive versus uniform prior (RQ1).** The adaptive sampler did not improve on the uniform mathematical prior.
+On the ID suite, PFN-D had {{ pct(SY.RQ1_nrmse.id.median_diff) }} lower median NRMSE than PFN-A
+({{ stat(SY.RQ1_nrmse.id) }}); on the pooled OOD suites it had {{ pct(-SY.RQ1_nrmse.pooled_ood.median_diff) }}
+higher median NRMSE ({{ stat(SY.RQ1_nrmse.pooled_ood) }}). None of the seven OOD suites shows a significant
+difference after Holm correction. H1 is not supported.
+
+### 7.4 Behaviour of the sampler and of the disagreement signal
+
+{{ fref('fig04_adaptation') }} shows how far each adaptive sampler moved away from the uniform prior. The
+loss-driven sampler (B) moved far: its final KL divergence from uniform averaged
+{{ num(AD.B.kl_final_mean, 2) }} over seeds, and its final family probabilities ranged from
+{{ num(AD.B.family_prob_final_min, 3) }} to {{ num(AD.B.family_prob_final_max, 3) }} (uniform:
+{{ num(1 / AD.B.n_families, 3) }}). The disagreement-driven samplers (C and D) barely moved: final KL
+{{ num(AD.C.kl_final_mean, 3) }} and {{ num(AD.D.kl_final_mean, 3) }}, with family probabilities between
+{{ num(AD.D.family_prob_final_min, 3) }} and {{ num(AD.D.family_prob_final_max, 3) }} for D. The reason is the scale of
+the scores. Across cells, the gap scores had a standard deviation of {{ num(AD.D.score_sd_final_mean, 3) }}, against
+{{ num(AD.B.score_sd_final_mean, 3) }} for the loss scores. At $\tau$ = {{ S.sampler.tau }}, such small differences
+produce Gibbs weights close to uniform (Proposition 5). The sharper temperature $\tau$ = 0.05 moved the sampler
+further (final KL {{ num(AD['tau_0.05'].kl_final_mean, 2) }}) without changing accuracy (Section 8).
+{{ fref('fig05_family_distribution') }} shows the final family distributions: B concentrated on oscillatory
+families (trigonometric and damped oscillator), whereas C and D stayed near uniform.
+
+{{ figure('fig04_adaptation', '(a) Family probabilities of PFN-D (seed 0) over the 14 adaptation rounds (cells summed by family). (b) KL divergence of the sampling distribution from uniform for B, C and D (mean over three seeds; band: range over seeds).') }}
+
+{{ figure('fig05_family_distribution', 'Final sampling probability of each function family (summed over complexity levels; mean over three seeds) for the loss-driven sampler (PFN-B) and the disagreement-driven samplers (PFN-C, PFN-D). Dashed line: uniform.') }}
+
+{{ fref('fig14_learning_curves') }} shows that this re-weighting changed what the model was trained on but not what it
+learned. B's own training loss is higher because it over-samples hard cells. On held-out probe tasks drawn
+uniformly from all cells, however, the error curves of A, B, C and D coincide throughout pretraining.
+
+{{ figure('fig14_learning_curves', '(a) Training loss on each variant\'s own (adaptive) prior (mean over three seeds, smoothed). (b) Excess error on held-out probe tasks drawn uniformly over cells after each adaptation round (mean over seeds).') }}
+
+**Disagreement versus loss as the adaptation signal (RQ2).** On synthetic tasks, PFN-C had lower error than PFN-B
+overall ({{ gain(SY.RQ2.all) }}; {{ stat(SY.RQ2.all) }}) and on the noisier half of the tasks
+({{ gain(SY.RQ2.high_noise) }}; {{ stat(SY.RQ2.high_noise) }}). These effects are statistically
+{{ 'significant' if SY.RQ2.all.p_holm_family < 0.05 else 'not significant' }} but
+{{ 'practically negligible (below 1%)' if negligible(SY.RQ2.all) and negligible(SY.RQ2.high_noise) else 'above the 1% threshold' }}.
+On real data the direction reversed: PFN-B had lower median error than PFN-C at $n_{\mathrm{train}}$ = 512
+({{ pct(-R['512'].rq['RQ2_real_C_vs_B'].median_diff) }}; {{ stat(R['512'].rq['RQ2_real_C_vs_B'], flip=True) }}) and
+2048 ({{ pct(-R['2048'].rq['RQ2_real_C_vs_B'].median_diff) }};
+{{ stat(R['2048'].rq['RQ2_real_C_vs_B'], flip=True) }}). The first of these is
+{{ 'below' if negligible(R['512'].rq['RQ2_real_C_vs_B']) else 'above' }} our 1% threshold for practical
+relevance{{ ' and so is the second' if negligible(R['2048'].rq['RQ2_real_C_vs_B']) else '; the second is just above it' }},
+so on real data the loss-driven sampler was, if anything, slightly better.
+
+**Does the gap track the PFN's error (RQ3)?** {{ fref('fig13_disagreement_vs_error') }} plots the label-free gap
+against the PFN's excess error. On synthetic tasks the task-level Spearman correlation for PFN-D is
+{{ num(SY.RQ3['PFN-D'].spearman, 2) }} (95% CI [{{ num(SY.RQ3['PFN-D'].ci[0], 2) }},
+{{ num(SY.RQ3['PFN-D'].ci[1], 2) }}], n = {{ SY.RQ3['PFN-D'].n }}), far below the
+{{ num(SY.RQ3['PFN-D'].spearman_loss_vs_excess, 2) }} of the label-based loss. The committee was more accurate than
+the PFN on only {{ pct(SY.RQ3['PFN-D'].frac_committee_better, 0) }} of tasks. Proposition 4(b) guarantees that the
+gap tracks excess error only in that regime; elsewhere the gap also measures the committee's own error. The
+correlation was weakest on three-way interactions ({{ num(SY.RQ3['PFN-D'].by_suite.ood_interact3, 2) }}) and regime
+mixtures ({{ num(SY.RQ3['PFN-D'].by_suite.ood_mixed, 2) }}). On real data the noise-free target is unknown, so
+excess error cannot be measured directly. Proposition 4(d) gives a label-computable proxy: the PFN's test MSE minus
+the committee's, which equals the difference of their excess errors and contains no noise term. With the dataset
+as unit, the gap's correlation with this proxy is {{ num(SY.RQ3_real.spearman_regret, 2) }} (95% CI
+[{{ num(SY.RQ3_real.ci_regret[0], 2) }}, {{ num(SY.RQ3_real.ci_regret[1], 2) }}], n = {{ SY.RQ3_real.n_datasets }}),
+and the median within-dataset correlation across splits is
+{{ num(SY.RQ3_real.median_within_dataset_spearman_regret, 2) }}. Its correlation with the PFN's raw test MSE is
+higher ({{ num(SY.RQ3_real.spearman_datasets, 2) }}, 95% CI [{{ num(SY.RQ3_real.ci[0], 2) }},
+{{ num(SY.RQ3_real.ci[1], 2) }}]), but raw MSE is confounded by each dataset's noise level, which raises both
+quantities. H3 is therefore {{ S.tables.table13_rq_verdicts.verdict.RQ3 | lower }}: the gap tracks the PFN's excess
+error on synthetic tasks{% if SY.RQ3_real.ci_regret[0] > 0 %}, and on real data once noise is removed{% else %},
+but we find no reliable relation on real data once noise is removed{% endif %}.
+
+{{ figure('fig13_disagreement_vs_error', 'Label-free PFN–committee gap versus the PFN\'s error. (a) Synthetic tasks, PFN-D: excess error relative to the noise-free target (log–log; dashed line: identity). (b) Real-data splits: PFN test MSE on standardised targets against the gap on the test points.') }}
+
+## 8. Ablation and Sensitivity Analysis
+
+{{ tref('table07_ablation') }} and {{ fref('fig09_ablation') }} report one-factor changes to PFN-D, each pretrained
+with seed 0 and compared with PFN-D seed 0 on all synthetic tasks and on real data at $n_{\mathrm{train}}$ = 512.
+These comparisons must be read against the variation between pretraining seeds. Across its three seeds, PFN-D's
+mean ID NRMSE ranged over {{ num(SY.seed_spread['PFN-D'].id_range, 4) }} and its mean OOD NRMSE over
+{{ num(SY.seed_spread['PFN-D'].ood_range, 4) }}.{% if SY.seed_spread['PFN-D'].id[0] == SY.seed_spread['PFN-D'].id | max %}
+Seed 0 happened to be the least accurate of the three on the ID suite ({{ num(SY.seed_spread['PFN-D'].id[0], 4) }}),
+so most one-factor variants appear slightly better than the reference.{% endif %}
+
+{{ table('table07_ablation') }}
+
+{{ figure('fig09_ablation', 'One-factor ablations relative to PFN-D (seed 0): median relative NRMSE change on synthetic tasks (left) and on real datasets at n_train = 512 (right). Positive = worse than PFN-D. Error bars: 95% bootstrap confidence intervals.') }}
+
+{%- set AB = S.stats.ablation -%}
+{%- set T7 = S.tables.table07_ablation -%}
+{%- macro holm(run) -%}{{ ('$p_{\\mathrm{Holm}}$ < 0.001' if T7['p (real)'][run] < 0.001 else '$p_{\\mathrm{Holm}}$ = ' ~ ('%.3f' | format(T7['p (real)'][run]))) }}{%- endmacro -%}
+Three factors produce effects well beyond the seed variation (p-values below are Holm-corrected across the rows of
+{{ tref('table07_ablation') }}). **The prior family** matters most on synthetic tasks: the SCM prior (P0) increases
+NRMSE by {{ pct(AB.P0.synthetic.delta_vs_ref) }}, but its effect on real data
+({{ pct(AB.P0.real512.delta_vs_ref, signed=True) }}; {{ holm('P0') }}) is not significant. **Pretraining compute**
+matters clearly on synthetic tasks: a quarter of the steps costs
+{{ pct(AB['budget_0.25_D'].synthetic.delta_vs_ref, signed=True) }} and half the steps
+{{ pct(AB['budget_0.5_D'].synthetic.delta_vs_ref, signed=True) }}; the uniform-prior runs with the same budget cuts,
+also compared with PFN-D seed 0, show the same pattern ({{ pct(AB['budget_0.25_A'].synthetic.delta_vs_ref, signed=True) }}
+and {{ pct(AB['budget_0.5_A'].synthetic.delta_vs_ref, signed=True) }}). On real data the budget effects are small
+(between {{ pct([AB['budget_0.25_D'].real512.delta_vs_ref, AB['budget_0.5_D'].real512.delta_vs_ref, AB['budget_0.25_A'].real512.delta_vs_ref, AB['budget_0.5_A'].real512.delta_vs_ref] | min, signed=True) }}
+and {{ pct([AB['budget_0.25_D'].real512.delta_vs_ref, AB['budget_0.5_D'].real512.delta_vs_ref, AB['budget_0.25_A'].real512.delta_vs_ref, AB['budget_0.5_A'].real512.delta_vs_ref] | max, signed=True) }})
+and significant for {% set ns = namespace(k=0) %}{% for r in ['budget_0.25_D', 'budget_0.5_D', 'budget_0.25_A', 'budget_0.5_A'] %}{% if T7['p (real)'][r] < 0.05 %}{% set ns.k = ns.k + 1 %}{% endif %}{% endfor %}{{ ns.k }}
+of the four runs. **Function complexity** matters for transfer: pretraining on complexity level 0 only raised
+real-data NRMSE by {{ pct(AB.complexity_0.real512.delta_vs_ref, signed=True) }} ({{ holm('complexity_0') }}), and
+stopping at level 1 by {{ pct(AB.complexity_1.real512.delta_vs_ref, signed=True) }} ({{ holm('complexity_1') }}).
+Every change to the sampler itself (score definition, committee size, temperature, floor, EMA, number of probes and
+update period) changes NRMSE by less than 1% on synthetic tasks and on real data, within the range spanned by
+pretraining seeds.
+
+{{ tref('table08_sensitivity') }} and {{ fref('fig10_sensitivity') }} show the same runs as one-parameter sweeps.
+The curves are flat for all sampler hyperparameters and slope clearly only for the training budget and the maximum
+complexity.
+
+{{ table('table08_sensitivity') }}
+
+{{ figure('fig10_sensitivity', 'Sensitivity of mean ID and OOD NRMSE to one hyperparameter at a time (pretraining seed 0; the middle or default value is PFN-D seed 0).') }}
+
+## 9. Statistical Analysis
+
+{{ tref('table13_rq_verdicts') }} collects the verdict on each pre-registered hypothesis, derived by fixed rules
+from the test results; the full set of pairwise real-data comparisons against MAPLE-F is in
+{{ tref('table10_statistics') }} (Appendix B). In summary, using the verdicts of {{ tref('table13_rq_verdicts') }}: H1 (adaptive better than uniform):
+{{ S.tables.table13_rq_verdicts.verdict.RQ1 | lower }}. H2 (disagreement at least as good as loss): {{ S.tables.table13_rq_verdicts.verdict.RQ2 | lower }}.
+H3 (the gap tracks excess error): {{ S.tables.table13_rq_verdicts.verdict.RQ3 | lower }}. H4 (mathematical prior better than the SCM prior on
+real data): {{ S.tables.table13_rq_verdicts.verdict.RQ4 | lower }}. H5 (routing better than the PFN and no worse than stacking):
+{{ S.tables.table13_rq_verdicts.verdict.RQ5 | lower }}; the first half holds at every size, the second does not hold at every size (Section 7.1).
+
+{{ table('table13_rq_verdicts') }}

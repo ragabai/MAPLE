@@ -1,0 +1,25 @@
+family,split,description,cells,mean attempts,final q (PFN-D),uniform q
+linear,train,w^T x + b,3,1.0,0.0472095789039409,0.05555555555555555
+polynomial,train,sparse multivariate polynomial with interactions,3,1.0333333333333334,0.05826333236176342,0.05555555555555555
+exponential,train,sum a exp(b z): growth and decay,3,1.0333333333333334,0.05286348969911542,0.05555555555555555
+logarithmic,train,"sum a log(u), u in (eps, hi)",3,1.1333333333333333,0.054775915966467685,0.05555555555555555
+power_law,train,a prod u_j^p_j,3,1.0,0.053222066382849674,0.05555555555555555
+rational,train,(a z1 + b)/(1 + c z2^2) or Lorentzian peaks,3,1.0,0.05839627615504426,0.05555555555555555
+trigonometric,train,sum a sin/cos(omega z + phi),3,1.0,0.05711716831811134,0.05555555555555555
+rbf,train,sum of Gaussian bumps,3,1.0333333333333334,0.05636838806973534,0.05555555555555555
+logistic,train,L/(1+exp(-k(z-z0))),3,1.0666666666666667,0.05426105299139833,0.05555555555555555
+michaelis_menten,train,Vmax u/(Km+u),3,1.0,0.0508682889493318,0.05555555555555555
+piecewise,train,hinge (piecewise-linear growth),3,1.0333333333333334,0.05403225161852256,0.05555555555555555
+physics,train,inverse-square / energy / multiplicative laws,3,1.0666666666666667,0.05161444803499926,0.05555555555555555
+damped_oscillator,train,A exp(-zeta omega t) cos(omega_d t + phi),3,1.0666666666666667,0.06606217845966841,0.05555555555555555
+logistic_ode,train,closed-form logistic ODE N(t),3,1.0666666666666667,0.05290304223679302,0.05555555555555555
+lotka_volterra,train,"RK4 predator-prey, prey at time T",3,1.0333333333333334,0.060949558485680864,0.05555555555555555
+conditional,train,hard two-regime switch on one feature,3,1.0666666666666667,0.05540866434400729,0.05555555555555555
+interaction,train,pairwise products of g(x_i) g(x_k),3,1.0333333333333334,0.06309894377255372,0.05555555555555555
+discontinuous,train,linear trend plus step jumps,3,1.0333333333333334,0.052585355250016674,0.05555555555555555
+gompertz,ood,a exp(-b exp(-k z)),3,1.0,,
+sir,ood,"RK4 SIR model, infected fraction at time T",3,1.0666666666666667,,
+hyperbolic,ood,a sinh(b z1)/cosh(c z2) (+ cosh term),3,1.1,,
+interaction3,ood_structure,three-way products,3,1.1,,
+voronoi,ood_structure,piecewise-linear on Voronoi regions,3,1.0,,
+mixed_regime,ood_structure,softmax-gated mixture of regimes,3,1.0333333333333334,,

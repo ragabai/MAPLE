@@ -1,0 +1,347 @@
+\documentclass[mathematics,article,submit,pdftex,moreauthors]{Definitions/mdpi}
+\firstpage{1}
+\makeatletter
+\setcounter{page}{\@firstpage}
+\makeatother
+\pubvolume{1}
+\issuenum{1}
+\articlenumber{0}
+\pubyear{2026}
+\copyrightyear{2026}
+\datereceived{ }
+\daterevised{ }
+\dateaccepted{ }
+\datepublished{ }
+\Title{Adaptive Mathematical Priors Steered by Expert Disagreement for Tabular Prior-Data Fitted Networks: Theory and a Pre-Registered Evaluation}
+\Author{[Author names and affiliations to be added by the authors]}
+\AuthorNames{[Author names]}
+\address{[Affiliations]}
+\corres{[Correspondence]}
+\abstract{Prior-data fitted networks (PFNs) learn tabular prediction from synthetic tasks, so their accuracy depends on the prior. We ask whether re-weighting a mathematical prior during pretraining, towards cells where the PFN disagrees with a committee of classical experts, yields a better regressor at equal compute. MAPLE combines a 54-cell mathematical task generator, a KL-regularised adaptive sampler with proofs of non-collapse, stability, finite-sample accuracy and bounded prior distortion, and competence routing between the PFN and the experts. In a pre-registered evaluation on 36 regression datasets at three training-set sizes and eight synthetic suites, the adaptive sampler was indistinguishable from a uniform prior (pooled out-of-distribution difference 0.1\%, Holm-adjusted p = 0.36): disagreement scores varied too little across cells to move it. The mathematical prior beat a structural-causal-model prior by 25\% on synthetic suites but not on real data. Routing reduced the PFN's median error by 2.3\% to 25.3\% and, with 128 training rows, outperformed tuned CatBoost (Holm-adjusted p = 0.002); with more rows, stacking the experts alone was as accurate. Large pretrained foundation models (TabPFN v2, TabICL), run as external references, had the lowest mean error at every size. At this scale, pretraining compute and prior complexity matter more than adaptive weighting.}
+\keyword{prior-data fitted networks; tabular regression; synthetic pretraining; adaptive sampling; expert disagreement; distributionally robust optimisation; mathematical priors; out-of-distribution generalisation}
+\begin{document}
+
+\section{Introduction}
+
+Tabular regression is one of the most common modelling problems in science and engineering. Most such datasets are small to medium-sized, heterogeneous and noisy, and gradient-boosted trees remain the default \cite{grinsztajn2022why,mcelfresh2023when}. Prior-data fitted networks (PFNs) offer an alternative. A transformer is pretrained once on millions of synthetic datasets drawn from a prior, then predicts on a new dataset in a single forward pass, approximating Bayesian posterior prediction under that prior \cite{muller2022transformers,hollmann2023tabpfn,hollmann2025accurate}. Because a PFN can only be as good as its prior \cite{nagler2023statistical}, much recent progress has come from \emph{designing priors}: structural causal models, forest priors and curated mixtures of priors \cite{breejen2024fine,zhang2025mitra}.
+
+In current practice the prior is fixed before training, or improved by an outer loop that retrains the whole model for each candidate prior \cite{hollmann2025accurate,grinsztajn2025tabpfn25,zhang2025mitra}. Each outer iteration costs a full pretraining run. Within a run, every region of the prior receives training effort in fixed proportions, whether or not the model has already learned it. This raises a natural question: can the prior be re-weighted \emph{during} pretraining, towards the parts the model has not yet learned, at little extra cost?
+
+Answering this question requires two things: a prior whose parts are meaningful and can be re-weighted, and a signal that says which parts are under-learned. For the first, we use \emph{mathematical} priors. Interpretable families of functions, such as polynomial, exponential, saturating, oscillatory, piecewise and ODE-generated relationships, are organised into cells (family $\times$ complexity). For the second, a label-based loss is an obvious choice, but by Proposition 4 the expected squared loss contains the irreducible noise variance additively, so a loss-driven sampler can chase noise. We instead use the \textbf{disagreement between the PFN and a committee of cheap classical experts} fitted on the same context. This signal needs no labels at the query points and contains no additive noise term, and it tracks the PFN's excess error when the committee is the more accurate party.
+
+The research hypothesis is that adaptive mathematical task generation, guided by such disagreement, yields a computationally efficient tabular regressor that generalises better to unseen datasets than conventional synthetic pretraining, ensembles, and individual models. We treat this as a hypothesis to test rather than a claim. All comparisons are made at equal pretraining compute, and the research questions and statistical tests were fixed before the main experiments.
+
+\textbf{Contributions.}
+
+\begin{enumerate}
+\item \textbf{Mechanism.} A disagreement-steered adaptive sampler for PFN pretraining over a cell-structured mathematical prior. The sampler is the closed-form solution of a KL-regularised objective (equivalently, a KL-ball distributionally robust problem over the task prior) with a uniform floor. We pair it with competence routing between the PFN and classical experts at inference, whose two hyperparameters are chosen on synthetic tasks only.
+\item \textbf{Analysis.} Proofs that the sampler cannot collapse, is Lipschitz-stable in the cell scores, is estimated to accuracy $O(B\tau^{-1}\sqrt{\log(M/\delta)/m})$ from $m$ probe tasks per cell, and distorts the base prior by a bounded amount. We also characterise exactly when label-free disagreement tracks excess error (Propositions 1--5, Theorem 1).
+\item \textbf{Generator.} A configurable generator of 18 mathematical and scientific function families with correlated, irrelevant, redundant, categorical and missing features and heteroscedastic noise. It comes with seven structurally out-of-distribution test suites that differ from training in structure, not merely in random seed.
+\item \textbf{Evidence.} A controlled empirical study: 36 public regression datasets at three training-set sizes, eight synthetic suites, 13 classical and tuned baselines, seven PFN variants with three pretraining seeds, ablations and sensitivity analyses, plus two large pretrained tabular foundation models (TabPFN v2 and TabICL) as external reference points. Pre-registered tests are reported in full, including where the hypothesis is not supported.
+\item \textbf{Artifacts.} An open, restartable pipeline that regenerates every table, figure and number in this paper from append-only raw records.
+\end{enumerate}
+
+Section 2 reviews related work. Sections 3--5 present the formulation, method and theory. Section 6 describes the experimental protocol. Sections 7--9 report results, ablations and statistics. Section 10 discusses the findings and their limitations, and Section 11 concludes.
+
+\section{Related Work}
+
+\textbf{Prior-data fitted networks and tabular foundation models.} A prior-data fitted network (PFN) is trained on datasets sampled from a prior over data-generating mechanisms. It learns to approximate the posterior predictive distribution in a single forward pass \cite{muller2022transformers}. TabPFN applied this idea to small tabular classification problems with structural-causal-model and Bayesian-neural-network priors \cite{hollmann2023tabpfn}. TabPFN v2 extended it to regression and larger tables \cite{hollmann2025accurate}, and TabPFN-2.5 scaled it further \cite{grinsztajn2025tabpfn25}. Related models use different architectures or data: TabICL scales in-context learning to large tables \cite{qu2025tabicl}, and TabDPT pretrains on real rather than synthetic tables \cite{ma2024tabdpt}. A statistical analysis attributes PFN bias to the prior and PFN variance to the context size \cite{nagler2023statistical}. Several studies show that the choice of prior governs generalisation. Forest-generated tasks improve in-context classifiers \cite{breejen2024fine}, drift-aware priors handle temporal shift \cite{helli2024drift}, and Mitra builds a curated mixture of synthetic priors chosen for diversity, distinctiveness and real-data performance \cite{zhang2025mitra}. PFNs trained on parametric mathematical priors also exist for Bayesian optimisation and learning-curve extrapolation \cite{muller2023pfns4bo,adriaensen2023efficient}. Across this literature the prior is fixed, or chosen by an outer loop over complete training runs (calibration, configuration search, mixture selection). We are not aware of work that re-weights a PFN's prior \emph{within} a single pretraining run.
+
+\textbf{In-context learning of function classes.} Transformers trained on linear, sparse, tree and network function classes learn to regress in context \cite{garg2022what}. Above a threshold of pretraining task diversity, they generalise beyond the pretraining tasks \cite{raventos2023pretraining}. Mechanistic analyses link in-context regression to ridge regression and gradient descent \cite{akyurek2023what,vonoswald2023transformers}. Amortised regressors such as (conditional) neural processes share this set-based formulation \cite{garnelo2018neural,garnelo2018conditional,zaheer2017deep,lee2019set}.
+
+\textbf{Tabular learning.} Gradient-boosted decision trees remain strong defaults \cite{chen2016xgboost,ke2017lightgbm,prokhorenkova2018catboost,friedman2001greedy}, as do bagged and randomised forests \cite{breiman2001random,geurts2006extremely}. Deep tabular models include FT-Transformer \cite{gorishniy2021revisiting}, SAINT \cite{somepalli2021saint}, NODE \cite{popov2020neural}, TabM \cite{gorishniy2025tabm} and strong default MLPs \cite{holzmuller2024better}. Large benchmarks find that trees still win on typical medium-sized data \cite{grinsztajn2022why,shwartzziv2022tabular} and that the best model depends on the dataset \cite{mcelfresh2023when}.
+
+\textbf{Adaptive task selection, curricula and robust objectives.} Curriculum learning orders training data by difficulty \cite{bengio2009curriculum}. Automated curricula pose task selection as a non-stationary bandit, with learning-progress rewards \cite{graves2017automated,matiisen2020teacher,portelas2020automatic}. In reinforcement learning, unsupervised environment design generates training environments from regret \cite{dennis2020emergent,parkerholder2022evolving} or replays them by temporal-difference error \cite{jiang2021prioritized}; related work learns simulator randomisation \cite{tobin2017domain,mehta2020active}. The closest use of \emph{disagreement} is value-disagreement sampling, which proposes goals where an ensemble of value functions disagrees \cite{zhang2020automatic}. In meta-learning, episodes are sampled by difficulty \cite{liu2020adaptive,arnold2021uniform}, by novelty \cite{kaddour2020probabilistic} or by a minimax objective over tasks \cite{collins2020task}. In robust optimisation, distributionally robust learning over divergence balls \cite{bental2013robust,namkoong2016stochastic,duchi2021learning} and Group DRO's exponentiated-gradient group weights \cite{sagawa2020distributionally} are the closest analogues of MAPLE's sampler. These methods use labelled losses or returns, and they do not target the prior of a tabular in-context learner.
+
+\textbf{Disagreement, ensembles and routing.} Query-by-committee selects points on which a committee disagrees \cite{seung1992query,burbidge2007active}. The ambiguity decomposition relates ensemble error to member disagreement \cite{krogh1995neural}, and ensembles estimate epistemic uncertainty \cite{lakshminarayanan2017simple,hullermeier2021aleatoric}. Combining experts is done by learned gating \cite{jacobs1991adaptive,jordan1994hierarchical}, by stacking \cite{wolpert1992stacked,breiman1996stacked}, or by dynamic selection based on local competence \cite{woods1997combination,ko2008from,cruz2018dynamic}.
+
+\textbf{Equation priors.} Symbolic and physics-inspired regression \cite{schmidt2009distilling,udrescu2020ai,lacava2021contemporary} and transformers pretrained on generated equations \cite{lample2020deep,biggio2021neural,kamienny2022end} show both the value of mathematical priors and the sensitivity of pretrained models to the generator's distribution. Physics-informed learning \cite{raissi2019physics,karniadakis2021physics} instead imposes known equations as constraints. MAPLE uses scientific relationships only as a distribution over regression tasks.
+
+\input{tables/table_novelty.tex}
+
+Table~\ref{tab:table_novelty} summarises the position of this work. MAPLE combines and transfers existing mechanisms (online re-weighting, label-free committee disagreement and synthetic in-context pretraining) to the design of a PFN prior, and analyses the resulting sampler. It does not introduce a new primitive.
+
+\section{Mathematical Preliminaries}
+
+A regression task consists of a context set $D_{\mathrm{ctx}}=\{(x_i,y_i)\}_{i=1}^{n}$ and query inputs $X_{\mathrm{qry}}$, with $x\in\mathbb{R}^{d}$ and $y=f^{*}(x)+\varepsilon$, where $\mathbb{E}[\varepsilon\mid x]=0$ and $\operatorname{Var}(\varepsilon\mid x)=\sigma^{2}(x)$. For a function $g$ of $x$ we write $\|g\|^{2}=\mathbb{E}_{x\sim P_x}[g(x)^{2}]$ for the squared $L^{2}(P_x)$ norm over the query distribution. For a vector $v$, $\operatorname{osc}(v)=\max_c v_c-\min_c v_c$. A prior over tasks is a distribution $G$ from which tasks are drawn. A PFN $\theta$ is trained by minimising the expected query loss over $G$. With squared loss, the minimiser is the posterior predictive mean $\mathbb{E}[y\mid x, D_{\mathrm{ctx}}]$ under $G$ \cite{muller2022transformers}. Because $\mathbb{E}[\varepsilon\mid x]=0$, the same minimiser is obtained by regressing on the noise-free target $f^{*}$, which we use to reduce gradient variance.
+
+\textbf{Cells and the task prior.} The mathematical prior is organised into $M$ \emph{cells} $c=(\text{family},\text{complexity})$. Each cell has a fixed task generator $G_c$. A distribution $q\in\Delta_M$ over cells induces the mixture prior $G_q=\sum_c q_c G_c$; $p^{0}=u$ is the uniform base distribution. The cell risk of $\theta$ is $R_c(\theta)=\mathbb{E}_{T\sim G_c}\,\ell(\theta;T)$, where $\ell$ is the query mean squared error.
+
+\textbf{Experts and disagreement.} A committee of $K$ classical regressors $f_1,\dots,f_K$ is fitted on each context, with mean $\bar f$. We consider the committee variance (ambiguity) $A(x)=\frac1K\sum_k (f_k(x)-\bar f(x))^2$, the pairwise disagreement $\frac{2}{K(K-1)}\sum_{i<j}|f_i(x)-f_j(x)|$ and, as MAPLE's default, the \textbf{PFN--committee gap}
+
+\begin{equation}
+\Delta(x)=\bigl(\theta(x)-\bar f(x)\bigr)^{2},\qquad \bar\Delta=\|\theta-\bar f\|^{2}.
+\end{equation}
+
+All tasks are standardised by the context targets, so these quantities are already normalised by $\sigma_y$.
+
+\section{Proposed Methodology}
+
+\subsection{Mathematical task generator}
+
+Table~\ref{tab:table12_generator} lists the 18 training families and the held-out structures. The training families are: linear, sparse multivariate polynomials with interactions, exponential growth/decay, logarithmic, power laws, rational functions and Lorentzian peaks, trigonometric sums, Gaussian radial-basis bumps, logistic and Michaelis--Menten saturation, hinge (piecewise-linear) growth, physical laws (inverse-square, kinetic-plus-potential energy, multiplicative), a damped oscillator, the closed-form logistic ODE solution, Lotka--Volterra dynamics integrated with fourth-order Runge--Kutta, hard two-regime switches, pairwise interactions and step discontinuities. Each family has three complexity levels that control the number of active features, terms, frequencies and interaction order. A task combines a primary component from the cell's family with up to two additive components from other families, each acting on random feature subsets.
+
+\input{tables/table12_generator.tex}
+
+Features are drawn through a Gaussian copula with a random low-rank correlation matrix, mixed marginals (normal, uniform, log-normal, bimodal, heavy-tailed), irrelevant and redundant columns, ordinal or nominal categorical codes and MCAR missingness. Noise is homoscedastic or heteroscedastic Gaussian, with a relative level between 0.01 and 1. Every task passes validity checks (finite values, non-constant target, bounded range, context-standardised targets within $\pm12$ standard deviations); otherwise it is resampled (Figure~\ref{fig:fig02_task_generator}). Generation costs about 5 ms per task (17 ms for the ODE families).
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig02_task_generator.pdf}\caption{Mathematical task generator. Top: function families grouped by type; the right-most group is never used for pretraining and appears only in out-of-distribution (OOD) suites. Bottom: assembly of a task for a cell (family, complexity).}\label{fig:fig02_task_generator}\end{figure}
+
+\subsection{Prior-data fitted network}
+
+The PFN embeds each context point as $W_x\tilde x+W_y y$ and each query point as $W_x\tilde x+e_{\mathrm{qry}}$. Here $\tilde x$ is $x$ zero-padded to $d_{\max}=32$ and rescaled by $\sqrt{d_{\max}/d}$. A stack of pre-LN transformer blocks \cite{vaswani2017attention,xiong2020layer} follows, in which every token attends only to context tokens. Query predictions are therefore independent of one another and invariant to the order of the context points; there are no positional encodings. A two-layer head outputs the prediction. Section 6 lists the architecture and training settings.
+
+\subsection{Disagreement-steered adaptive sampling}
+
+Every $U$ steps, MAPLE draws $m$ fresh probe tasks per cell and fits the committee to each probe context. The committee's predictions do not depend on $\theta$, so they are computed asynchronously in CPU workers; only a PFN forward pass is needed at the round itself. MAPLE then evaluates a per-task score $Y\in[0,B]$ (the clipped mean of the chosen disagreement, or the PFN loss for the loss-based variant), averages it into cell scores $\hat s_c$, smooths them with an exponential moving average of factor $\lambda$, and sets
+
+\begin{equation}
+q(\hat s)=(1-\gamma)\,\mathrm{Gibbs}(p^{0},\hat s/\tau)+\gamma\,u,\qquad \mathrm{Gibbs}(p^{0},s/\tau)_c=\frac{p^{0}_c e^{s_c/\tau}}{\sum_{c'}p^{0}_{c'}e^{s_{c'}/\tau}}.
+\end{equation}
+
+Training batches draw their cells from the current $q$. Probe tasks never enter gradient updates, and their random streams are disjoint from training and evaluation streams. Figure~\ref{fig:fig01_framework} shows the complete framework, and Figure~\ref{fig:fig03_disagreement_sampling} illustrates the mechanism on a real probe task.
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig01_framework.pdf}\caption{The MAPLE framework. Pretraining (top) uses synthetic tasks only. Every U steps, probe tasks from each cell are scored by the gap between the PFN and a committee of classical experts, and the cell sampling distribution is re-weighted. At inference (bottom), the pretrained PFN and the experts are combined by competence routing, whose two hyperparameters are chosen on synthetic tasks.}\label{fig:fig01_framework}\end{figure}
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig03_disagreement_sampling.pdf}\caption{Mechanism on a real probe task (trigonometric family, complexity 0) with the pretrained PFN-D checkpoint (seed 0). (a) Context points, committee predictions and the PFN prediction along the active feature. (b) Pointwise PFN--committee gap and committee ambiguity. (c) The six most and four least probable cells in PFN-D's final logged sampling distribution; dashed line: uniform.}\label{fig:fig03_disagreement_sampling}\end{figure}
+
+\subsection{Expert routing at inference}
+
+On a real dataset, the training split is preprocessed using training rows only. The PFN predicts in context, averaging four feature permutations; for training sets larger than 1024 rows, it also averages over random 1024-row contexts. Datasets with more than 32 features are reduced to 32 by mutual information estimated on the training rows \cite{kraskov2004estimating}. Five classical experts (ridge, $k$NN, ExtraTrees, histogram gradient boosting, RBF kernel ridge) are fitted alongside. Out-of-fold squared errors $e_k$ from 5-fold cross-validation on the training split measure each predictor's competence. \textbf{Global routing} (MAPLE-E) uses weights $w_k\propto\exp(-\beta\,e_k/\min_j e_j)$. \textbf{Local routing} (MAPLE-F, the full framework) uses the same formula with $e_k$ replaced by the mean out-of-fold error over the $\kappa$ training points nearest to the query, a regression analogue of dynamic ensemble selection \cite{woods1997combination,ko2008from}. $\beta$ and $\kappa$ are chosen by grid search on 150 synthetic tasks drawn from the checkpoint's final learned prior, never on real data.
+
+\subsection{Variants}
+
+We compare seven pretrained or routed variants: \textbf{P0}, the same PFN pretrained on a conventional TabPFN-v1-style random-MLP/SCM prior \cite{hollmann2023tabpfn}; \textbf{A}, the uniform mathematical prior; \textbf{B}, adaptive with the label-based loss score and no floor; \textbf{C}, adaptive with the gap score and no floor; \textbf{D}, adaptive with the gap score and floor $\gamma=0.1$; \textbf{E}, D with global routing; and \textbf{F} (MAPLE), D with local routing. All pretraining runs use the same architecture, number of steps and token budget.
+
+\section{Theoretical Analysis}
+
+Full proofs are in Appendix A and in the repository (\texttt{research/theory/theory.md}), and each statement is checked numerically by the test suite. We distinguish proved statements from conjectures; no convergence result is claimed for the coupled training dynamics.
+
+\textbf{Proposition 1 (Gibbs variational principle).} For $p^{0}$ with full support, $s\in\mathbb{R}^{M}$ and $\tau>0$, the problem $\max_{q\in\Delta_M}\langle q,s\rangle-\tau\,\mathrm{KL}(q\|p^{0})$ has the unique solution $q^{*}=\mathrm{Gibbs}(p^{0},s/\tau)$, with optimal value $\tau\log\sum_c p^{0}_c e^{s_c/\tau}$. Moreover, for $\rho>0$ and non-constant $s$ with $\rho<\log(1/p^{0}(\arg\max s))$, every maximiser of $\langle q,s\rangle$ over the KL ball $\{q:\mathrm{KL}(q\|p^{0})\le\rho\}$ is a Gibbs distribution for some finite $\tau(\rho)$ \cite{donsker1975asymptotic,bental2013robust}.
+
+With the loss score $s_c=R_c(\theta)$, alternating Proposition 1 with gradient steps is a KL-smoothed form of distributionally robust optimisation over the task prior, related to Group DRO \cite{sagawa2020distributionally}.
+
+\textbf{Proposition 2 (no collapse, bounded tilt).} For $p^{0}=u$: $q_c\ge\gamma/M$; $q^{*}_a/q^{*}_b\le e^{\operatorname{osc}(s)/\tau}$; and $\mathrm{KL}(q\|u)\le(1-\gamma)\operatorname{osc}(s)/\tau$.
+
+\textbf{Proposition 3 (stability).} For all $s,s'$: $\|q(s)-q(s')\|_1\le(1-\gamma)\operatorname{osc}(s-s')/(2\tau)\le(1-\gamma)\|s-s'\|_\infty/\tau$.
+
+\emph{Proof sketch.} Along $s(t)=s+t(s'-s)$, $\dot q_c=\tau^{-1}q_c(v_c-\langle q,v\rangle)$, so $\|\dot q\|_1$ is $\tau^{-1}$ times the mean absolute deviation of $v$ under $q$. That deviation is at most $\operatorname{osc}(v)/2$, by Cauchy--Schwarz and Popoviciu's inequality. Integrating over $t\in[0,1]$ gives the bound.
+
+\textbf{Proposition 4 (disagreement and error).} If $\theta,f_1,\dots,f_K$ depend only on the context and the query noise is independent of it, then (a) $\mathbb{E}(\theta-y)^2=\|\theta-f^{*}\|^2+\mathbb{E}\sigma^2(x)$; (b) $|\sqrt{\bar\Delta}-\|\theta-f^{*}\||\le\|\bar f-f^{*}\|$, so if $\|\bar f-f^{*}\|\le\eta\|\theta-f^{*}\|$ with $\eta<1$, then $(1-\eta)^2\|\theta-f^{*}\|^2\le\bar\Delta\le(1+\eta)^2\|\theta-f^{*}\|^2$; (c) the ambiguity decomposition $(\bar f-y)^2=\frac1K\sum_k(f_k-y)^2-A$ holds pointwise \cite{krogh1995neural}.
+
+Part (a) says that a loss-based score contains the irreducible noise additively; part (b) says that the label-free gap tracks the PFN's \emph{excess} error whenever the committee is more accurate than the PFN. When the committee is worse ($\eta\ge1$), $\bar\Delta$ also measures the committee's own error. This failure mode is known for query-by-committee \cite{burbidge2007active}, and Section 7.4 tests it empirically.
+
+\textbf{Theorem 1 (finite-sample accuracy of the sampler).} With $m$ independent probe tasks per cell, scores clipped to $[0,B]$ and $\theta$ fixed within the round, with probability at least $1-\delta$:
+
+\begin{equation}
+\max_c|\hat s_c-s_c|\le B\sqrt{\frac{\log(2M/\delta)}{2m}},\qquad
+\|q(\hat s)-q(s)\|_1\le\frac{(1-\gamma)B}{\tau}\sqrt{\frac{\log(2M/\delta)}{2m}}.
+\end{equation}
+
+\emph{Proof.} Apply Hoeffding's inequality \cite{hoeffding1963probability} to each cell, take a union bound over the $M$ cells, and apply Proposition 3. With an exponential moving average of factor $\lambda$ and stationary scores, $m$ can be replaced by $m(1+\lambda)/(1-\lambda)$.
+
+\textbf{Proposition 5 (bounded distortion of the base prior).} If $0\le\ell\le L$, then $|\mathbb{E}_{G_q}\ell-\mathbb{E}_{G_u}\ell|\le L\,\mathrm{TV}(q,u)\le L\sqrt{(1-\gamma)\operatorname{osc}(s)/(2\tau)}$. The adaptive prior therefore cannot move far from the uniform prior without a correspondingly large score range.
+
+\textbf{Complexity.} One adaptation round costs $M m(C_{\mathrm{PFN}}+\sum_k C_{\mathrm{fit},k})$. One PFN forward pass costs $O(L[(n^2+n\,n_q)d_m+(n+n_q)d_m^2])$, with no $n_q^2$ term because queries do not attend to each other.
+
+\textbf{Conjectures (not proved).} (C1) When the sampler adapts slowly relative to the PFN, $q_t$ tracks the KL-regularised robust solution for the current $\theta_t$. (C2) Disagreement-based sampling is more robust than loss-based sampling when noise varies across tasks. (C3) Gains on structural OOD suites transfer to real data only to the extent that real data resemble the mathematical prior. Sections 7--9 examine C2 and C3 empirically.
+
+\section{Experimental Setup}
+
+\textbf{Datasets.} We use the 35 regression datasets of the curated OpenML-CTR23 suite \cite{fischer2023openml,vanschoren2014openml,feurer2021openml} and scikit-learn's Diabetes data \cite{efron2004least} (Table~\ref{tab:table01_datasets}). Boston Housing is excluded because of its ethically problematic feature, and California Housing \cite{pace1997sparse} is used instead. Yacht Hydrodynamics is not in the suite and is too small for our protocol. No dataset was removed for being difficult. For each dataset we subsample training sets of $n_{\mathrm{train}}\in\{128,512,2048\}$ rows, repeated 10, 5 and 3 times respectively. Test sets contain up to 2000 of the remaining rows. A regime is used only if at least 200 test rows remain, and skipped regimes are logged. All methods share identical, persisted split indices. Preprocessing, feature selection, hyperparameter search, routing weights and stacking weights are all fitted on the training split only.
+
+\input{tables/table01_datasets.tex}
+
+\textbf{Baselines.} We use the mean predictor, ridge, ElasticNet, $k$NN, random forest, ExtraTrees, histogram gradient boosting, RBF kernel ridge, MLP, XGBoost, LightGBM and CatBoost with library defaults \cite{hoerl1970ridge,zou2005regularization,breiman2001random,geurts2006extremely,chen2016xgboost,ke2017lightgbm,prokhorenkova2018catboost,pedregosa2011scikit}. XGBoost, LightGBM and CatBoost are also tuned (suffix -T) with a fixed budget of 10 random configurations evaluated by 3-fold cross-validation on the training split. CatBoost (default and tuned) one-hot encodes categorical features with at most 255 levels (\texttt{one\_hot\_max\_size} = 255) instead of using its target statistics; this was needed to fit the CPU budget and may weaken CatBoost slightly on datasets with categorical features. We also report a simple average and a non-negative stacked regression \cite{breiman1996stacked} of the five classical experts, and stacking of PFN-D with the experts. As external reference points we also run two large pretrained tabular foundation models with their library defaults on a GPU: TabPFN v2 \cite{hollmann2025accurate} (regression weights of the \texttt{tabpfn} package, version 9.2.0, model version 2) and TabICL \cite{qu2025tabicl} (the version-2 regression checkpoint of the \texttt{tabicl} package, version 2.2.0). Their pretraining compute is orders of magnitude larger than ours, so they are not equal-budget comparisons; they are reported alongside, compared with MAPLE in exploratory tests, and kept out of the pre-registered comparison set. Newer TabPFN releases (2.5 and later) are distributed under non-commercial licences behind an access agreement and were not used. FT-Transformer, SAINT and NODE require per-dataset GPU training and tuning, a different compute class from our CPU experts; they are discussed in Section 2 but not run.
+
+\textbf{Synthetic generalisation.} We evaluate on 200 tasks for each of eight suites. The ID suite draws fresh tasks from the training cells. The seven structurally OOD suites are: held-out families (Gompertz, SIR, hyperbolic); nested compositions $g(h(x))$, whereas training uses additive compositions only; parameter ranges stretched $\times2.5$; three-way interactions, whereas training has at most pairwise; piecewise-linear functions on Voronoi regions; Student-$t$ and Laplace noise; and softmax-gated mixtures of 2--4 regimes. Context sizes, dimensions, noise and missingness have comparable distributions across suites, so OOD differences reflect structure.
+
+\textbf{Pretraining protocol.} Variants P0 and A--D are each pretrained with three seeds for 15,000 steps on two shared GPUs. Ablation and sensitivity runs use seed 0. The full configuration is in Table~\ref{tab:table02_configuration}.
+
+\input{tables/table02_configuration.tex}
+
+\textbf{Metrics and statistics.} We report RMSE, MAE, $R^2$ and NRMSE = RMSE/SD($y_{\mathrm{test}}$), together with training time, inference time, peak memory and parameter counts. For real data, the unit of analysis is the dataset: metrics are averaged over repeats and pretraining seeds before testing, and folds are never treated as independent datasets \cite{dietterich1998approximate}. For synthetic suites, the unit is the task. We use the Friedman test with Nemenyi critical differences \cite{friedman1937use,demsar2006statistical}. Following \cite{benavoli2016should}, the primary pairwise tests are two-sided Wilcoxon signed-rank tests \cite{wilcoxon1945individual} with Holm correction \cite{holm1979simple,garcia2008extension}. Effect sizes are matched-pairs rank-biserial correlations \cite{kerby2014simple}, and confidence intervals use the bootstrap \cite{efron1979bootstrap}. A median relative difference below 1\% is reported as practically negligible even when it is significant. The research questions and tests were fixed before any main experiment was run (repository file \texttt{research/novelty\_assessment/research\_questions.md}).
+
+\section{Results}
+
+All numbers in this section are regenerated from the raw records by the scripts in the repository. Unless stated otherwise, NRMSE differences are median relative differences over datasets (real data) or tasks (synthetic data), and "$p_{\mathrm{Holm}}$" is the Holm-adjusted p-value of a two-sided Wilcoxon signed-rank test within its pre-registered family. W/L/T counts are wins, losses and ties of the first-named method.
+
+\subsection{Real-data benchmark}
+
+Table~\ref{tab:table11_summary} reports mean NRMSE, mean rank and win counts for every method at the three training-set sizes. 36, 33 and 22 datasets are large enough for $n_{\mathrm{train}}$ = 128, 512 and 2048 respectively (each split keeps at least 200 test rows).
+
+\input{tables/table11_summary.tex}
+
+\textbf{Overall ranking.} The Friedman test rejects equal performance of the 15 main methods at every size ($\chi^2$ = 243.5, 223.8 and 162.9; all p < 0.001). Figure~\ref{fig:fig12_critical_difference} shows the mean ranks with Nemenyi critical differences. At $n_{\mathrm{train}}$ = 128, global routing (MAPLE-E) has the best mean rank (3.11), followed by MAPLE-F (3.83) and the stacked classical experts (4.33). At 512 and 2048 the stacked experts rank first (2.83 and 3.32), with MAPLE-E, MAPLE-F and tuned CatBoost within one critical difference. The three standalone PFNs rank level with tuned CatBoost at $n_{\mathrm{train}}$ = 128 (PFN-D: 6.42; CatBoost-T: 6.14) but fall to ranks 9.30 and 11.27 at the larger sizes.
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig12_critical_difference.pdf}\caption{Critical-difference diagrams over the 15 main methods for the three training-set sizes (mean rank over datasets; NRMSE averaged over split repeats and pretraining seeds). Thick bars join methods whose mean ranks differ by less than the Nemenyi critical difference (CD, $\alpha$ = 0.05).}\label{fig:fig12_critical_difference}\end{figure}\textbf{Routing versus the PFN alone (RQ5).} Routing the PFN together with the classical experts reduces PFN-D's error at every size, by a median of 2.3\% at $n_{\mathrm{train}}$ = 128 (W/L/T = 27/9/0, $p_{\mathrm{Holm}}$ < 0.001, $r_{rb}$ = 0.70), 8.9\% at 512 (W/L/T = 28/5/0, $p_{\mathrm{Holm}}$ < 0.001, $r_{rb}$ = 0.93) and 25.3\% at 2048 (W/L/T = 20/2/0, $p_{\mathrm{Holm}}$ < 0.001, $r_{rb}$ = 0.97). The growing margin reflects the PFN's decline with $n_{\mathrm{train}}$ rather than an improvement of the router. The second half of H5, that MAPLE-F is no worse than stacking, does not hold at every size. Against the stacked experts, the median difference is 0.1\% in MAPLE-F's favour at 128 (W/L/T = 19/17/0, $p_{\mathrm{Holm}}$ = 0.509, $r_{rb}$ = 0.13; not significant), whereas MAPLE-F has higher median error at 512 (0.6\%; W/L/T = 12/21/0, $p_{\mathrm{Holm}}$ = 0.053, $r_{rb}$ = -0.44; not significant) and at 2048 (0.7\%; W/L/T = 5/17/0, $p_{\mathrm{Holm}}$ = 0.007, $r_{rb}$ = -0.72; significant). Against stacking that includes PFN-D, MAPLE-F has higher median error at 512 (0.8\%; W/L/T = 7/26/0, $p_{\mathrm{Holm}}$ = 0.001, $r_{rb}$ = -0.68; significant). All of these deficits are below the 1\% threshold we set for practical relevance. Local routing did not improve on global routing: at $n_{\mathrm{train}}$ = 128, MAPLE-E had 0.3\% lower median error than MAPLE-F (W/L/T = 27/9/0, $p_{\mathrm{Holm}}$ = 0.050, $r_{rb}$ = 0.45; not significant), and the difference was not significant at the larger sizes either.
+
+\textbf{Does the PFN add information to the experts?} In an exploratory comparison (raw p-values), stacking with PFN-D had lower error than stacking the experts alone at $n_{\mathrm{train}}$ = 128 (W/L/T = 23/13/0, raw p = 0.003, $r_{rb}$ = 0.55), but not at 512 (W/L/T = 15/12/6, raw p = 0.216, $r_{rb}$ = 0.27) or 2048 (W/L/T = 7/9/6, raw p = 0.756, $r_{rb}$ = -0.09). At the larger sizes the two stackers produced identical errors on 6 and 6 datasets respectively.
+
+\textbf{Comparison with tuned gradient boosting (RQ6, exploratory).} At $n_{\mathrm{train}}$ = 128, MAPLE-F reduced the median error of tuned CatBoost by 2.3\% (W/L/T = 29/7/0, $p_{\mathrm{Holm}}$ = 0.002, $r_{rb}$ = 0.58), of tuned XGBoost by 5.6\% (W/L/T = 33/3/0, $p_{\mathrm{Holm}}$ < 0.001, $r_{rb}$ = 0.83) and of tuned LightGBM by 8.9\% (W/L/T = 34/2/0, $p_{\mathrm{Holm}}$ < 0.001, $r_{rb}$ = 0.95). At 512 the difference to tuned CatBoost is not significant (1.5\% in MAPLE-F's favour; W/L/T = 22/11/0, $p_{\mathrm{Holm}}$ = 0.171, $r_{rb}$ = 0.28), and at 2048 tuned CatBoost has the lower median error (1.0\%; W/L/T = 12/10/0, $p_{\mathrm{Holm}}$ = 1.000, $r_{rb}$ = 0.14; not significant). \textbf{External reference: large pretrained foundation models (exploratory).} TabPFN v2 and TabICL, run with their library defaults, are not equal-compute comparisons: both were pretrained with far more compute and data than our PFN. At $n_{\mathrm{train}}$ = 128 the lowest mean NRMSE was TabICL's (0.561; MAPLE-F 0.614, tuned CatBoost 0.627). At $n_{\mathrm{train}}$ = 512 the lowest mean NRMSE was TabICL's (0.436; MAPLE-F 0.498, tuned CatBoost 0.497). At $n_{\mathrm{train}}$ = 2048 the lowest mean NRMSE was TabICL's (0.400; MAPLE-F 0.443, tuned CatBoost 0.440). The median of (model -- MAPLE-F)/MAPLE-F NRMSE was -2.3\%, -4.5\%, -7.3\% for TabPFN v2 and -5.3\%, -7.9\%, -10.5\% for TabICL at the three sizes (negative = more accurate than MAPLE-F; at $n_{\mathrm{train}}$ = 512, TabPFN v2: W/L/T = 27/6/0, raw p < 0.001, $r_{rb}$ = 0.76; TabICL: W/L/T = 31/2/0, raw p < 0.001, $r_{rb}$ = 0.97). Their cost per split was also low: 0.78 s to fit and 0.91 s to predict for TabPFN v2, and 1.23 s and 0.69 s for TabICL, on a GPU. The gap between these models and every method trained at our budget, including the routed MAPLE variants, is far larger than any effect of the adaptive prior, and it bounds the practical relevance of our findings (Section 10).
+
+\textbf{Per-dataset results.} Figure~\ref{fig:fig06_nrmse_datasets} shows NRMSE per dataset at $n_{\mathrm{train}}$ = 512. MAPLE-F was more accurate than the best classical method on 7 of 36 datasets at 128, 4 of 33 at 512 and 1 of 22 at 2048. The standalone PFN failed on a few datasets: on naval propulsion plant its NRMSE was 0.99 at $n_{\mathrm{train}}$ = 512, no better than predicting the training mean, whereas tuned CatBoost reached 0.23 and MAPLE-F 0.20. This is consistent with the router down-weighting the PFN where its out-of-fold error is large. We did not diagnose the PFN failures further.
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig06_nrmse_datasets.pdf}\caption{Per-dataset NRMSE at n\_train = 512 (mean over split repeats; PFN rows also over three pretraining seeds) for MAPLE-F, PFN-D, PFN-SCM, tuned CatBoost and the stacked experts. Grey segments span the range across the five methods. Lower is better.}\label{fig:fig06_nrmse_datasets}\end{figure}
+
+\subsection{Cost and scaling}
+
+Table~\ref{tab:table06_efficiency_n512} lists fit time, prediction time and memory at $n_{\mathrm{train}}$ = 512, and Figure~\ref{fig:fig08_cost_accuracy} places each method on the cost--accuracy plane. Tuned CatBoost is the most expensive method, at 276 s mean fit time per split on one CPU thread (10 random configurations with 3-fold cross-validation). MAPLE-F's fit time, 10.4 s, is dominated by the out-of-fold fits of the five experts; the PFN itself needs 0.08 s to preprocess the training split and 0.12 s to predict. The PFN, TabPFN v2 and TabICL run on a GPU while the other methods run on one CPU thread, so these timings are not a like-for-like hardware comparison. Pretraining costs about 0.8 GPU-hours per checkpoint, paid once.
+
+\input{tables/table06_efficiency_n512.tex}
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig08_cost_accuracy.pdf}\caption{Cost--accuracy trade-off at n\_train = 512: mean fit-plus-predict time per split (log scale) against mean NRMSE over datasets. Points closer than a few pixels share one label. PFN, TabPFN v2 and TabICL timings are GPU inference; all other methods ran on one CPU thread.}\label{fig:fig08_cost_accuracy}\end{figure}Figure~\ref{fig:fig15_scaling} follows three datasets from $n_{\mathrm{train}}$ = 128 to 4096 (the sizes available for all three). With the smallest training sets the PFN is the most accurate method (mean NRMSE 0.746, against 0.767 for CatBoost), and its inference time stays almost flat. Its accuracy, however, stops improving after 2048 training rows (0.638 at 2048, 0.644 at 4096), while every tree ensemble keeps improving (CatBoost: 0.505 at 4096). Above 1024 training rows the PFN sees random 1024-row contexts averaged over bags, so it cannot use all the data; its pretraining contexts were also no larger than this. The scaling behaviour of the standalone PFN is therefore limited by design, and it explains why its rank falls with $n_{\mathrm{train}}$ in Figure~\ref{fig:fig12_critical_difference}.
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig15_scaling.pdf}\caption{Scaling with training-set size on three datasets (California housing, kin8nm, physicochemical protein; three repeats each), for the sizes available for all three. (a) Fit-plus-predict time; (b) mean NRMSE. PFN-D uses GPU inference with 1024-row context bagging above 1024 training rows; the other methods use one CPU thread and default hyperparameters.}\label{fig:fig15_scaling}\end{figure}
+
+\subsection{Synthetic generalisation}
+
+Table~\ref{tab:table09_generalization} and Figure~\ref{fig:fig11_generalization} report mean NRMSE on the in-distribution (ID) suite and the seven structurally out-of-distribution (OOD) suites. Among the methods trained at our budget, the mathematical-prior PFNs are the most accurate on the ID suite (PFN-D: 0.425; ExtraTrees: 0.438; CatBoost: 0.479). Averaged over the OOD suites they are level with ExtraTrees (PFN-D: 0.523; ExtraTrees: 0.522). ExtraTrees is better on nested compositions, Voronoi regions and regime mixtures, whereas the PFNs are better on held-out families, stretched parameters, three-way interactions and heavy-tailed noise. The PFN trained on the SCM prior is far less accurate on every suite (ID 0.564, OOD 0.701). This result is expected to favour the mathematical prior, because all synthetic suites come from the same generator. On real data (RQ4) the two priors are statistically indistinguishable at every size (Section 9). The external foundation models were also run on every synthetic task. Relative to PFN-D, the median of (model -- PFN-D)/PFN-D NRMSE was -16.8\% (ID) and -17.7\% (pooled OOD) for TabPFN v2, and -13.0\% and -13.0\% for TabICL (negative = more accurate than PFN-D; mean NRMSE ID/OOD: TabPFN v2 0.342 / 0.415, TabICL 0.353 / 0.479). TabPFN v2 is more accurate than PFN-D even on the in-distribution suite, drawn from the generator PFN-D was pretrained on (W/L/T = 174/26/0, raw p < 0.001, $r_{rb}$ = 0.79), so the advantage of the large model is not specific to real data.
+
+\input{tables/table09_generalization.tex}
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig11_generalization.pdf}\caption{Mean NRMSE per synthetic suite (200 tasks each; PFN bars averaged over three pretraining seeds). Error bars: 95\% bootstrap confidence intervals over tasks. ID = fresh tasks from the training cells; the seven OOD suites differ from training in structure.}\label{fig:fig11_generalization}\end{figure}
+
+\textbf{Adaptive versus uniform prior (RQ1).} The adaptive sampler did not improve on the uniform mathematical prior. On the ID suite, PFN-D had 0.4\% lower median NRMSE than PFN-A (W/L/T = 111/89/0, $p_{\mathrm{Holm}}$ = 0.357, $r_{rb}$ = 0.11); on the pooled OOD suites it had 0.1\% higher median NRMSE (W/L/T = 666/734/0, $p_{\mathrm{Holm}}$ = 0.357, $r_{rb}$ = -0.04). None of the seven OOD suites shows a significant difference after Holm correction. H1 is not supported.
+
+\subsection{Behaviour of the sampler and of the disagreement signal}
+
+Figure~\ref{fig:fig04_adaptation} shows how far each adaptive sampler moved away from the uniform prior. The loss-driven sampler (B) moved far: its final KL divergence from uniform averaged 0.52 over seeds, and its final family probabilities ranged from 0.016 to 0.234 (uniform: 0.056). The disagreement-driven samplers (C and D) barely moved: final KL 0.014 and 0.012, with family probabilities between 0.045 and 0.070 for D. The reason is the scale of the scores. Across cells, the gap scores had a standard deviation of 0.034, against 0.169 for the loss scores. At $\tau$ = 0.2, such small differences produce Gibbs weights close to uniform (Proposition 5). The sharper temperature $\tau$ = 0.05 moved the sampler further (final KL 0.17) without changing accuracy (Section 8). Figure~\ref{fig:fig05_family_distribution} shows the final family distributions: B concentrated on oscillatory families (trigonometric and damped oscillator), whereas C and D stayed near uniform.
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig04_adaptation.pdf}\caption{(a) Family probabilities of PFN-D (seed 0) over the 14 adaptation rounds (cells summed by family). (b) KL divergence of the sampling distribution from uniform for B, C and D (mean over three seeds; band: range over seeds).}\label{fig:fig04_adaptation}\end{figure}
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig05_family_distribution.pdf}\caption{Final sampling probability of each function family (summed over complexity levels; mean over three seeds) for the loss-driven sampler (PFN-B) and the disagreement-driven samplers (PFN-C, PFN-D). Dashed line: uniform.}\label{fig:fig05_family_distribution}\end{figure}
+
+Figure~\ref{fig:fig14_learning_curves} shows that this re-weighting changed what the model was trained on but not what it learned. B's own training loss is higher because it over-samples hard cells. On held-out probe tasks drawn uniformly from all cells, however, the error curves of A, B, C and D coincide throughout pretraining.
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig14_learning_curves.pdf}\caption{(a) Training loss on each variant's own (adaptive) prior (mean over three seeds, smoothed). (b) Excess error on held-out probe tasks drawn uniformly over cells after each adaptation round (mean over seeds).}\label{fig:fig14_learning_curves}\end{figure}
+
+\textbf{Disagreement versus loss as the adaptation signal (RQ2).} On synthetic tasks, PFN-C had lower error than PFN-B overall (0.7\%; W/L/T = 892/708/0, $p_{\mathrm{Holm}}$ = 0.021, $r_{rb}$ = 0.08) and on the noisier half of the tasks (0.6\%; W/L/T = 450/350/0, $p_{\mathrm{Holm}}$ = 0.021, $r_{rb}$ = 0.10). These effects are statistically significant but practically negligible (below 1\%). On real data the direction reversed: PFN-B had lower median error than PFN-C at $n_{\mathrm{train}}$ = 512 (0.7\%; W/L/T = 25/8/0, $p_{\mathrm{Holm}}$ < 0.001, $r_{rb}$ = 0.69) and 2048 (1.1\%; W/L/T = 16/6/0, $p_{\mathrm{Holm}}$ = 0.025, $r_{rb}$ = 0.60). The first of these is below our 1\% threshold for practical relevance; the second is just above it, so on real data the loss-driven sampler was, if anything, slightly better.
+
+\textbf{Does the gap track the PFN's error (RQ3)?} Figure~\ref{fig:fig13_disagreement_vs_error} plots the label-free gap against the PFN's excess error. On synthetic tasks the task-level Spearman correlation for PFN-D is 0.37 (95\% CI [0.33, 0.41], n = 1600), far below the 0.91 of the label-based loss. The committee was more accurate than the PFN on only 20\% of tasks. Proposition 4(b) guarantees that the gap tracks excess error only in that regime; elsewhere the gap also measures the committee's own error. The correlation was weakest on three-way interactions (0.14) and regime mixtures (0.14). On real data the noise-free target is unknown, so excess error cannot be measured directly. Proposition 4(d) gives a label-computable proxy: the PFN's test MSE minus the committee's, which equals the difference of their excess errors and contains no noise term. With the dataset as unit, the gap's correlation with this proxy is 0.18 (95\% CI [-0.21, 0.52], n = 36), and the median within-dataset correlation across splits is -0.03. Its correlation with the PFN's raw test MSE is higher (0.47, 95\% CI [0.17, 0.69]), but raw MSE is confounded by each dataset's noise level, which raises both quantities. H3 is therefore supported on synthetic data only (weak to moderate): the gap tracks the PFN's excess error on synthetic tasks, but we find no reliable relation on real data once noise is removed.
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig13_disagreement_vs_error.pdf}\caption{Label-free PFN--committee gap versus the PFN's error. (a) Synthetic tasks, PFN-D: excess error relative to the noise-free target (log--log; dashed line: identity). (b) Real-data splits: PFN test MSE on standardised targets against the gap on the test points.}\label{fig:fig13_disagreement_vs_error}\end{figure}
+
+\section{Ablation and Sensitivity Analysis}
+
+Table~\ref{tab:table07_ablation} and Figure~\ref{fig:fig09_ablation} report one-factor changes to PFN-D, each pretrained with seed 0 and compared with PFN-D seed 0 on all synthetic tasks and on real data at $n_{\mathrm{train}}$ = 512. These comparisons must be read against the variation between pretraining seeds. Across its three seeds, PFN-D's mean ID NRMSE ranged over 0.0144 and its mean OOD NRMSE over 0.0072. Seed 0 happened to be the least accurate of the three on the ID suite (0.4326), so most one-factor variants appear slightly better than the reference.
+
+\input{tables/table07_ablation.tex}
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig09_ablation.pdf}\caption{One-factor ablations relative to PFN-D (seed 0): median relative NRMSE change on synthetic tasks (left) and on real datasets at n\_train = 512 (right). Positive = worse than PFN-D. Error bars: 95\% bootstrap confidence intervals.}\label{fig:fig09_ablation}\end{figure}Three factors produce effects well beyond the seed variation (p-values below are Holm-corrected across the rows of Table~\ref{tab:table07_ablation}). \textbf{The prior family} matters most on synthetic tasks: the SCM prior (P0) increases NRMSE by 24.9\%, but its effect on real data (+1.0\%; $p_{\mathrm{Holm}}$ = 1.000) is not significant. \textbf{Pretraining compute} matters clearly on synthetic tasks: a quarter of the steps costs +10.5\% and half the steps +5.0\%; the uniform-prior runs with the same budget cuts, also compared with PFN-D seed 0, show the same pattern (+10.1\% and +4.5\%). On real data the budget effects are small (between +0.5\% and +1.4\%) and significant for 1 of the four runs. \textbf{Function complexity} matters for transfer: pretraining on complexity level 0 only raised real-data NRMSE by +3.5\% ($p_{\mathrm{Holm}}$ < 0.001), and stopping at level 1 by +1.6\% ($p_{\mathrm{Holm}}$ < 0.001). Every change to the sampler itself (score definition, committee size, temperature, floor, EMA, number of probes and update period) changes NRMSE by less than 1\% on synthetic tasks and on real data, within the range spanned by pretraining seeds.
+
+Table~\ref{tab:table08_sensitivity} and Figure~\ref{fig:fig10_sensitivity} show the same runs as one-parameter sweeps. The curves are flat for all sampler hyperparameters and slope clearly only for the training budget and the maximum complexity.
+
+\input{tables/table08_sensitivity.tex}
+
+\begin{figure}[H]\centering\includegraphics[width=\linewidth]{figures/fig10_sensitivity.pdf}\caption{Sensitivity of mean ID and OOD NRMSE to one hyperparameter at a time (pretraining seed 0; the middle or default value is PFN-D seed 0).}\label{fig:fig10_sensitivity}\end{figure}
+
+\section{Statistical Analysis}
+
+Table~\ref{tab:table13_rq_verdicts} collects the verdict on each pre-registered hypothesis, derived by fixed rules from the test results; the full set of pairwise real-data comparisons against MAPLE-F is in Table~\ref{tab:table10_statistics} (Appendix B). In summary, using the verdicts of Table~\ref{tab:table13_rq_verdicts}: H1 (adaptive better than uniform): not supported. H2 (disagreement at least as good as loss): supported on synthetic tasks (negligible effect); reversed on real data (n = 512, 2048). H3 (the gap tracks excess error): supported on synthetic data only (weak to moderate). H4 (mathematical prior better than the SCM prior on real data): not supported on real data. H5 (routing better than the PFN and no worse than stacking): partially supported; the first half holds at every size, the second does not hold at every size (Section 7.1).
+
+\input{tables/table13_rq_verdicts.tex}
+
+\section{Discussion}
+
+\subsection{What the evidence supports}
+
+The study was designed to test whether re-weighting a mathematical prior during pretraining, steered by disagreement between the PFN and classical experts, produces a better tabular regressor at equal compute. It does not. The adaptive sampler was statistically and practically indistinguishable from the uniform mathematical prior on in-distribution and out-of-distribution synthetic suites and on real data (RQ1), and none of its design choices (score, temperature, floor, committee, probes, update period) changed accuracy by more than the variation between pretraining seeds. The parts of the framework that did matter are different from the hypothesised mechanism.
+
+First, the \textbf{mathematical prior} made the PFN much more accurate than an SCM prior on synthetic regression tasks, including structurally out-of-distribution ones, but this advantage did not carry over to the 36 real datasets (RQ4). The synthetic suites come from the same generator family, so the first result partly measures closeness between training and test generators; real data are the stricter test, and there the two priors tie.
+
+Second, \textbf{pretraining compute} and \textbf{function complexity} mattered. Cutting the number of steps to a quarter or a half raised synthetic-task error by 10.5\% and 5.0\%, and restricting the prior to the lowest complexity level produced the largest real-data loss of any ablation (+3.5\%). At our scale, how much the model is trained and how rich its prior is matter more than how the prior is weighted.Third, \textbf{combining the PFN with classical experts} helped substantially. Competence routing reduced the PFN's median error by 2.3\% to 25.3\% and, at $n_{\mathrm{train}}$ = 128, was more accurate than tuned CatBoost, XGBoost and LightGBM. Most of this gain is available without a PFN: stacking the five classical experts was not distinguishable from MAPLE-F at 128, not significantly different at 512, slightly more accurate at 2048 (all differences below 1\%). The PFN adds measurable information only in the smallest regime, which is where PFNs have been reported to be most competitive \cite{hollmann2023tabpfn,mcelfresh2023when}.
+
+Finally, the external references put these results in perspective. TabPFN v2 and TabICL, pretrained at far larger scale, were more accurate than every method trained at our budget on real data (Section 7.1), by margins much larger than any effect of the prior or of the sampler studied here. MAPLE is therefore not a competitor to these models. Its contribution is a controlled test of one mechanism, adaptive re-weighting of the prior, which could be added to larger pretraining pipelines; our results indicate it would need sharper, standardised scores to have any effect.
+
+\subsection{Why disagreement-steered sampling had no effect}
+
+Three observations explain the null result, and together they make the most obvious alternative explanation, an implementation fault, unlikely. (i) \textbf{The scores were too flat to move the sampler.} Across cells the gap scores varied with a standard deviation of only 0.034, about a fifth of the spread of the loss scores. At $\tau$ = 0.2 this kept every family's probability between 0.045 and 0.070 around the uniform 0.056, as Propositions 2 and 5 imply for a small score oscillation. The loss-driven sampler, given the same code path and a larger spread, did move far from uniform (Section 7.4). (ii) \textbf{Moving the sampler did not help either.} Variant B re-weighted the prior strongly, and the sharper temperature $\tau$ = 0.05 moved the disagreement sampler to a final KL of 0.17; neither changed accuracy on held-out tasks drawn uniformly over the cells (Sections 7.4 and 8). At the end of pretraining, even the strongly re-weighted sampler B still gave every family at least 0.016 of the samples, so no part of the prior was starved. Together with the budget ablation, this suggests that the binding constraint at our scale is model capacity and compute rather than the allocation of tasks across cells. (iii) \textbf{The gap is a weak proxy for excess error here.} Proposition 4(b) guarantees that the gap tracks the PFN's excess error when the committee is the more accurate party, but the committee was more accurate on only 20\% of synthetic tasks. Outside that regime the gap mostly measures the committee's own error, which is the known failure mode of query-by-committee \cite{burbidge2007active}, and the observed correlation (0.37) is accordingly well below that of the label-based loss. On real data, the gap's correlation with the noise-free excess-error proxy was 0.18 (95\% CI [-0.21, 0.52]), so the signal that steers the sampler is weakest exactly where it matters for transfer.
+
+The theory remains correct but was not informative at the operating point we chose. With the clip $B$ = 4.0, $\tau$ = 0.2, $\gamma$ = 0.1, $M$ = 54 cells, $m$ = 4 probe tasks per cell and $\delta$ = 0.05, the $\ell_1$ bound of Theorem 1 evaluates to 17.6, far above the trivial bound of 2. It would fall below 1 only with about 1244 probe tasks per cell. The observed scores were also far below the clip $B$, so a data-dependent clip or score standardisation would tighten the bound and sharpen the sampler at the same time. Whether a sharper sampler would then help is not settled by our results, because the strongly adaptive variants we did run showed no benefit.
+
+\subsection{Relation to prior work}
+
+Our findings agree with the view that a PFN can only be as good as its prior \cite{nagler2023statistical}, and with recent tabular foundation models that combine richer priors with much larger pretraining budgets \cite{hollmann2025accurate,qu2025tabicl,zhang2025mitra}. Adaptive task distributions have improved learning in automated curricula and in reinforcement learning \cite{graves2017automated,jiang2021prioritized,parkerholder2022evolving}; our results show that this benefit does not carry over automatically to PFN pretraining on a 54-cell mathematical prior at our scale. The routing results are consistent with the long record of stacking and dynamic selection in classical ensembles \cite{wolpert1992stacked,breiman1996stacked,cruz2018dynamic}, and with benchmark evidence that well-tuned gradient-boosted trees remain hard to beat on medium-sized tabular data \cite{grinsztajn2022why,mcelfresh2023when}.
+
+\subsection{Limitations}
+
+The conclusions are bounded by the following design choices.
+
+\begin{itemize}
+\item \textbf{Scale.} The PFN has about 4.0 million parameters and was pretrained for 15,000 steps on shared GPUs. Production tabular foundation models are pretrained with orders of magnitude more compute, and the budget ablation shows that our models were still improving. An adaptive prior might matter for a model large enough to master the easy cells early, a regime we did not reach.
+\item \textbf{External foundation models are reference points, not equal-compute comparisons.} TabPFN v2 and TabICL were run with library defaults; they were pretrained with far more compute and data, and newer TabPFN releases (2.5 and later, distributed under non-commercial licences behind an access agreement) were not evaluated.
+\item \textbf{Seeds and precision.} The main variants used three pretraining seeds; ablations and sensitivity runs used one seed, and their effects must be read against the seed spread reported in Section 8. Pretraining ran on two different GPU types with different mixed-precision formats, so seed variation includes a precision component.
+\item \textbf{Benchmark protocol.} To fit the CPU budget, split repeats were reduced at larger sizes (10, 5 and 3 repeats for $n_{\mathrm{train}}$ = 128, 512 and 2048), hyperparameter tuning used 10 random configurations, and CatBoost one-hot encoded categorical features instead of using its target statistics. Only 22 datasets are large enough for $n_{\mathrm{train}}$ = 2048, so the largest regime has the least statistical power.
+\item \textbf{Timing.} PFN inference ran on a GPU and all other methods on one CPU thread; the cost comparison is indicative, not a controlled hardware comparison.
+\item \textbf{Synthetic evaluation.} All synthetic suites come from our generator, filtered by the same validity check as pretraining (targets within twelve context standard deviations), which removes the most extreme tasks and favours models trained on that generator.
+\item \textbf{Feature handling.} Datasets with more than 32 features are reduced by mutual information for the PFN only, and training sets larger than 1024 rows are handled by context bagging, which limits the PFN at large $n_{\mathrm{train}}$ (Section 7.2).
+\end{itemize}
+
+\section{Conclusions}
+
+We built and analysed MAPLE, a framework that pretrains a prior-data fitted network on an interpretable, cell-structured mathematical prior, re-weights the cells during pretraining by the disagreement between the PFN and a committee of classical experts, and routes between the PFN and the experts at inference. We proved that the sampler cannot collapse, is stable and has bounded distortion, and characterised when label-free disagreement tracks excess error. In a pre-registered, equal-compute evaluation, the adaptive sampler did not improve on a uniform mathematical prior, and the mathematical prior did not improve on an SCM prior on real data. The measurable gains came from routing the PFN together with classical experts: at $n_{\mathrm{train}}$ = 128 this was more accurate than tuned gradient boosting, but at larger training sizes plain stacking of the experts was as good or better, and large pretrained foundation models used as external references (TabPFN v2, TabICL) were more accurate than all equal-budget methods. The practical lesson for prior design at this scale is to invest in pretraining compute and prior richness before adaptive re-weighting. The natural next step is to test whether disagreement-steered sampling becomes useful for substantially larger models and budgets, using standardised scores so that the sampler and its finite-sample guarantee both operate in a non-trivial regime.
+
+\appendixstart\appendix
+
+\section{Proofs}
+
+\textbf{Proof of Proposition 1.} For $q\in\Delta_M$ (with $0\log 0=0$), $\mathrm{KL}(q\|q^{*})=\sum_c q_c\log(q_c/p^{0}_c)-\langle q,s\rangle/\tau+\log Z=\mathrm{KL}(q\|p^{0})-\langle q,s\rangle/\tau+\log Z$, where $Z=\sum_c p^{0}_c e^{s_c/\tau}$. Hence $\langle q,s\rangle-\tau\mathrm{KL}(q\|p^{0})=\tau\log Z-\tau\mathrm{KL}(q\|q^{*})$. By Gibbs' inequality, $\mathrm{KL}(q\|q^{*})\ge 0$, with equality if and only if $q=q^{*}$ (since $q^{*}$ has full support). This proves uniqueness and the optimal value.
+
+For the constrained problem, the feasible set $\{q\in\Delta_M:\mathrm{KL}(q\|p^{0})\le\rho\}$ is compact and convex, and the objective is linear, so a maximiser exists. Slater's condition holds at $q=p^{0}$, so there is a multiplier $\tau^{*}\ge 0$ such that every maximiser maximises $\langle q,s\rangle-\tau^{*}(\mathrm{KL}(q\|p^{0})-\rho)$. If $\tau^{*}=0$, the maximiser would be supported on $S_{\max}=\arg\max_c s_c$. The minimum of $\mathrm{KL}(q\|p^{0})$ over such distributions is $\log(1/p^{0}(S_{\max}))>\rho$, which is infeasible. Hence $\tau^{*}>0$, and by the first part the maximiser is the Gibbs distribution with temperature $\tau^{*}$. $\square$
+
+\textbf{Proof of Proposition 2.} The floor $q_c\ge\gamma/M$ holds because $q^{*}_c\ge 0$. The ratio bound follows from the closed form. For the KL bound, $\mathrm{KL}(q^{*}\|u)=\sum_c q^{*}_c(s_c/\tau-\log Z_u)$ with $\log Z_u=\log(\frac1M\sum_c e^{s_c/\tau})\ge\min_c s_c/\tau$, so $\mathrm{KL}(q^{*}\|u)\le(\langle q^{*},s\rangle-\min s)/\tau\le\operatorname{osc}(s)/\tau$. Convexity of KL in its first argument gives $\mathrm{KL}(q\|u)\le(1-\gamma)\mathrm{KL}(q^{*}\|u)$. $\square$
+
+\textbf{Proof of Proposition 3.} Let $v=s'-s$, $s(t)=s+tv$ and $q(t)=q^{*}(s(t))$. Then $\frac{d}{dt}q_c=\tau^{-1}q_c(v_c-\langle q,v\rangle)$, so $\|\frac{d}{dt}q\|_1=\tau^{-1}\mathbb{E}_{c\sim q(t)}|v_c-\mathbb{E}_{q(t)}v|$. For a random variable $V\in[a,b]$, Cauchy--Schwarz gives $\mathbb{E}|V-\mathbb{E}V|\le\sqrt{\operatorname{Var}V}$, and Popoviciu's inequality gives $\operatorname{Var}V\le(b-a)^2/4$. Therefore $\|\frac{d}{dt}q\|_1\le\operatorname{osc}(v)/(2\tau)$, and integrating over $[0,1]$ gives $\|q^{*}(s')-q^{*}(s)\|_1\le\operatorname{osc}(v)/(2\tau)\le\|v\|_\infty/\tau$. The mixture with the uniform distribution is affine with coefficient $1-\gamma$. $\square$
+
+\textbf{Proof of Proposition 4.} (a) $\mathbb{E}(\theta-f^{*}-\varepsilon)^2=\|\theta-f^{*}\|^2-2\mathbb{E}[(\theta-f^{*})\varepsilon]+\mathbb{E}\varepsilon^2$. The middle term vanishes because $\mathbb{E}[\varepsilon\mid x]=0$ and $\theta$ does not depend on the query noise. (b) The triangle inequality in $L^{2}(P_x)$ gives $\|\theta-\bar f\|\le\|\theta-f^{*}\|+\|\bar f-f^{*}\|$ and $\|\theta-f^{*}\|\le\|\theta-\bar f\|+\|\bar f-f^{*}\|$. Under $\|\bar f-f^{*}\|\le\eta\|\theta-f^{*}\|$, this yields $(1-\eta)\|\theta-f^{*}\|\le\|\theta-\bar f\|\le(1+\eta)\|\theta-f^{*}\|$; squaring gives the claim. (c) For reals $a_1,\dots,a_K$ with mean $\bar a$ and any $y$, $\frac1K\sum_k(a_k-y)^2=(\bar a-y)^2+\frac1K\sum_k(a_k-\bar a)^2$, because the cross term $\frac{2}{K}(\bar a-y)\sum_k(a_k-\bar a)$ is zero. $\square$
+
+\textbf{Proof of Theorem 1.} For a fixed cell $c$, the per-task scores $Y_{c,1},\dots,Y_{c,m}$ are independent and lie in $[0,B]$. Hoeffding's inequality gives $P(|\hat s_c-s_c|\ge\epsilon)\le 2e^{-2m\epsilon^2/B^2}$. A union bound over the $M$ cells, with the right-hand side set to $\delta$, gives $\epsilon_m=B\sqrt{\log(2M/\delta)/(2m)}$. On this event, $\operatorname{osc}(\hat s-s)\le 2\epsilon_m$, and Proposition 3 gives $\|q(\hat s)-q(s)\|_1\le(1-\gamma)\epsilon_m/\tau$.
+
+For the exponential moving average $\tilde s=\sum_{r\ge0}(1-\lambda)\lambda^{r}\hat s^{(r)}$ under stationarity, each probe in round $r$ has weight $w=(1-\lambda)\lambda^{r}/m$. Hoeffding's inequality for weighted sums gives $P(|\tilde s_c-s_c|\ge\epsilon)\le 2\exp(-2\epsilon^2/(B^2\sum w^2))$ with $\sum w^2=(1-\lambda)/(m(1+\lambda))$, so $m$ is replaced by $m(1+\lambda)/(1-\lambda)$. $\square$
+
+\textbf{Proof of Proposition 5.} $\mathbb{E}_{G_q}\ell-\mathbb{E}_{G_u}\ell=\sum_c(q_c-u_c)R_c$ with $R_c\in[0,L]$. Since $\sum_c(q_c-u_c)=0$, we may subtract $L/2$ from every $R_c$, so the absolute value is at most $\frac{L}{2}\|q-u\|_1=L\,\mathrm{TV}(q,u)$. Pinsker's inequality and Proposition 2 complete the proof. $\square$
+
+\section{Additional Results}
+
+Table~\ref{tab:table10_statistics} lists every pairwise real-data comparison against MAPLE-F, with Holm correction across the comparisons within each training-set size. Table~\ref{tab:table05_r2_n512} gives per-dataset $R^2$ at $n_{\mathrm{train}}$ = 512 with standard deviations over split repeats. The per-dataset RMSE and MAE tables (in the original target units) for all three training-set sizes, the $R^2$ tables for $n_{\mathrm{train}}$ = 128 and 2048, the per-dataset MAE figure and the seed-stability and residual figures are provided as supplementary material.
+
+\input{tables/table10_statistics.tex}
+
+\input{tables/table05_r2_n512.tex}
+
+\vspace{6pt}
+\authorcontributions{[To be completed by the authors using the CRediT taxonomy.]}
+\funding{[To be completed by the authors: funder and grant number, or "This research received no external funding."]}
+\institutionalreview{Not applicable.}
+\informedconsent{Not applicable.}
+\dataavailability{All datasets are publicly available: the OpenML-CTR23 suite (OpenML study 353; dataset identifiers in the supplementary dataset table) and the Diabetes data distributed with scikit-learn. Code, configurations, persisted data splits, raw experimental records, pretrained checkpoints and the scripts that regenerate every table and figure are provided in the accompanying repository [archival DOI to be added by the authors].}
+\acknowledgments{During the preparation of this study, the authors used Claude (Anthropic, model Claude Opus 5.5) to implement the research software, run the experiments, and draft the text of this manuscript. [Authors: review and revise this statement; the authors must review and edit all content and take full responsibility for the publication.]}
+\conflictsofinterest{[To be completed by the authors.]}
+\abbreviations{Abbreviations}{
+The following abbreviations are used in this manuscript:\\
+\noindent
+\begin{tabular}{@{}ll}
+PFN & prior-data fitted network\\
+MAPLE & mathematical adaptive prior learning\\
+OOD & out-of-distribution\\
+ID & in-distribution\\
+NRMSE & normalised root mean squared error\\
+RMSE & root mean squared error\\
+MAE & mean absolute error\\
+OOF & out-of-fold\\
+SCM & structural causal model\\
+DRO & distributionally robust optimisation\\
+GBDT & gradient-boosted decision trees\\
+KL & Kullback--Leibler divergence\\
+TV & total variation distance\\
+CD & critical difference\\
+HPO & hyperparameter optimisation
+\end{tabular}
+}
+\begin{adjustwidth}{-\extralength}{0cm}
+\reftitle{References}
+\bibliography{references}
+\PublishersNote{}
+\end{adjustwidth}
+\end{document}

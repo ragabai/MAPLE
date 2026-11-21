@@ -1,0 +1,135 @@
+{%- set R = S.stats.real -%}
+{%- set SY = S.stats.synthetic -%}
+{%- set AD = S.summary.adaptation -%}
+{%- set B = S.sampler.clip_B -%}
+{%- set tau = S.sampler.tau -%}
+{%- set gam = S.sampler.gamma -%}
+{%- set m = S.sampler.probes_per_cell -%}
+## 10. Discussion
+
+### 10.1 What the evidence supports
+
+The study was designed to test whether re-weighting a mathematical prior during pretraining, steered by
+disagreement between the PFN and classical experts, produces a better tabular regressor at equal compute. It does
+not. The adaptive sampler was statistically and practically indistinguishable from the uniform mathematical prior
+on in-distribution and out-of-distribution synthetic suites and on real data (RQ1), and none of its design choices
+(score, temperature, floor, committee, probes, update period) changed accuracy by more than the variation between
+pretraining seeds. The parts of the framework that did matter are different from the hypothesised mechanism.
+
+First, the **mathematical prior** made the PFN much more accurate than an SCM prior on synthetic regression tasks,
+including structurally out-of-distribution ones, but this advantage did not carry over to the {{ R['128'].n_datasets_full }} real datasets
+(RQ4). The synthetic suites come from the same generator family, so the first result partly measures closeness
+between training and test generators; real data are the stricter test, and there the two priors tie.
+
+Second, **pretraining compute** and **function complexity** mattered. Cutting the number of steps to a quarter or
+a half raised synthetic-task error by {{ pct(S.stats.ablation['budget_0.25_D'].synthetic.delta_vs_ref) }} and
+{{ pct(S.stats.ablation['budget_0.5_D'].synthetic.delta_vs_ref) }}, and restricting the prior to the lowest
+complexity level produced the largest real-data loss of any ablation
+({{ pct(S.stats.ablation.complexity_0.real512.delta_vs_ref, signed=True) }}). At our scale, how much the model is
+trained and how rich its prior is matter more than how the prior is weighted.
+
+{%- macro issig(rec) -%}{{ rec.get('p_holm_family', rec.get('p', 1)) < 0.05 }}{%- endmacro -%}
+Third, **combining the PFN with classical experts** helped substantially. Competence routing reduced the PFN's
+median error by {{ reduction(R['128'].rq['RQ5_F_vs_PFN-D']) }} to {{ reduction(R['2048'].rq['RQ5_F_vs_PFN-D']) }}
+and, at $n_{\mathrm{train}}$ = 128, was more accurate than tuned CatBoost, XGBoost and LightGBM. Most of this gain
+is available without a PFN: stacking the five classical experts was not distinguishable from MAPLE-F at 128
+{%- for g in ['512', '2048'] %}{% set rec = R[g].rq['RQ5_F_vs_Stack(experts)'] %}, {{ 'slightly more accurate' if issig(rec) == 'True' else 'not significantly different' }} at {{ g }}{% endfor %}
+(all differences below 1%). The PFN adds measurable information only in the smallest regime, which is where PFNs have
+been reported to be most competitive [@hollmann2023tabpfn; @mcelfresh2023when].
+{%- if R['128'].exploratory.get('F_vs_TabPFN-v2') %}
+
+Finally, the external references put these results in perspective. TabPFN v2 and TabICL, pretrained at far larger
+scale, were more accurate than every method trained at our budget on real data (Section 7.1), by margins much larger
+than any effect of the prior or of the sampler studied here. MAPLE is therefore not a competitor to these models.
+Its contribution is a controlled test of one mechanism, adaptive re-weighting of the prior, which could be added to
+larger pretraining pipelines; our results indicate it would need sharper, standardised scores to have any effect.
+{%- endif %}
+
+### 10.2 Why disagreement-steered sampling had no effect
+
+Three observations explain the null result, and together they make the most obvious alternative explanation, an
+implementation fault, unlikely. (i) **The scores were too flat to move the sampler.** Across cells the gap scores
+varied with a standard deviation of only {{ num(AD.D.score_sd_final_mean, 3) }}, about a fifth of the spread of the
+loss scores. At $\tau$ = {{ tau }} this kept every family's probability between
+{{ num(AD.D.family_prob_final_min, 3) }} and {{ num(AD.D.family_prob_final_max, 3) }} around the uniform
+{{ num(1 / AD.D.n_families, 3) }}, as Propositions 2 and 5 imply for a small score oscillation. The loss-driven sampler, given the same code path and a
+larger spread, did move far from uniform (Section 7.4). (ii) **Moving the sampler did not help either.** Variant B
+re-weighted the prior strongly, and the sharper temperature $\tau$ = 0.05 moved the disagreement sampler to a final
+KL of {{ num(AD['tau_0.05'].kl_final_mean, 2) }}; neither changed accuracy on held-out tasks drawn uniformly over
+the cells (Sections 7.4 and 8). At the end of pretraining, even the strongly re-weighted sampler B still gave every
+family at least {{ num(AD.B.family_prob_final_min, 3) }} of the samples, so no part of the prior was starved. Together with the
+budget ablation, this suggests that the binding constraint at our scale is model capacity and compute rather than
+the allocation of tasks across cells. (iii) **The gap is a weak proxy for excess error here.** Proposition 4(b) guarantees that the
+gap tracks the PFN's excess error when the committee is the more accurate party, but the committee was more accurate
+on only {{ pct(SY.RQ3['PFN-D'].frac_committee_better, 0) }} of synthetic tasks. Outside that regime the gap mostly
+measures the committee's own error, which is the known failure mode of query-by-committee
+[@burbidge2007active], and the observed correlation ({{ num(SY.RQ3['PFN-D'].spearman, 2) }}) is accordingly well
+below that of the label-based loss. On real data, the gap's correlation with the noise-free excess-error proxy was
+{{ num(SY.RQ3_real.spearman_regret, 2) }} (95% CI [{{ num(SY.RQ3_real.ci_regret[0], 2) }},
+{{ num(SY.RQ3_real.ci_regret[1], 2) }}]), so the signal that steers the sampler is weakest exactly where it matters
+for transfer.
+
+The theory remains correct but was not informative at the operating point we chose. With the clip $B$ = {{ B }},
+$\tau$ = {{ tau }}, $\gamma$ = {{ gam }}, $M$ = {{ S.n_cells }} cells, $m$ = {{ m }} probe tasks per cell and
+$\delta$ = 0.05, the $\ell_1$ bound of Theorem 1 evaluates to {{ num(thm1(B, tau, gam, S.n_cells, m, 0.05), 1) }},
+far above the trivial bound of 2. It would fall below 1 only with about {{ thm1_m(B, tau, gam, S.n_cells, 0.05, 1.0) }}
+probe tasks per cell. The observed scores were also far below the clip $B$, so a data-dependent clip or score
+standardisation would tighten the bound and sharpen the sampler at the same time. Whether a sharper sampler would
+then help is not settled by our results, because the strongly adaptive variants we did run showed no benefit.
+
+### 10.3 Relation to prior work
+
+Our findings agree with the view that a PFN can only be as good as its prior [@nagler2023statistical], and with
+recent tabular foundation models that combine richer priors with much larger pretraining budgets
+[@hollmann2025accurate; @qu2025tabicl; @zhang2025mitra]. Adaptive task distributions have improved learning in
+automated curricula and in reinforcement learning [@graves2017automated; @jiang2021prioritized;
+@parkerholder2022evolving]; our results show that this benefit does not carry over automatically to PFN pretraining
+on a {{ S.n_cells }}-cell mathematical prior at our scale. The routing results are consistent with the long
+record of stacking and dynamic selection in classical ensembles [@wolpert1992stacked; @breiman1996stacked;
+@cruz2018dynamic], and with benchmark evidence that well-tuned gradient-boosted trees remain hard to beat on
+medium-sized tabular data [@grinsztajn2022why; @mcelfresh2023when].
+
+### 10.4 Limitations
+
+The conclusions are bounded by the following design choices.
+
+- **Scale.** The PFN has about {{ '%.1f' | format(S.tables.table06_efficiency_n512.parameters['PFN-D'] / 1e6) }} million parameters and was pretrained for {{ S.steps }} steps on shared GPUs.
+  Production tabular foundation models are pretrained with orders of magnitude more compute, and the budget
+  ablation shows that our models were still improving. An adaptive prior might matter for a model large enough to master the easy cells early, a regime
+  we did not reach.
+- **External foundation models are reference points, not equal-compute comparisons.** TabPFN v2 and TabICL were run
+  with library defaults; they were pretrained with far more compute and data, and newer TabPFN releases (2.5 and
+  later, distributed under non-commercial licences behind an access agreement) were not evaluated.
+- **Seeds and precision.** The main variants used three pretraining seeds; ablations and sensitivity runs used one
+  seed, and their effects must be read against the seed spread reported in Section 8. Pretraining ran on two
+  different GPU types with different mixed-precision formats, so seed variation includes a precision component.
+- **Benchmark protocol.** To fit the CPU budget, split repeats were reduced at larger sizes
+  ({{ S.repeats[128] }}, {{ S.repeats[512] }} and {{ S.repeats[2048] }} repeats for $n_{\mathrm{train}}$ = 128, 512
+  and 2048), hyperparameter tuning used {{ S.n_trials }} random configurations, and CatBoost one-hot encoded
+  categorical features instead of using its target statistics. Only {{ R['2048'].n_datasets }} datasets are large
+  enough for $n_{\mathrm{train}}$ = 2048, so the largest regime has the least statistical power.
+- **Timing.** PFN inference ran on a GPU and all other methods on one CPU thread; the cost comparison is
+  indicative, not a controlled hardware comparison.
+- **Synthetic evaluation.** All synthetic suites come from our generator, filtered by the same validity check as
+  pretraining (targets within twelve context standard deviations), which removes the most extreme tasks and favours
+  models trained on that generator.
+- **Feature handling.** Datasets with more than 32 features are reduced by mutual information for the PFN only, and
+  training sets larger than 1024 rows are handled by context bagging, which limits the PFN at large
+  $n_{\mathrm{train}}$ (Section 7.2).
+
+## 11. Conclusions
+
+We built and analysed MAPLE, a framework that pretrains a prior-data fitted network on an interpretable,
+cell-structured mathematical prior, re-weights the cells during pretraining by the disagreement between the PFN and
+a committee of classical experts, and routes between the PFN and the experts at inference. We proved that the
+sampler cannot collapse, is stable and has bounded distortion, and characterised when label-free disagreement tracks
+excess error. In a pre-registered, equal-compute evaluation, the adaptive sampler did not improve on a uniform
+mathematical prior, and the mathematical prior did not improve on an SCM prior on real data. The measurable gains
+came from routing the PFN together with classical experts: at $n_{\mathrm{train}}$ = 128 this was more accurate than
+tuned gradient boosting, but at larger training sizes plain stacking of the experts was as good or better, and
+large pretrained foundation models used as external references (TabPFN v2, TabICL) were more accurate than all
+equal-budget methods. The
+practical lesson for prior design at this scale is to invest in pretraining compute and prior richness before
+adaptive re-weighting. The natural next step is to test whether disagreement-steered sampling becomes useful for
+substantially larger models and budgets, using standardised scores so that the sampler and its finite-sample
+guarantee both operate in a non-trivial regime.

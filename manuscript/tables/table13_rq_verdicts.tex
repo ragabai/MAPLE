@@ -1,0 +1,19 @@
+\begin{table}[H]
+\caption{Pre-registered research questions: hypotheses, evidence and verdicts.}
+\label{tab:table13_rq_verdicts}
+\centering
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.3cm}}
+\toprule
+RQ & hypothesis (pre-registered) & key evidence & verdict \\
+\midrule
+RQ1 & PFN-D < PFN-A on ID and pooled-OOD synthetic suites & ID D vs A: -0.4\% (p\_Holm = 0.357); OOD D vs A: +0.1\% (p\_Holm = 0.357) & Not supported \\
+RQ2 & PFN-C $\le$ PFN-B overall; PFN-C < PFN-B on high-noise tasks & all C vs B: -0.7\% (p\_Holm = 0.021); high noise C vs B: -0.6\% (p\_Holm = 0.021) & Supported on synthetic tasks (negligible effect); reversed on real data (n = 512, 2048) \\
+RQ3 & Spearman $\rho$(gap, excess error) > 0 on synthetic and real data & synthetic $\rho$ = 0.37 [0.33, 0.41] (loss: 0.91); real, regret proxy $\rho$ = 0.18 [-0.21, 0.52]; real, raw MSE $\rho$ = 0.47 [0.17, 0.69] & Supported on synthetic data only (weak to moderate) \\
+RQ4 & PFN-A or PFN-D < PFN-SCM on real data & n = 128: D vs SCM: +0.2\% (p\_Holm = 1.000); n = 512: D vs SCM: -0.2\% (p\_Holm = 0.469); n = 2048: D vs SCM: -0.4\% (p\_Holm = 0.707); synthetic OOD A vs SCM: -25.0\% (p\_Holm < 0.001) & Not supported on real data \\
+RQ5 & MAPLE-F < PFN-D and MAPLE-F $\le$ stacking & n = 128: F vs D: -2.4\% (p\_Holm < 0.001), F vs Stack(experts): -0.1\% (p\_Holm = 0.509), F vs Stack(PFN-D): +0.2\% (p\_Holm = 0.209); n = 512: F vs D: -9.8\% (p\_Holm < 0.001), F vs Stack(experts): +0.6\% (p\_Holm = 0.053), F vs Stack(PFN-D): +0.8\% (p\_Holm = 0.001); n = 2048: F vs D: -33.8\% (p\_Holm < 0.001), F vs Stack(experts): +0.7\% (p\_Holm = 0.007), F vs Stack(PFN-D): +0.7\% (p\_Holm = 0.055) & Partially supported \\
+RQ6 & Exploratory: MAPLE-F vs tuned GBDTs & n = 128: F vs CatBoost-T: -2.4\% (p\_Holm = 0.002); n = 512: F vs CatBoost-T: -1.5\% (p\_Holm = 0.171); n = 2048: F vs CatBoost-T: +1.0\% (p\_Holm = 1.000) & Exploratory \\
+RQ7 & Exploratory: which components matter & one-factor ablations and sensitivity runs (Section 8) & Exploratory \\
+\bottomrule
+\end{tabularx}
+\par\vspace{2pt}{\footnotesize Percentages are median relative NRMSE differences (negative = first method has lower error). p\_Holm: two-sided Wilcoxon signed-rank, Holm-corrected within the pre-registered family. Unit: task (synthetic) or dataset (real). Significant = p\_Holm < 0.05; |difference| < 1\% is practically negligible. Verdicts follow fixed rules applied to these statistics.}
+\end{table}

@@ -1,0 +1,3 @@
+These files (mdpi.cls, mdpi.bst, logos, journalnames.tex) are MDPI's official LaTeX author template,
+downloaded on 2026-11-11 from https://res.mdpi.com/data/MDPI_template_ACS.zip. They are included unmodified
+so that manuscript/manuscript.tex compiles. They remain MDPI's material.

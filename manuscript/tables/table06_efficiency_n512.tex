@@ -1,0 +1,40 @@
+\begin{table}[H]
+\caption{Computational cost per split (n\_train = 512; mean over datasets and repeats).}
+\label{tab:table06_efficiency_n512}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+method & fit time (s) & predict time (s) & peak RAM increase (MB) & GPU peak (MB) & pretraining (GPU-h, one-off) & parameters \\
+\midrule
+Mean & \textbf{0.0245} & \textbf{0.00946} & 0.153 & – & – & – \\
+Ridge & 0.0482 & 0.0212 & 0.227 & – & – & – \\
+ElasticNet & 0.244 & 0.0214 & 0.285 & – & – & – \\
+kNN & \underline{0.0379} & 0.0501 & 0.377 & – & – & – \\
+RF & 2.94 & 0.178 & 2.59 & – & – & – \\
+ExtraTrees & 1.8 & 0.187 & 4.27 & – & – & – \\
+HistGB & 1.13 & 0.0583 & 0.616 & – & – & – \\
+RBF-KRR & 0.0461 & 0.0291 & 16.6 & – & – & – \\
+MLP & 1.76 & 0.0426 & 7.43 & – & – & – \\
+XGBoost & 0.596 & \underline{0.0187} & 4.9 & – & – & – \\
+LightGBM & 0.152 & 0.0326 & 1.28 & – & – & – \\
+CatBoost & 11.7 & 0.0191 & 3.84 & – & – & – \\
+XGBoost-T & 42.7 & 0.0559 & 18.4 & – & – & – \\
+LightGBM-T & 12.2 & 0.173 & 7.3 & – & – & – \\
+CatBoost-T & 276 & 0.0313 & 20.7 & – & – & – \\
+Avg(experts) & 1.75 & 0.177 & 17.6 & – & – & – \\
+Stack(experts) & 9.55 & 0.177 & 17.6 & – & – & – \\
+PFN-SCM & 0.0863 & 0.121 & 0.071 & 260 & 0.715 & 4.03e+06 \\
+PFN-A & 0.0863 & 0.12 & 0.0674 & 260 & 0.805 & 4.03e+06 \\
+PFN-B & 0.0861 & 0.12 & \textbf{0.057} & 260 & 0.822 & 4.03e+06 \\
+PFN-C & 0.0899 & 0.122 & \underline{0.0578} & 260 & 0.791 & 4.03e+06 \\
+PFN-D & 0.0844 & 0.121 & 0.0622 & 260 & 0.813 & 4.03e+06 \\
+Stack(PFN-D) & 10.4 & 0.298 & 17.7 & 260 & – & 4.03e+06 \\
+MAPLE-E & 10.4 & 0.298 & 17.7 & 260 & – & 4.03e+06 \\
+MAPLE-F & 10.4 & 0.298 & 17.7 & 260 & – & 4.03e+06 \\
+TabPFN-v2 & 0.776 & 0.914 & 37.5 & – & – & – \\
+TabICL & 1.23 & 0.691 & 158 & – & – & – \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize Lower is better. Fit time includes HPO for -T methods and out-of-fold fits for routed/stacked methods. Peak RAM increase is sampled every 5 ms during fit + predict. PFN, TabPFN v2 and TabICL inference ran on a shared GPU; pretraining time is wall-clock on a shared GPU with 3 data workers and is a one-off cost. Abbreviations: RF, random forest; -T, tuned with a 10-trial random search (3-fold CV on the training split); Stack(experts), non-negative stacking of Ridge, kNN, ExtraTrees, HistGB, RBF kernel ridge; PFN-SCM, PFN pretrained on the conventional SCM/MLP prior (P0); PFN-A, uniform mathematical prior; PFN-D, disagreement-adaptive prior with floor; MAPLE-F, PFN-D with local competence routing.}
+\end{table}

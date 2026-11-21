@@ -1,0 +1,23 @@
+\begin{table}[H]
+\caption{In-distribution versus out-of-distribution generalisation on synthetic task suites (mean NRMSE).}
+\label{tab:table09_generalization}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccc}
+\toprule
+suite & Ridge & kNN & RF & ExtraTrees & HistGB & CatBoost & XGBoost & PFN-SCM & PFN-A & PFN-B & PFN-C & PFN-D & TabPFN-v2 & TabICL \\
+\midrule
+id & 0.649 & 0.695 & 0.471 & 0.438 & 0.531 & 0.479 & 0.508 & 0.564 & 0.427 & 0.426 & 0.425 & 0.425 & \textbf{0.342} & \underline{0.353} \\
+ood\_families & 0.595 & 0.669 & 0.427 & 0.398 & 0.469 & 0.440 & 0.448 & 0.522 & 0.393 & 0.399 & 0.392 & 0.395 & \textbf{0.296} & \underline{0.326} \\
+ood\_nested & 0.776 & 0.744 & 0.482 & 0.460 & 0.547 & 0.492 & 0.519 & 0.670 & 0.478 & 0.478 & 0.479 & 0.480 & \textbf{0.356} & \underline{0.370} \\
+ood\_params & 0.816 & 0.792 & 0.647 & 0.599 & 0.812 & 0.614 & 0.640 & 0.823 & 0.598 & \underline{0.579} & 0.589 & 0.588 & \textbf{0.452} & 0.678 \\
+ood\_interact3 & 0.957 & 0.857 & 0.763 & 0.690 & 0.919 & 0.693 & 0.943 & 0.879 & 0.669 & 0.659 & 0.667 & 0.670 & \textbf{0.542} & \underline{0.646} \\
+ood\_voronoi & 0.856 & 0.793 & 0.641 & 0.628 & 0.713 & 0.641 & 0.695 & 0.792 & 0.659 & 0.656 & 0.658 & 0.659 & \textbf{0.564} & \underline{0.595} \\
+ood\_noise & 0.596 & 0.629 & 0.390 & 0.359 & 0.455 & 0.413 & 0.416 & 0.476 & 0.338 & 0.338 & 0.336 & 0.338 & \textbf{0.277} & \underline{0.288} \\
+ood\_mixed & 0.831 & 0.746 & 0.565 & 0.521 & 0.612 & 0.551 & 0.608 & 0.744 & 0.532 & 0.531 & 0.531 & 0.532 & \textbf{0.415} & \underline{0.451} \\
+OOD mean & 0.775 & 0.747 & 0.559 & 0.522 & 0.647 & 0.549 & 0.610 & 0.701 & 0.524 & 0.520 & 0.522 & 0.523 & \textbf{0.415} & \underline{0.479} \\
+gap (OOD $-$ ID) & 0.127 & \textbf{0.052} & 0.088 & 0.084 & 0.116 & \underline{0.070} & 0.101 & 0.137 & 0.097 & 0.094 & 0.097 & 0.098 & 0.073 & 0.126 \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize Lower is better; 200 tasks per suite; PFN rows averaged over pretraining seeds. Suites: ID = training families, fresh draws; held-out families (Gompertz, SIR, hyperbolic); nested compositions; parameter ranges $\times$2.5; 3-way interactions; Voronoi regions; Student-t/Laplace noise; soft regime mixtures. All suites apply the same validity filter as training (context-standardised targets within $\pm$12 SD), which removes the most extreme extrapolation and heavy-tail tasks; mean generator attempts per suite are in task\_suites\_summary.csv.}
+\end{table}

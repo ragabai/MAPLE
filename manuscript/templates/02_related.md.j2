@@ -1,0 +1,64 @@
+## 2. Related Work
+
+**Prior-data fitted networks and tabular foundation models.** A prior-data fitted network (PFN) is trained on
+datasets sampled from a prior over data-generating mechanisms. It learns to approximate the posterior predictive
+distribution in a single forward pass [@muller2022transformers]. TabPFN applied this idea to small tabular
+classification problems with structural-causal-model and Bayesian-neural-network priors [@hollmann2023tabpfn].
+TabPFN v2 extended it to regression and larger tables [@hollmann2025accurate], and TabPFN-2.5 scaled it further
+[@grinsztajn2025tabpfn25]. Related models use different architectures or data: TabICL scales in-context learning to
+large tables [@qu2025tabicl], and TabDPT pretrains on real rather than synthetic tables [@ma2024tabdpt]. A
+statistical analysis attributes PFN bias to the prior and PFN variance to the context size [@nagler2023statistical].
+Several studies show that the choice of prior governs generalisation. Forest-generated tasks improve in-context
+classifiers [@breejen2024fine], drift-aware priors handle temporal shift [@helli2024drift], and Mitra builds a
+curated mixture of synthetic priors chosen for diversity, distinctiveness and real-data performance
+[@zhang2025mitra]. PFNs trained on parametric mathematical priors also exist for Bayesian optimisation and
+learning-curve extrapolation [@muller2023pfns4bo; @adriaensen2023efficient]. Across this literature the prior is
+fixed, or chosen by an outer loop over complete training runs (calibration, configuration search, mixture
+selection). We are not aware of work that re-weights a PFN's prior *within* a single pretraining run.
+
+**In-context learning of function classes.** Transformers trained on linear, sparse, tree and network function
+classes learn to regress in context [@garg2022what]. Above a threshold of pretraining task diversity, they
+generalise beyond the pretraining tasks [@raventos2023pretraining]. Mechanistic analyses link in-context regression
+to ridge regression and gradient descent [@akyurek2023what; @vonoswald2023transformers]. Amortised regressors such
+as (conditional) neural processes share this set-based formulation [@garnelo2018neural; @garnelo2018conditional;
+@zaheer2017deep; @lee2019set].
+
+**Tabular learning.** Gradient-boosted decision trees remain strong defaults [@chen2016xgboost; @ke2017lightgbm;
+@prokhorenkova2018catboost; @friedman2001greedy], as do bagged and randomised forests [@breiman2001random;
+@geurts2006extremely]. Deep tabular models include FT-Transformer [@gorishniy2021revisiting], SAINT
+[@somepalli2021saint], NODE [@popov2020neural], TabM [@gorishniy2025tabm] and strong default MLPs
+[@holzmuller2024better]. Large benchmarks find that trees still win on typical medium-sized data
+[@grinsztajn2022why; @shwartzziv2022tabular] and that the best model depends on the dataset [@mcelfresh2023when].
+
+**Adaptive task selection, curricula and robust objectives.** Curriculum learning orders training data by
+difficulty [@bengio2009curriculum]. Automated curricula pose task selection as a non-stationary bandit, with
+learning-progress rewards [@graves2017automated; @matiisen2020teacher; @portelas2020automatic]. In reinforcement
+learning, unsupervised environment design generates training environments from regret
+[@dennis2020emergent; @parkerholder2022evolving] or replays them by temporal-difference error
+[@jiang2021prioritized]; related work learns simulator randomisation [@tobin2017domain; @mehta2020active]. The
+closest use of *disagreement* is value-disagreement sampling, which proposes goals where an ensemble of value
+functions disagrees [@zhang2020automatic]. In meta-learning, episodes are sampled by difficulty
+[@liu2020adaptive; @arnold2021uniform], by novelty [@kaddour2020probabilistic] or by a minimax objective over tasks
+[@collins2020task]. In robust optimisation, distributionally robust learning over divergence balls
+[@bental2013robust; @namkoong2016stochastic; @duchi2021learning] and Group DRO's exponentiated-gradient group weights
+[@sagawa2020distributionally] are the closest analogues of MAPLE's sampler. These methods use labelled losses or
+returns, and they do not target the prior of a tabular in-context learner.
+
+**Disagreement, ensembles and routing.** Query-by-committee selects points on which a committee disagrees
+[@seung1992query; @burbidge2007active]. The ambiguity decomposition relates ensemble error to member disagreement
+[@krogh1995neural], and ensembles estimate epistemic uncertainty [@lakshminarayanan2017simple;
+@hullermeier2021aleatoric]. Combining experts is done by learned gating [@jacobs1991adaptive; @jordan1994hierarchical],
+by stacking [@wolpert1992stacked; @breiman1996stacked], or by dynamic selection based on local competence
+[@woods1997combination; @ko2008from; @cruz2018dynamic].
+
+**Equation priors.** Symbolic and physics-inspired regression [@schmidt2009distilling; @udrescu2020ai;
+@lacava2021contemporary] and transformers pretrained on generated equations [@lample2020deep; @biggio2021neural;
+@kamienny2022end] show both the value of mathematical priors and the sensitivity of pretrained models to the
+generator's distribution. Physics-informed learning [@raissi2019physics; @karniadakis2021physics] instead imposes
+known equations as constraints. MAPLE uses scientific relationships only as a distribution over regression tasks.
+
+{{ table('table_novelty') }}
+
+{{ tref('table_novelty') }} summarises the position of this work. MAPLE combines and transfers existing mechanisms
+(online re-weighting, label-free committee disagreement and synthetic in-context pretraining) to the design of a
+PFN prior, and analyses the resulting sampler. It does not introduce a new primitive.

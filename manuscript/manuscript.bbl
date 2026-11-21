@@ -1,0 +1,770 @@
+\begin{thebibliography}{999}
+
+\bibitem[Grinsztajn et~al.(2022)Grinsztajn, Oyallon, and
+  Varoquaux]{grinsztajn2022why}
+Grinsztajn, L.; Oyallon, E.; Varoquaux, G.
+\newblock {Why Do Tree-Based Models Still Outperform Deep Learning on Typical
+  Tabular Data?}
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems, Datasets and Benchmarks Track,  2022, pp. 507--520,
+  \href{http://arxiv.org/abs/2207.08815}{{\normalfont [2207.08815]}}.
+\newblock {\url{https://doi.org/10.52202/068431-0037}}.
+
+\bibitem[McElfresh et~al.(2023)McElfresh, Khandagale, Valverde, C,
+  Ramakrishnan, Goldblum, and White]{mcelfresh2023when}
+McElfresh, D.; Khandagale, S.; Valverde, J.; C, V.P.; Ramakrishnan, G.;
+  Goldblum, M.; White, C.
+\newblock {When Do Neural Nets Outperform Boosted Trees on Tabular Data?}
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems, Datasets and Benchmarks Track,  2023, pp. 76336--76369,
+  \href{http://arxiv.org/abs/2305.02997}{{\normalfont [2305.02997]}}.
+\newblock {\url{https://doi.org/10.52202/075280-3337}}.
+
+\bibitem[M{\"u}ller et~al.(2022)M{\"u}ller, Hollmann, Arango, Grabocka, and
+  Hutter]{muller2022transformers}
+M{\"u}ller, S.; Hollmann, N.; Arango, S.P.; Grabocka, J.; Hutter, F.
+\newblock {Transformers Can Do Bayesian Inference}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2022,
+  \href{http://arxiv.org/abs/2112.10510}{{\normalfont [2112.10510]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2112.10510}}.
+
+\bibitem[Hollmann et~al.(2023)Hollmann, M{\"u}ller, Eggensperger, and
+  Hutter]{hollmann2023tabpfn}
+Hollmann, N.; M{\"u}ller, S.; Eggensperger, K.; Hutter, F.
+\newblock {TabPFN: A Transformer That Solves Small Tabular Classification
+  Problems in a Second}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2023,
+  \href{http://arxiv.org/abs/2207.01848}{{\normalfont [2207.01848]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2207.01848}}.
+
+\bibitem[Hollmann et~al.(2025)Hollmann, M{\"u}ller, Purucker, Krishnakumar,
+  K{\"o}rfer, Hoo, Schirrmeister, and Hutter]{hollmann2025accurate}
+Hollmann, N.; M{\"u}ller, S.; Purucker, L.; Krishnakumar, A.; K{\"o}rfer, M.;
+  Hoo, S.B.; Schirrmeister, R.T.; Hutter, F.
+\newblock {Accurate predictions on small data with a tabular foundation model}.
+\newblock {\em Nature} {\bf 2025}, {\em 637},~319--326.
+\newblock {\url{https://doi.org/10.1038/s41586-024-08328-6}}.
+
+\bibitem[Nagler(2023)]{nagler2023statistical}
+Nagler, T.
+\newblock {Statistical Foundations of Prior-Data Fitted Networks}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2023,  \href{http://arxiv.org/abs/2305.11097}{{\normalfont
+  [2305.11097]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2305.11097}}.
+
+\bibitem[Breejen et~al.(2024)Breejen, Bae, Cha, and Yun]{breejen2024fine}
+Breejen, F.d.; Bae, S.; Cha, S.; Yun, S.Y.
+\newblock {Fine-tuned In-Context Learning Transformers are Excellent Tabular
+  Data Classifiers}.
+\newblock arXiv preprint,  2024,
+  \href{http://arxiv.org/abs/2405.13396}{{\normalfont [2405.13396]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2405.13396}}.
+
+\bibitem[Zhang et~al.(2025)Zhang, Robinson, Yin, Erickson, Ansari, Han, Zhang,
+  Akoglu, Faloutsos, Mahoney, Hu, Rangwala, Karypis, and Wang]{zhang2025mitra}
+Zhang, X.; Robinson, D.M.; Yin, J.; Erickson, N.; Ansari, A.F.; Han, B.; Zhang,
+  S.; Akoglu, L.; Faloutsos, C.; Mahoney, M.;  et~al.
+\newblock {Mitra: Mixed Synthetic Priors for Enhancing Tabular Foundation
+  Models}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2025, pp. 17831--17876,
+  \href{http://arxiv.org/abs/2510.21204}{{\normalfont [2510.21204]}}.
+\newblock {\url{https://doi.org/10.52202/085713-0535}}.
+
+\bibitem[Grinsztajn et~al.(2025)Grinsztajn, Fl{\"o}ge, Key, Birkel, Jund, Roof,
+  J{\"a}ger, Safaric, Alessi, Hayler, Manium, Yu, Jablonski, Hoo, Garg,
+  Robertson, B{\"u}hler, Moroshan, Purucker, Cornu, Wehrhahn, Bonetto,
+  Sch{\"o}lkopf, Gambhir, Hollmann, and Hutter]{grinsztajn2025tabpfn25}
+Grinsztajn, L.; Fl{\"o}ge, K.; Key, O.; Birkel, F.; Jund, P.; Roof, B.;
+  J{\"a}ger, B.; Safaric, D.; Alessi, S.; Hayler, A.;  et~al.
+\newblock {TabPFN-2.5: Advancing the State of the Art in Tabular Foundation
+  Models}.
+\newblock arXiv preprint,  2025,
+  \href{http://arxiv.org/abs/2511.08667}{{\normalfont [2511.08667]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2511.08667}}.
+
+\bibitem[Qu et~al.(2025)Qu, Holzm{\"u}ller, Varoquaux, and
+  Morvan]{qu2025tabicl}
+Qu, J.; Holzm{\"u}ller, D.; Varoquaux, G.P.; Morvan, M.L.
+\newblock {TabICL: A Tabular Foundation Model for In-Context Learning on Large
+  Data}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2025,  \href{http://arxiv.org/abs/2502.05564}{{\normalfont
+  [2502.05564]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2502.05564}}.
+
+\bibitem[Ma et~al.(2025)Ma, Thomas, Hosseinzadeh, Labach, Cresswell, Golestan,
+  Yu, Caterini, and Volkovs]{ma2024tabdpt}
+Ma, J.; Thomas, V.; Hosseinzadeh, R.; Labach, A.; Cresswell, J.; Golestan, K.;
+  Yu, G.; Caterini, A.L.; Volkovs, M.
+\newblock {TabDPT: Scaling Tabular Foundation Models on Real Data}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems 38,  2025, pp. 191387--191417,
+  \href{http://arxiv.org/abs/2410.18164}{{\normalfont [2410.18164]}}.
+\newblock {\url{https://doi.org/10.52202/085713-5748}}.
+
+\bibitem[Helli et~al.(2024)Helli, Schnurr, Hollmann, M{\"u}ller, and
+  Hutter]{helli2024drift}
+Helli, K.; Schnurr, D.; Hollmann, N.; M{\"u}ller, S.; Hutter, F.
+\newblock {Drift-Resilient TabPFN: In-Context Learning Temporal Distribution
+  Shifts on Tabular Data}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2024, pp. 98742--98781.
+\newblock {\url{https://doi.org/10.52202/079017-3134}}.
+
+\bibitem[M{\"u}ller et~al.(2023)M{\"u}ller, Feurer, Hollmann, and
+  Hutter]{muller2023pfns4bo}
+M{\"u}ller, S.; Feurer, M.; Hollmann, N.; Hutter, F.
+\newblock {PFNs4BO: In-Context Learning for Bayesian Optimization}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2023,  \href{http://arxiv.org/abs/2305.17535}{{\normalfont
+  [2305.17535]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2305.17535}}.
+
+\bibitem[Adriaensen et~al.(2023)Adriaensen, Rakotoarison, M{\"u}ller, and
+  Hutter]{adriaensen2023efficient}
+Adriaensen, S.; Rakotoarison, H.; M{\"u}ller, S.; Hutter, F.
+\newblock {Efficient Bayesian Learning Curve Extrapolation using Prior-Data
+  Fitted Networks}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2023, pp. 19858--19886,
+  \href{http://arxiv.org/abs/2310.20447}{{\normalfont [2310.20447]}}.
+\newblock {\url{https://doi.org/10.52202/075280-0872}}.
+
+\bibitem[Garg et~al.(2022)Garg, Tsipras, Liang, and Valiant]{garg2022what}
+Garg, S.; Tsipras, D.; Liang, P.; Valiant, G.
+\newblock {What Can Transformers Learn In-Context? a Case Study of Simple
+  Function Classes}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2022, pp. 30583--30598,
+  \href{http://arxiv.org/abs/2208.01066}{{\normalfont [2208.01066]}}.
+\newblock {\url{https://doi.org/10.52202/068431-2217}}.
+
+\bibitem[Ravent{\'o}s et~al.(2023)Ravent{\'o}s, Paul, Chen, and
+  Ganguli]{raventos2023pretraining}
+Ravent{\'o}s, A.; Paul, M.; Chen, F.; Ganguli, S.
+\newblock {Pretraining task diversity and the emergence of non-Bayesian
+  in-context learning for regression}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2023, pp. 14228--14246,
+  \href{http://arxiv.org/abs/2306.15063}{{\normalfont [2306.15063]}}.
+\newblock {\url{https://doi.org/10.52202/075280-0626}}.
+
+\bibitem[Aky{\"u}rek et~al.(2023)Aky{\"u}rek, Schuurmans, Andreas, Ma, and
+  Zhou]{akyurek2023what}
+Aky{\"u}rek, E.; Schuurmans, D.; Andreas, J.; Ma, T.; Zhou, D.
+\newblock {What learning algorithm is in-context learning? Investigations with
+  linear models}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2023,
+  \href{http://arxiv.org/abs/2211.15661}{{\normalfont [2211.15661]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2211.15661}}.
+
+\bibitem[Oswald et~al.(2023)Oswald, Niklasson, Randazzo, Sacramento,
+  Mordvintsev, Zhmoginov, and Vladymyrov]{vonoswald2023transformers}
+Oswald, J.v.; Niklasson, E.; Randazzo, E.; Sacramento, J.; Mordvintsev, A.;
+  Zhmoginov, A.; Vladymyrov, M.
+\newblock {Transformers learn in-context by gradient descent}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2023,  \href{http://arxiv.org/abs/2212.07677}{{\normalfont
+  [2212.07677]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2212.07677}}.
+
+\bibitem[Garnelo et~al.(2018{\natexlab{a}})Garnelo, Schwarz, Rosenbaum, Viola,
+  Rezende, Eslami, and Teh]{garnelo2018neural}
+Garnelo, M.; Schwarz, J.; Rosenbaum, D.; Viola, F.; Rezende, D.J.; Eslami,
+  S.M.A.; Teh, Y.W.
+\newblock {Neural Processes}.
+\newblock arXiv preprint,  2018,
+  \href{http://arxiv.org/abs/1807.01622}{{\normalfont [1807.01622]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1807.01622}}.
+
+\bibitem[Garnelo et~al.(2018{\natexlab{b}})Garnelo, Rosenbaum, Maddison,
+  Ramalho, Saxton, Shanahan, Teh, Rezende, and Eslami]{garnelo2018conditional}
+Garnelo, M.; Rosenbaum, D.; Maddison, C.J.; Ramalho, T.; Saxton, D.; Shanahan,
+  M.; Teh, Y.W.; Rezende, D.J.; Eslami, S.M.A.
+\newblock {Conditional Neural Processes}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2018,  \href{http://arxiv.org/abs/1807.01613}{{\normalfont
+  [1807.01613]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1807.01613}}.
+
+\bibitem[Zaheer et~al.(2017)Zaheer, Kottur, Ravanbakhsh, P{\'o}czos,
+  Salakhutdinov, and Smola]{zaheer2017deep}
+Zaheer, M.; Kottur, S.; Ravanbakhsh, S.; P{\'o}czos, B.; Salakhutdinov, R.;
+  Smola, A.J.
+\newblock {Deep Sets}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2017,
+  \href{http://arxiv.org/abs/1703.06114}{{\normalfont [1703.06114]}}.
+
+\bibitem[Lee et~al.(2019)Lee, Lee, Kim, Kosiorek, Choi, and Teh]{lee2019set}
+Lee, J.; Lee, Y.; Kim, J.; Kosiorek, A.R.; Choi, S.; Teh, Y.W.
+\newblock {Set Transformer: A Framework for Attention-based
+  Permutation-Invariant Neural Networks}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2019,  \href{http://arxiv.org/abs/1810.00825}{{\normalfont
+  [1810.00825]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1810.00825}}.
+
+\bibitem[Chen and Guestrin(2016)]{chen2016xgboost}
+Chen, T.; Guestrin, C.
+\newblock {XGBoost: A Scalable Tree Boosting System}.
+\newblock In Proceedings of the 22nd ACM SIGKDD International Conference on
+  Knowledge Discovery and Data Mining,  2016, pp. 785--794.
+\newblock {\url{https://doi.org/10.1145/2939672.2939785}}.
+
+\bibitem[Ke et~al.(2017)Ke, Meng, Finley, Wang, Chen, Ma, Ye, and
+  Liu]{ke2017lightgbm}
+Ke, G.; Meng, Q.; Finley, T.; Wang, T.; Chen, W.; Ma, W.; Ye, Q.; Liu, T.Y.
+\newblock {LightGBM: A Highly Efficient Gradient Boosting Decision Tree}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2017.
+
+\bibitem[Prokhorenkova et~al.(2018)Prokhorenkova, Gusev, Vorobev, Dorogush, and
+  Gulin]{prokhorenkova2018catboost}
+Prokhorenkova, L.; Gusev, G.; Vorobev, A.; Dorogush, A.V.; Gulin, A.
+\newblock {CatBoost: unbiased boosting with categorical features}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2018,
+  \href{http://arxiv.org/abs/1706.09516}{{\normalfont [1706.09516]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1706.09516}}.
+
+\bibitem[Friedman(2001)]{friedman2001greedy}
+Friedman, J.H.
+\newblock {Greedy function approximation: A gradient boosting machine.}
+\newblock {\em The Annals of Statistics} {\bf 2001}, {\em 29},~1189--1232.
+\newblock {\url{https://doi.org/10.1214/aos/1013203451}}.
+
+\bibitem[Breiman(2001)]{breiman2001random}
+Breiman, L.
+\newblock {Random Forests}.
+\newblock {\em Machine Learning} {\bf 2001}.
+\newblock {\url{https://doi.org/10.1023/a:1010933404324}}.
+
+\bibitem[Geurts et~al.(2006)Geurts, Ernst, and Wehenkel]{geurts2006extremely}
+Geurts, P.; Ernst, D.; Wehenkel, L.
+\newblock {Extremely randomized trees}.
+\newblock {\em Machine Learning} {\bf 2006}, {\em 63},~3--42.
+\newblock {\url{https://doi.org/10.1007/s10994-006-6226-1}}.
+
+\bibitem[Gorishniy et~al.(2021)Gorishniy, Rubachev, Khrulkov, and
+  Babenko]{gorishniy2021revisiting}
+Gorishniy, Y.; Rubachev, I.; Khrulkov, V.; Babenko, A.
+\newblock {Revisiting Deep Learning Models for Tabular Data}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2021,
+  \href{http://arxiv.org/abs/2106.11959}{{\normalfont [2106.11959]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2106.11959}}.
+
+\bibitem[Somepalli et~al.(2021)Somepalli, Goldblum, Schwarzschild, Bruss, and
+  Goldstein]{somepalli2021saint}
+Somepalli, G.; Goldblum, M.; Schwarzschild, A.; Bruss, C.B.; Goldstein, T.
+\newblock {SAINT: Improved Neural Networks for Tabular Data via Row Attention
+  and Contrastive Pre-Training}.
+\newblock arXiv preprint,  2021,
+  \href{http://arxiv.org/abs/2106.01342}{{\normalfont [2106.01342]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2106.01342}}.
+
+\bibitem[Popov et~al.(2020)Popov, Morozov, and Babenko]{popov2020neural}
+Popov, S.; Morozov, S.; Babenko, A.
+\newblock {Neural Oblivious Decision Ensembles for Deep Learning on Tabular
+  Data}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2020,
+  \href{http://arxiv.org/abs/1909.06312}{{\normalfont [1909.06312]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1909.06312}}.
+
+\bibitem[Gorishniy et~al.(2025)Gorishniy, Kotelnikov, and
+  Babenko]{gorishniy2025tabm}
+Gorishniy, Y.; Kotelnikov, A.; Babenko, A.
+\newblock {TabM: Advancing Tabular Deep Learning with Parameter-Efficient
+  Ensembling}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2025,
+  \href{http://arxiv.org/abs/2410.24210}{{\normalfont [2410.24210]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2410.24210}}.
+
+\bibitem[Holzm{\"u}ller et~al.(2024)Holzm{\"u}ller, Grinsztajn, and
+  Steinwart]{holzmuller2024better}
+Holzm{\"u}ller, D.; Grinsztajn, L.; Steinwart, I.
+\newblock {Better by default: Strong pre-tuned MLPs and boosted trees on
+  tabular data}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2024, pp. 26577--26658,
+  \href{http://arxiv.org/abs/2407.04491}{{\normalfont [2407.04491]}}.
+\newblock {\url{https://doi.org/10.52202/079017-0837}}.
+
+\bibitem[Shwartz-Ziv and Armon(2022)]{shwartzziv2022tabular}
+Shwartz-Ziv, R.; Armon, A.
+\newblock {Tabular data: Deep learning is not all you need}.
+\newblock {\em Information Fusion} {\bf 2022}, {\em 81},~84--90.
+\newblock {\url{https://doi.org/10.1016/j.inffus.2021.11.011}}.
+
+\bibitem[Bengio et~al.(2009)Bengio, Louradour, Collobert, and
+  Weston]{bengio2009curriculum}
+Bengio, Y.; Louradour, J.; Collobert, R.; Weston, J.
+\newblock {Curriculum learning}.
+\newblock In Proceedings of the International Conference on Machine Learning,
+  2009.
+\newblock {\url{https://doi.org/10.1145/1553374.1553380}}.
+
+\bibitem[Graves et~al.(2017)Graves, Bellemare, Menick, Munos, and
+  Kavukcuoglu]{graves2017automated}
+Graves, A.; Bellemare, M.G.; Menick, J.; Munos, R.; Kavukcuoglu, K.
+\newblock {Automated Curriculum Learning for Neural Networks}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2017,  \href{http://arxiv.org/abs/1704.03003}{{\normalfont
+  [1704.03003]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1704.03003}}.
+
+\bibitem[Matiisen et~al.(2019)Matiisen, Oliver, Cohen, and
+  Schulman]{matiisen2020teacher}
+Matiisen, T.; Oliver, A.; Cohen, T.; Schulman, J.
+\newblock {Teacher--Student Curriculum Learning}.
+\newblock {\em IEEE Transactions on Neural Networks and Learning Systems} {\bf
+  2019},  \href{http://arxiv.org/abs/1707.00183}{{\normalfont [1707.00183]}}.
+\newblock {\url{https://doi.org/10.1109/tnnls.2019.2934906}}.
+
+\bibitem[Portelas et~al.(2020)Portelas, Colas, Weng, Hofmann, and
+  Oudeyer]{portelas2020automatic}
+Portelas, R.; Colas, C.; Weng, L.; Hofmann, K.; Oudeyer, P.Y.
+\newblock {Automatic Curriculum Learning For Deep RL: A Short Survey}.
+\newblock In Proceedings of the Twenty-Ninth International Joint Conference on
+  Artificial Intelligence,  2020, pp. 4819--4825,
+  \href{http://arxiv.org/abs/2003.04664}{{\normalfont [2003.04664]}}.
+\newblock {\url{https://doi.org/10.24963/ijcai.2020/671}}.
+
+\bibitem[Dennis et~al.(2020)Dennis, Jaques, Vinitsky, Bayen, Russell, Critch,
+  and Levine]{dennis2020emergent}
+Dennis, M.; Jaques, N.; Vinitsky, E.; Bayen, A.M.; Russell, S.; Critch, A.;
+  Levine, S.
+\newblock {Emergent Complexity and Zero-shot Transfer via Unsupervised
+  Environment Design}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2020,
+  \href{http://arxiv.org/abs/2012.02096}{{\normalfont [2012.02096]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2012.02096}}.
+
+\bibitem[Parker-Holder et~al.(2022)Parker-Holder, Jiang, Dennis, Samvelyan,
+  Foerster, Grefenstette, and Rockt{\"a}schel]{parkerholder2022evolving}
+Parker-Holder, J.; Jiang, M.; Dennis, M.; Samvelyan, M.; Foerster, J.;
+  Grefenstette, E.; Rockt{\"a}schel, T.
+\newblock {Evolving Curricula with Regret-Based Environment Design}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2022,  \href{http://arxiv.org/abs/2203.01302}{{\normalfont
+  [2203.01302]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2203.01302}}.
+
+\bibitem[Jiang et~al.(2021)Jiang, Grefenstette, and
+  Rockt{\"a}schel]{jiang2021prioritized}
+Jiang, M.; Grefenstette, E.; Rockt{\"a}schel, T.
+\newblock {Prioritized Level Replay}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2021,  \href{http://arxiv.org/abs/2010.03934}{{\normalfont
+  [2010.03934]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2010.03934}}.
+
+\bibitem[Tobin et~al.(2017)Tobin, Fong, Ray, Schneider, Zaremba, and
+  Abbeel]{tobin2017domain}
+Tobin, J.; Fong, R.; Ray, A.; Schneider, J.; Zaremba, W.; Abbeel, P.
+\newblock {Domain randomization for transferring deep neural networks from
+  simulation to the real world}.
+\newblock In Proceedings of the 2017 IEEE/RSJ International Conference on
+  Intelligent Robots and Systems (IROS),  2017, pp. 23--30,
+  \href{http://arxiv.org/abs/1703.06907}{{\normalfont [1703.06907]}}.
+\newblock {\url{https://doi.org/10.1109/iros.2017.8202133}}.
+
+\bibitem[Mehta et~al.(2020)Mehta, Diaz, Golemo, Pal, and
+  Paull]{mehta2020active}
+Mehta, B.; Diaz, M.; Golemo, F.; Pal, C.; Paull, L.
+\newblock {Active Domain Randomization}.
+\newblock In Proceedings of the Conference on Robot Learning (CoRL),  2020,
+  \href{http://arxiv.org/abs/1904.04762}{{\normalfont [1904.04762]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1904.04762}}.
+
+\bibitem[Zhang et~al.(2020)Zhang, Abbeel, and Pinto]{zhang2020automatic}
+Zhang, Y.; Abbeel, P.; Pinto, L.
+\newblock {Automatic Curriculum Learning through Value Disagreement}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2020,
+  \href{http://arxiv.org/abs/2006.09641}{{\normalfont [2006.09641]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2006.09641}}.
+
+\bibitem[Liu et~al.(2020)Liu, Wang, Sahoo, Fang, Zhang, and
+  Hoi]{liu2020adaptive}
+Liu, C.; Wang, Z.; Sahoo, D.; Fang, Y.; Zhang, K.; Hoi, S.C.H.
+\newblock {Adaptive Task Sampling for~Meta-learning}.
+\newblock In Proceedings of the Lecture Notes in Computer Science,  2020, pp.
+  752--769,  \href{http://arxiv.org/abs/2007.08735}{{\normalfont
+  [2007.08735]}}.
+\newblock {\url{https://doi.org/10.1007/978-3-030-58523-5_44}}.
+
+\bibitem[Arnold et~al.(2021)Arnold, Dhillon, Ravichandran, and
+  Soatto]{arnold2021uniform}
+Arnold, S.M.R.; Dhillon, G.S.; Ravichandran, A.; Soatto, S.
+\newblock {Uniform Sampling over Episode Difficulty}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2021,
+  \href{http://arxiv.org/abs/2108.01662}{{\normalfont [2108.01662]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2108.01662}}.
+
+\bibitem[Kaddour et~al.(2020)Kaddour, S{\ae}mundsson, and
+  Deisenroth]{kaddour2020probabilistic}
+Kaddour, J.; S{\ae}mundsson, S.; Deisenroth, M.P.
+\newblock {Probabilistic Active Meta-Learning}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2020,
+  \href{http://arxiv.org/abs/2007.08949}{{\normalfont [2007.08949]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2007.08949}}.
+
+\bibitem[Collins et~al.(2020)Collins, Mokhtari, and
+  Shakkottai]{collins2020task}
+Collins, L.; Mokhtari, A.; Shakkottai, S.
+\newblock {Task-Robust Model-Agnostic Meta-Learning}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2020.
+\newblock {\url{https://doi.org/10.48550/arxiv.2002.04766}}.
+
+\bibitem[Ben-Tal et~al.(2013)Ben-Tal, Hertog, Waegenaere, Melenberg, and
+  Rennen]{bental2013robust}
+Ben-Tal, A.; Hertog, D.d.; Waegenaere, A.D.; Melenberg, B.; Rennen, G.
+\newblock {Robust Solutions of Optimization Problems Affected by Uncertain
+  Probabilities}.
+\newblock {\em Management Science} {\bf 2013}, {\em 59},~341--357.
+\newblock {\url{https://doi.org/10.1287/mnsc.1120.1641}}.
+
+\bibitem[Namkoong and Duchi(2016)]{namkoong2016stochastic}
+Namkoong, H.; Duchi, J.C.
+\newblock {Stochastic Gradient Methods for Distributionally Robust Optimization
+  with f-divergences}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2016.
+
+\bibitem[Duchi and Namkoong(2021)]{duchi2021learning}
+Duchi, J.C.; Namkoong, H.
+\newblock {Learning models with uniform performance via distributionally robust
+  optimization}.
+\newblock {\em The Annals of Statistics} {\bf 2021}, {\em 49},~1378--1406.
+\newblock {\url{https://doi.org/10.1214/20-aos2004}}.
+
+\bibitem[Sagawa et~al.(2020)Sagawa, Koh, Hashimoto, and
+  Liang]{sagawa2020distributionally}
+Sagawa, S.; Koh, P.W.; Hashimoto, T.; Liang, P.
+\newblock {Distributionally Robust Neural Networks for Group Shifts: On the
+  Importance of Regularization for Worst-Case Generalization}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2020,
+  \href{http://arxiv.org/abs/1911.08731}{{\normalfont [1911.08731]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1911.08731}}.
+
+\bibitem[Seung et~al.(1992)Seung, Opper, and Sompolinsky]{seung1992query}
+Seung, H.S.; Opper, M.; Sompolinsky, H.
+\newblock {Query by committee}.
+\newblock In Proceedings of the fifth annual workshop on Computational learning
+  theory,  1992, pp. 287--294.
+\newblock {\url{https://doi.org/10.1145/130385.130417}}.
+
+\bibitem[Burbidge et~al.(2007)Burbidge, Rowland, and King]{burbidge2007active}
+Burbidge, R.; Rowland, J.J.; King, R.D.
+\newblock {Active Learning for Regression Based on Query by Committee}.
+\newblock In Proceedings of the Intelligent Data Engineering and Automated
+  Learning (IDEAL), Lecture Notes in Computer Science,  2007.
+\newblock {\url{https://doi.org/10.1007/978-3-540-77226-2_22}}.
+
+\bibitem[Krogh and Vedelsby(1995)]{krogh1995neural}
+Krogh, A.; Vedelsby, J.
+\newblock {Neural Network Ensembles, Cross Validation, and Active Learning}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  1995.
+
+\bibitem[Lakshminarayanan et~al.(2017)Lakshminarayanan, Pritzel, and
+  Blundell]{lakshminarayanan2017simple}
+Lakshminarayanan, B.; Pritzel, A.; Blundell, C.
+\newblock {Simple and Scalable Predictive Uncertainty Estimation using Deep
+  Ensembles}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2017,
+  \href{http://arxiv.org/abs/1612.01474}{{\normalfont [1612.01474]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1612.01474}}.
+
+\bibitem[H{\"u}llermeier and Waegeman(2021)]{hullermeier2021aleatoric}
+H{\"u}llermeier, E.; Waegeman, W.
+\newblock {Aleatoric and epistemic uncertainty in machine learning: an
+  introduction to concepts and methods}.
+\newblock {\em Machine Learning} {\bf 2021}, {\em 110},~457--506.
+\newblock {\url{https://doi.org/10.1007/s10994-021-05946-3}}.
+
+\bibitem[Jacobs et~al.(1991)Jacobs, Jordan, Nowlan, and
+  Hinton]{jacobs1991adaptive}
+Jacobs, R.A.; Jordan, M.I.; Nowlan, S.J.; Hinton, G.E.
+\newblock {Adaptive Mixtures of Local Experts}.
+\newblock {\em Neural Computation} {\bf 1991}, {\em 3},~79--87.
+\newblock {\url{https://doi.org/10.1162/neco.1991.3.1.79}}.
+
+\bibitem[Jordan and Jacobs(1994)]{jordan1994hierarchical}
+Jordan, M.I.; Jacobs, R.A.
+\newblock {Hierarchical Mixtures of Experts and the EM Algorithm}.
+\newblock {\em Neural Computation} {\bf 1994}, {\em 6},~181--214.
+\newblock {\url{https://doi.org/10.1162/neco.1994.6.2.181}}.
+
+\bibitem[Wolpert(1992)]{wolpert1992stacked}
+Wolpert, D.H.
+\newblock {Stacked generalization}.
+\newblock {\em Neural Networks} {\bf 1992}.
+\newblock {\url{https://doi.org/10.1016/s0893-6080(05)80023-1}}.
+
+\bibitem[Breiman(1996)]{breiman1996stacked}
+Breiman, L.
+\newblock {Stacked Regressions}.
+\newblock {\em Machine Learning} {\bf 1996}, {\em 24},~49--64.
+\newblock {\url{https://doi.org/10.1023/a:1018046112532}}.
+
+\bibitem[Woods et~al.(1997)Woods, Kegelmeyer, and Bowyer]{woods1997combination}
+Woods, K.; Kegelmeyer, W.; Bowyer, K.
+\newblock {Combination of multiple classifiers using local accuracy estimates}.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence}
+  {\bf 1997}, {\em 19},~405--410.
+\newblock {\url{https://doi.org/10.1109/34.588027}}.
+
+\bibitem[Ko et~al.(2008)Ko, Sabourin, and Alceu Souza~Britto]{ko2008from}
+Ko, A.H.; Sabourin, R.; Alceu Souza~Britto, J.
+\newblock {From dynamic classifier selection to dynamic ensemble selection}.
+\newblock {\em Pattern Recognition} {\bf 2008}, {\em 41},~1718--1731.
+\newblock {\url{https://doi.org/10.1016/j.patcog.2007.10.015}}.
+
+\bibitem[Cruz et~al.(2018)Cruz, Sabourin, and Cavalcanti]{cruz2018dynamic}
+Cruz, R.M.; Sabourin, R.; Cavalcanti, G.D.
+\newblock {Dynamic classifier selection: Recent advances and perspectives}.
+\newblock {\em Information Fusion} {\bf 2018}, {\em 41},~195--216.
+\newblock {\url{https://doi.org/10.1016/j.inffus.2017.09.010}}.
+
+\bibitem[Schmidt and Lipson(2009)]{schmidt2009distilling}
+Schmidt, M.; Lipson, H.
+\newblock {Distilling Free-Form Natural Laws from Experimental Data}.
+\newblock {\em Science} {\bf 2009}, {\em 324},~81--85.
+\newblock {\url{https://doi.org/10.1126/science.1165893}}.
+
+\bibitem[Udrescu and Tegmark(2020)]{udrescu2020ai}
+Udrescu, S.M.; Tegmark, M.
+\newblock {AI Feynman: A physics-inspired method for symbolic regression}.
+\newblock {\em Science Advances} {\bf 2020}, {\em 6}.
+\newblock {\url{https://doi.org/10.1126/sciadv.aay2631}}.
+
+\bibitem[Cava et~al.(2021)Cava, Orzechowski, Burlacu, Fran{\c c}a, Virgolin,
+  Jin, Kommenda, and Moore]{lacava2021contemporary}
+Cava, W.L.; Orzechowski, P.; Burlacu, B.; Fran{\c c}a, F.O.d.; Virgolin, M.;
+  Jin, Y.; Kommenda, M.; Moore, J.H.
+\newblock {Contemporary Symbolic Regression Methods and their Relative
+  Performance}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems, Datasets and Benchmarks Track,  2021,
+  \href{http://arxiv.org/abs/2107.14351}{{\normalfont [2107.14351]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2107.14351}}.
+
+\bibitem[Lample and Charton(2020)]{lample2020deep}
+Lample, G.; Charton, F.
+\newblock {Deep Learning for Symbolic Mathematics}.
+\newblock In Proceedings of the International Conference on Learning
+  Representations (ICLR),  2020,
+  \href{http://arxiv.org/abs/1912.01412}{{\normalfont [1912.01412]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1912.01412}}.
+
+\bibitem[Biggio et~al.(2021)Biggio, Bendinelli, Neitz, Lucchi, and
+  Parascandolo]{biggio2021neural}
+Biggio, L.; Bendinelli, T.; Neitz, A.; Lucchi, A.; Parascandolo, G.
+\newblock {Neural Symbolic Regression that Scales}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2021,  \href{http://arxiv.org/abs/2106.06427}{{\normalfont
+  [2106.06427]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2106.06427}}.
+
+\bibitem[Kamienny et~al.(2022)Kamienny, D'Ascoli, Lample, and
+  Charton]{kamienny2022end}
+Kamienny, P.A.; D'Ascoli, S.; Lample, G.; Charton, F.
+\newblock {End-To-End Symbolic Regression with Transformers}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2022, pp. 10269--10281,
+  \href{http://arxiv.org/abs/2204.10532}{{\normalfont [2204.10532]}}.
+\newblock {\url{https://doi.org/10.52202/068431-0746}}.
+
+\bibitem[Raissi et~al.(2019)Raissi, Perdikaris, and
+  Karniadakis]{raissi2019physics}
+Raissi, M.; Perdikaris, P.; Karniadakis, G.
+\newblock {Physics-informed neural networks: A deep learning framework for
+  solving forward and inverse problems involving nonlinear partial differential
+  equations}.
+\newblock {\em Journal of Computational Physics} {\bf 2019}, {\em
+  378},~686--707.
+\newblock {\url{https://doi.org/10.1016/j.jcp.2018.10.045}}.
+
+\bibitem[Karniadakis et~al.(2021)Karniadakis, Kevrekidis, Lu, Perdikaris, Wang,
+  and Yang]{karniadakis2021physics}
+Karniadakis, G.E.; Kevrekidis, I.G.; Lu, L.; Perdikaris, P.G.; Wang, S.; Yang,
+  L.
+\newblock {Physics-informed machine learning}.
+\newblock {\em Nature Reviews Physics} {\bf 2021}.
+\newblock {\url{https://doi.org/10.1038/s42254-021-00314-5}}.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
+  Kaiser, and Polosukhin]{vaswani2017attention}
+Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones, L.; Gomez, A.N.;
+  Kaiser, {\L}.; Polosukhin, I.
+\newblock {Attention Is All You Need}.
+\newblock In Proceedings of the Advances in Neural Information Processing
+  Systems (NeurIPS),  2017,
+  \href{http://arxiv.org/abs/1706.03762}{{\normalfont [1706.03762]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1706.03762}}.
+
+\bibitem[Xiong et~al.(2020)Xiong, Yang, He, Zheng, Zheng, Xing, Zhang, Lan,
+  Wang, and Liu]{xiong2020layer}
+Xiong, R.; Yang, Y.; He, D.; Zheng, K.W.; Zheng, S.; Xing, C.; Zhang, H.; Lan,
+  Y.; Wang, L.; Liu, T.Y.
+\newblock {On Layer Normalization in the Transformer Architecture}.
+\newblock In Proceedings of the International Conference on Machine Learning
+  (ICML),  2020,  \href{http://arxiv.org/abs/2002.04745}{{\normalfont
+  [2002.04745]}}.
+\newblock {\url{https://doi.org/10.48550/arxiv.2002.04745}}.
+
+\bibitem[Kraskov et~al.(2004)Kraskov, St{\"o}gbauer, and
+  Grassberger]{kraskov2004estimating}
+Kraskov, A.; St{\"o}gbauer, H.; Grassberger, P.
+\newblock {Estimating mutual information}.
+\newblock {\em Physical Review E} {\bf 2004}, {\em 69}.
+\newblock {\url{https://doi.org/10.1103/physreve.69.066138}}.
+
+\bibitem[Donsker and Varadhan(1975)]{donsker1975asymptotic}
+Donsker, M.D.; Varadhan, S.R.S.
+\newblock {Asymptotic evaluation of certain markov process expectations for
+  large time, II}.
+\newblock {\em Communications on Pure and Applied Mathematics} {\bf 1975}, {\em
+  28},~279--301.
+\newblock {\url{https://doi.org/10.1002/cpa.3160280206}}.
+
+\bibitem[Hoeffding(1963)]{hoeffding1963probability}
+Hoeffding, W.
+\newblock {Probability Inequalities for Sums of Bounded Random Variables}.
+\newblock {\em Journal of the American Statistical Association} {\bf 1963}.
+\newblock {\url{https://doi.org/10.1080/01621459.1963.10500830}}.
+
+\bibitem[Fischer et~al.(2023)Fischer, Harutyunyan, Feurer, and
+  Bischl]{fischer2023openml}
+Fischer, S.F.; Harutyunyan, L.; Feurer, M.; Bischl, B.
+\newblock {OpenML-CTR23 -- A curated tabular regression benchmarking suite}.
+\newblock In Proceedings of the AutoML Conference (Workshop Track),  2023.
+
+\bibitem[Vanschoren et~al.(2014)Vanschoren, Rijn, Bischl, and
+  Torgo]{vanschoren2014openml}
+Vanschoren, J.; Rijn, J.N.v.; Bischl, B.; Torgo, L.
+\newblock {OpenML: networked science in machine learning}.
+\newblock {\em ACM SIGKDD Explorations Newsletter} {\bf 2014}, {\em
+  15},~49--60.
+\newblock {\url{https://doi.org/10.1145/2641190.2641198}}.
+
+\bibitem[Feurer et~al.(2021)Feurer, Rijn, Kadra, Gijsbers, Mallik, Ravi,
+  M{\"u}ller, Vanschoren, and Hutter]{feurer2021openml}
+Feurer, M.; Rijn, J.N.v.; Kadra, A.; Gijsbers, P.; Mallik, N.; Ravi, S.;
+  M{\"u}ller, A.; Vanschoren, J.; Hutter, F.
+\newblock {OpenML-Python: an extensible Python API for OpenML}.
+\newblock Journal of Machine Learning Research,  2021,
+  \href{http://arxiv.org/abs/1911.02490}{{\normalfont [1911.02490]}}.
+
+\bibitem[Efron et~al.(2004)Efron, Hastie, Johnstone, and
+  Tibshirani]{efron2004least}
+Efron, B.; Hastie, T.J.; Johnstone, I.M.; Tibshirani, R.J.
+\newblock {Least angle regression}.
+\newblock {\em The Annals of Statistics} {\bf 2004}.
+\newblock {\url{https://doi.org/10.1214/009053604000000067}}.
+
+\bibitem[Pace and Barry(1997)]{pace1997sparse}
+Pace, R.K.; Barry, R.
+\newblock {Sparse spatial autoregressions}.
+\newblock {\em Statistics \& Probability Letters} {\bf 1997}, {\em
+  33},~291--297.
+\newblock {\url{https://doi.org/10.1016/s0167-7152(96)00140-x}}.
+
+\bibitem[Hoerl and Kennard(1970)]{hoerl1970ridge}
+Hoerl, A.E.; Kennard, R.W.
+\newblock {Ridge Regression: Biased Estimation for Nonorthogonal Problems}.
+\newblock {\em Technometrics} {\bf 1970}, {\em 12},~55--67.
+\newblock {\url{https://doi.org/10.1080/00401706.1970.10488634}}.
+
+\bibitem[Zou and Hastie(2005)]{zou2005regularization}
+Zou, H.; Hastie, T.
+\newblock {Regularization and Variable Selection Via the Elastic Net}.
+\newblock {\em Journal of the Royal Statistical Society Series B: Statistical
+  Methodology} {\bf 2005}, {\em 67},~301--320.
+\newblock {\url{https://doi.org/10.1111/j.1467-9868.2005.00503.x}}.
+
+\bibitem[Pedregosa et~al.(2011)Pedregosa, Varoquaux, Gramfort, Michel, Thirion,
+  Grisel, Blondel, Prettenhofer, Weiss, Dubourg, Vanderplas, Passos,
+  Cournapeau, Brucher, Perrot, and Duchesnay{\'E}douard]{pedregosa2011scikit}
+Pedregosa, F.; Varoquaux, G.; Gramfort, A.; Michel, V.; Thirion, B.; Grisel,
+  O.; Blondel, M.; Prettenhofer, P.; Weiss, R.; Dubourg, V.;  et~al.
+\newblock {Scikit-learn: Machine Learning in Python}.
+\newblock {\em Journal of Machine Learning Research} {\bf 2011}.
+\newblock {\url{https://doi.org/10.5555/1953048.2078195}}.
+
+\bibitem[Dietterich(1998)]{dietterich1998approximate}
+Dietterich, T.G.
+\newblock {Approximate Statistical Tests for Comparing Supervised
+  Classification Learning Algorithms}.
+\newblock {\em Neural Computation} {\bf 1998}, {\em 10},~1895--1923.
+\newblock {\url{https://doi.org/10.1162/089976698300017197}}.
+
+\bibitem[Friedman(1937)]{friedman1937use}
+Friedman, M.
+\newblock {The Use of Ranks to Avoid the Assumption of Normality Implicit in
+  the Analysis of Variance}.
+\newblock {\em Journal of the American Statistical Association} {\bf 1937},
+  {\em 32},~675--701.
+\newblock {\url{https://doi.org/10.1080/01621459.1937.10503522}}.
+
+\bibitem[Dem{\v s}ar(2006)]{demsar2006statistical}
+Dem{\v s}ar, J.
+\newblock {Statistical Comparisons of Classifiers over Multiple Data Sets}.
+\newblock {\em Journal of Machine Learning Research} {\bf 2006}.
+\newblock {\url{https://doi.org/10.5555/1248547.1248548}}.
+
+\bibitem[Benavoli et~al.(2016)Benavoli, Corani, and
+  Mangili]{benavoli2016should}
+Benavoli, A.; Corani, G.; Mangili, F.
+\newblock {Should we really use post-hoc tests based on mean-ranks?}
+\newblock {\em Journal of Machine Learning Research} {\bf 2016}.
+\newblock {\url{https://doi.org/10.48550/arxiv.1505.02288}}.
+
+\bibitem[Wilcoxon(1945)]{wilcoxon1945individual}
+Wilcoxon, F.
+\newblock {Individual Comparisons by Ranking Methods}.
+\newblock {\em Biometrics Bulletin} {\bf 1945}, {\em 1},~80.
+\newblock {\url{https://doi.org/10.2307/3001968}}.
+
+\bibitem[Holm(1979)]{holm1979simple}
+Holm, S.
+\newblock {A Simple Sequentially Rejective Multiple Test Procedure}.
+\newblock {\em Scandinavian Journal of Statistics} {\bf 1979}.
+\newblock {\url{https://doi.org/10.2307/4615733}}.
+
+\bibitem[Garc{\'\i}a and Herrera(2008)]{garcia2008extension}
+Garc{\'\i}a, S.; Herrera, F.
+\newblock {An Extension on "Statistical Comparisons of Classifiers over
+  Multiple Data Sets" for all Pairwise Comparisons}.
+\newblock {\em Journal of Machine Learning Research} {\bf 2008}.
+
+\bibitem[Kerby(2014)]{kerby2014simple}
+Kerby, D.S.
+\newblock {The Simple Difference Formula: An Approach to Teaching Nonparametric
+  Correlation}.
+\newblock {\em Comprehensive Psychology} {\bf 2014}, {\em 3},~11.IT.3.1.
+\newblock {\url{https://doi.org/10.2466/11.it.3.1}}.
+
+\bibitem[Efron(1979)]{efron1979bootstrap}
+Efron, B.
+\newblock {Bootstrap Methods: Another Look at the Jackknife}.
+\newblock {\em The Annals of Statistics} {\bf 1979}, {\em 7},~1--26.
+\newblock {\url{https://doi.org/10.1214/aos/1176344552}}.
+
+\end{thebibliography}

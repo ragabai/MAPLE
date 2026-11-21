@@ -1,0 +1,218 @@
+## 3. Mathematical Preliminaries
+
+A regression task consists of a context set $D_{\mathrm{ctx}}=\{(x_i,y_i)\}_{i=1}^{n}$ and query inputs
+$X_{\mathrm{qry}}$, with $x\in\mathbb{R}^{d}$ and $y=f^{*}(x)+\varepsilon$, where $\mathbb{E}[\varepsilon\mid x]=0$ and
+$\operatorname{Var}(\varepsilon\mid x)=\sigma^{2}(x)$. For a function $g$ of $x$ we write
+$\|g\|^{2}=\mathbb{E}_{x\sim P_x}[g(x)^{2}]$ for the squared $L^{2}(P_x)$ norm over the query distribution. For a
+vector $v$, $\operatorname{osc}(v)=\max_c v_c-\min_c v_c$. A prior over tasks is a distribution $G$ from which tasks
+are drawn. A PFN $\theta$ is trained by minimising the expected query loss over $G$. With squared loss, the
+minimiser is the posterior predictive mean $\mathbb{E}[y\mid x, D_{\mathrm{ctx}}]$ under $G$ [@muller2022transformers].
+Because $\mathbb{E}[\varepsilon\mid x]=0$, the same minimiser is obtained by regressing on the noise-free target
+$f^{*}$, which we use to reduce gradient variance.
+
+**Cells and the task prior.** The mathematical prior is organised into $M$ *cells* $c=(\text{family},\text{complexity})$.
+Each cell has a fixed task generator $G_c$. A distribution $q\in\Delta_M$ over cells induces the mixture prior
+$G_q=\sum_c q_c G_c$; $p^{0}=u$ is the uniform base distribution. The cell risk of $\theta$ is
+$R_c(\theta)=\mathbb{E}_{T\sim G_c}\,\ell(\theta;T)$, where $\ell$ is the query mean squared error.
+
+**Experts and disagreement.** A committee of $K$ classical regressors $f_1,\dots,f_K$ is fitted on each context, with
+mean $\bar f$. We consider the committee variance (ambiguity) $A(x)=\frac1K\sum_k (f_k(x)-\bar f(x))^2$, the pairwise
+disagreement $\frac{2}{K(K-1)}\sum_{i<j}|f_i(x)-f_j(x)|$ and, as MAPLE's default, the **PFN–committee gap**
+
+$$
+\Delta(x)=\bigl(\theta(x)-\bar f(x)\bigr)^{2},\qquad \bar\Delta=\|\theta-\bar f\|^{2}.
+$$
+
+All tasks are standardised by the context targets, so these quantities are already normalised by $\sigma_y$.
+
+## 4. Proposed Methodology
+
+### 4.1 Mathematical task generator
+
+{{ tref('table12_generator') }} lists the 18 training families and the held-out structures. The training families
+are: linear, sparse multivariate polynomials with interactions, exponential growth/decay, logarithmic, power laws,
+rational functions and Lorentzian peaks, trigonometric sums, Gaussian radial-basis bumps, logistic and
+Michaelis–Menten saturation, hinge (piecewise-linear) growth, physical laws (inverse-square, kinetic-plus-potential
+energy, multiplicative), a damped oscillator, the closed-form logistic ODE solution, Lotka–Volterra dynamics
+integrated with fourth-order Runge–Kutta, hard two-regime switches, pairwise interactions and step
+discontinuities. Each family has three complexity levels that control the number of active features, terms,
+frequencies and interaction order. A task combines a primary component from the cell's family with up to two
+additive components from other families, each acting on random feature subsets.
+
+{{ table('table12_generator') }}
+
+Features are drawn through a Gaussian copula with a random low-rank correlation matrix, mixed marginals (normal,
+uniform, log-normal, bimodal, heavy-tailed), irrelevant and redundant columns, ordinal or nominal categorical codes
+and MCAR missingness. Noise is homoscedastic or heteroscedastic Gaussian, with a relative level between 0.01 and 1.
+Every task passes validity checks (finite values, non-constant target, bounded range, context-standardised targets
+within $\pm12$ standard deviations); otherwise it is resampled ({{ fref('fig02_task_generator') }}). Generation costs
+about 5 ms per task (17 ms for the ODE families).
+
+{{ figure('fig02_task_generator', 'Mathematical task generator. Top: function families grouped by type; the right-most group is never used for pretraining and appears only in out-of-distribution (OOD) suites. Bottom: assembly of a task for a cell (family, complexity).') }}
+
+### 4.2 Prior-data fitted network
+
+The PFN embeds each context point as $W_x\tilde x+W_y y$ and each query point as $W_x\tilde x+e_{\mathrm{qry}}$. Here
+$\tilde x$ is $x$ zero-padded to $d_{\max}=32$ and rescaled by $\sqrt{d_{\max}/d}$. A stack of pre-LN transformer
+blocks [@vaswani2017attention; @xiong2020layer] follows, in which every token attends only to context tokens. Query
+predictions are therefore independent of one another and invariant to the order of the context points; there are
+no positional encodings. A two-layer head outputs the prediction. Section 6 lists the architecture and training
+settings.
+
+### 4.3 Disagreement-steered adaptive sampling
+
+Every $U$ steps, MAPLE draws $m$ fresh probe tasks per cell and fits the committee to each probe context. The
+committee's predictions do not depend on $\theta$, so they are computed asynchronously in CPU workers; only a PFN
+forward pass is needed at the round itself. MAPLE then evaluates a per-task score $Y\in[0,B]$ (the clipped mean of
+the chosen disagreement, or the PFN loss for the loss-based variant), averages it into cell scores $\hat s_c$,
+smooths them with an exponential moving average of factor $\lambda$, and sets
+
+$$
+q(\hat s)=(1-\gamma)\,\mathrm{Gibbs}(p^{0},\hat s/\tau)+\gamma\,u,\qquad \mathrm{Gibbs}(p^{0},s/\tau)_c=\frac{p^{0}_c e^{s_c/\tau}}{\sum_{c'}p^{0}_{c'}e^{s_{c'}/\tau}}.
+$$
+
+Training batches draw their cells from the current $q$. Probe tasks never enter gradient updates, and their random
+streams are disjoint from training and evaluation streams. {{ fref('fig01_framework') }} shows the complete
+framework, and {{ fref('fig03_disagreement_sampling') }} illustrates the mechanism on a real probe task.
+
+{{ figure('fig01_framework', 'The MAPLE framework. Pretraining (top) uses synthetic tasks only. Every U steps, probe tasks from each cell are scored by the gap between the PFN and a committee of classical experts, and the cell sampling distribution is re-weighted. At inference (bottom), the pretrained PFN and the experts are combined by competence routing, whose two hyperparameters are chosen on synthetic tasks.') }}
+
+{{ figure('fig03_disagreement_sampling', 'Mechanism on a real probe task (trigonometric family, complexity 0) with the pretrained PFN-D checkpoint (seed 0). (a) Context points, committee predictions and the PFN prediction along the active feature. (b) Pointwise PFN–committee gap and committee ambiguity. (c) The six most and four least probable cells in PFN-D\'s final logged sampling distribution; dashed line: uniform.') }}
+
+### 4.4 Expert routing at inference
+
+On a real dataset, the training split is preprocessed using training rows only. The PFN predicts in context,
+averaging four feature permutations; for training sets larger than 1024 rows, it also averages over random
+1024-row contexts. Datasets with more than 32 features are reduced to 32 by mutual information estimated on the
+training rows [@kraskov2004estimating]. Five classical experts (ridge, $k$NN, ExtraTrees, histogram gradient
+boosting, RBF kernel ridge) are fitted alongside. Out-of-fold squared errors $e_k$ from 5-fold cross-validation on
+the training split measure each predictor's competence. **Global routing** (MAPLE-E) uses weights
+$w_k\propto\exp(-\beta\,e_k/\min_j e_j)$. **Local routing** (MAPLE-F, the full framework) uses the same formula with
+$e_k$ replaced by the mean out-of-fold error over the $\kappa$ training points nearest to the query, a regression
+analogue of dynamic ensemble selection [@woods1997combination; @ko2008from]. $\beta$ and $\kappa$ are chosen by grid
+search on 150 synthetic tasks drawn from the checkpoint's final learned prior, never on real data.
+
+### 4.5 Variants
+
+We compare seven pretrained or routed variants: **P0**, the same PFN pretrained on a conventional TabPFN-v1-style
+random-MLP/SCM prior [@hollmann2023tabpfn]; **A**, the uniform mathematical prior; **B**, adaptive with the label-based
+loss score and no floor; **C**, adaptive with the gap score and no floor; **D**, adaptive with the gap score and floor
+$\gamma=0.1$; **E**, D with global routing; and **F** (MAPLE), D with local routing. All pretraining runs use the same
+architecture, number of steps and token budget.
+
+## 5. Theoretical Analysis
+
+Full proofs are in Appendix A and in the repository (`research/theory/theory.md`), and each statement is checked
+numerically by the test suite. We distinguish proved statements from conjectures; no convergence result is claimed
+for the coupled training dynamics.
+
+**Proposition 1 (Gibbs variational principle).** For $p^{0}$ with full support, $s\in\mathbb{R}^{M}$ and $\tau>0$, the
+problem $\max_{q\in\Delta_M}\langle q,s\rangle-\tau\,\mathrm{KL}(q\|p^{0})$ has the unique solution
+$q^{*}=\mathrm{Gibbs}(p^{0},s/\tau)$, with optimal value $\tau\log\sum_c p^{0}_c e^{s_c/\tau}$. Moreover, for $\rho>0$ and
+non-constant $s$ with $\rho<\log(1/p^{0}(\arg\max s))$, every maximiser of $\langle q,s\rangle$ over the KL ball
+$\{q:\mathrm{KL}(q\|p^{0})\le\rho\}$ is a Gibbs distribution for some finite $\tau(\rho)$ [@donsker1975asymptotic;
+@bental2013robust].
+
+With the loss score $s_c=R_c(\theta)$, alternating Proposition 1 with gradient steps is a KL-smoothed form of
+distributionally robust optimisation over the task prior, related to Group DRO [@sagawa2020distributionally].
+
+**Proposition 2 (no collapse, bounded tilt).** For $p^{0}=u$: $q_c\ge\gamma/M$;
+$q^{*}_a/q^{*}_b\le e^{\operatorname{osc}(s)/\tau}$; and $\mathrm{KL}(q\|u)\le(1-\gamma)\operatorname{osc}(s)/\tau$.
+
+**Proposition 3 (stability).** For all $s,s'$:
+$\|q(s)-q(s')\|_1\le(1-\gamma)\operatorname{osc}(s-s')/(2\tau)\le(1-\gamma)\|s-s'\|_\infty/\tau$.
+
+*Proof sketch.* Along $s(t)=s+t(s'-s)$, $\dot q_c=\tau^{-1}q_c(v_c-\langle q,v\rangle)$, so $\|\dot q\|_1$ is
+$\tau^{-1}$ times the mean absolute deviation of $v$ under $q$. That deviation is at most $\operatorname{osc}(v)/2$, by
+Cauchy–Schwarz and Popoviciu's inequality. Integrating over $t\in[0,1]$ gives the bound.
+
+**Proposition 4 (disagreement and error).** If $\theta,f_1,\dots,f_K$ depend only on the context and the query noise is
+independent of it, then (a) $\mathbb{E}(\theta-y)^2=\|\theta-f^{*}\|^2+\mathbb{E}\sigma^2(x)$; (b)
+$|\sqrt{\bar\Delta}-\|\theta-f^{*}\||\le\|\bar f-f^{*}\|$, so if $\|\bar f-f^{*}\|\le\eta\|\theta-f^{*}\|$ with
+$\eta<1$, then $(1-\eta)^2\|\theta-f^{*}\|^2\le\bar\Delta\le(1+\eta)^2\|\theta-f^{*}\|^2$; (c) the ambiguity
+decomposition $(\bar f-y)^2=\frac1K\sum_k(f_k-y)^2-A$ holds pointwise [@krogh1995neural].
+
+Part (a) says that a loss-based score contains the irreducible noise additively; part (b) says that the label-free
+gap tracks the PFN's *excess* error whenever the committee is more accurate than the PFN. When the committee is worse
+($\eta\ge1$), $\bar\Delta$ also measures the committee's own error. This failure mode is known for query-by-committee
+[@burbidge2007active], and Section 7.4 tests it empirically.
+
+**Theorem 1 (finite-sample accuracy of the sampler).** With $m$ independent probe tasks per cell, scores clipped to
+$[0,B]$ and $\theta$ fixed within the round, with probability at least $1-\delta$:
+
+$$
+\max_c|\hat s_c-s_c|\le B\sqrt{\frac{\log(2M/\delta)}{2m}},\qquad
+\|q(\hat s)-q(s)\|_1\le\frac{(1-\gamma)B}{\tau}\sqrt{\frac{\log(2M/\delta)}{2m}}.
+$$
+
+*Proof.* Apply Hoeffding's inequality [@hoeffding1963probability] to each cell, take a union bound over the $M$
+cells, and apply Proposition 3. With an exponential moving average of factor $\lambda$ and stationary scores, $m$ can
+be replaced by $m(1+\lambda)/(1-\lambda)$.
+
+**Proposition 5 (bounded distortion of the base prior).** If $0\le\ell\le L$, then
+$|\mathbb{E}_{G_q}\ell-\mathbb{E}_{G_u}\ell|\le L\,\mathrm{TV}(q,u)\le L\sqrt{(1-\gamma)\operatorname{osc}(s)/(2\tau)}$.
+The adaptive prior therefore cannot move far from the uniform prior without a correspondingly large score range.
+
+**Complexity.** One adaptation round costs $M m(C_{\mathrm{PFN}}+\sum_k C_{\mathrm{fit},k})$. One PFN forward pass costs
+$O(L[(n^2+n\,n_q)d_m+(n+n_q)d_m^2])$, with no $n_q^2$ term because queries do not attend to each other.
+
+**Conjectures (not proved).** (C1) When the sampler adapts slowly relative to the PFN, $q_t$ tracks the
+KL-regularised robust solution for the current $\theta_t$. (C2) Disagreement-based sampling is more robust than
+loss-based sampling when noise varies across tasks. (C3) Gains on structural OOD suites transfer to real data only
+to the extent that real data resemble the mathematical prior. Sections 7–9 examine C2 and C3 empirically.
+
+## 6. Experimental Setup
+
+**Datasets.** We use the 35 regression datasets of the curated OpenML-CTR23 suite [@fischer2023openml;
+@vanschoren2014openml; @feurer2021openml] and scikit-learn's Diabetes data [@efron2004least]
+({{ tref('table01_datasets') }}). Boston Housing is excluded because of its ethically problematic feature, and
+California Housing [@pace1997sparse] is used instead. Yacht Hydrodynamics is not in the suite and is too small for
+our protocol. No dataset was removed for being difficult. For each dataset we subsample training sets of
+$n_{\mathrm{train}}\in\{128,512,2048\}$ rows, repeated {{ S.repeats[128] }}, {{ S.repeats[512] }} and
+{{ S.repeats[2048] }} times respectively. Test sets contain up to 2000 of the remaining rows. A regime is used only
+if at least 200 test rows remain, and skipped regimes are logged. All methods share identical, persisted split
+indices. Preprocessing, feature selection, hyperparameter search, routing weights and stacking weights are all
+fitted on the training split only.
+
+{{ table('table01_datasets') }}
+
+**Baselines.** We use the mean predictor, ridge, ElasticNet, $k$NN, random forest, ExtraTrees, histogram gradient
+boosting, RBF kernel ridge, MLP, XGBoost, LightGBM and CatBoost with library defaults
+[@hoerl1970ridge; @zou2005regularization; @breiman2001random; @geurts2006extremely; @chen2016xgboost; @ke2017lightgbm;
+@prokhorenkova2018catboost; @pedregosa2011scikit]. XGBoost, LightGBM and CatBoost are also tuned (suffix -T) with a
+fixed budget of {{ S.n_trials }} random configurations evaluated by 3-fold cross-validation on the training split. CatBoost (default and tuned) one-hot encodes categorical features with at most 255 levels
+(`one_hot_max_size` = 255) instead of using its target statistics; this was needed to fit the CPU budget and may
+weaken CatBoost slightly on datasets with categorical features.
+We also report a simple average and a non-negative stacked regression [@breiman1996stacked] of the five classical
+experts, and stacking of PFN-D with the experts. As external reference points we also run two large pretrained
+tabular foundation models with their library defaults on a GPU: TabPFN v2 [@hollmann2025accurate] (regression
+weights of the `tabpfn` package, version 9.2.0, model version 2) and TabICL [@qu2025tabicl] (the version-2 regression
+checkpoint of the `tabicl` package, version 2.2.0). Their pretraining compute is orders of magnitude larger than
+ours, so they are not equal-budget comparisons; they are reported alongside, compared with MAPLE in exploratory
+tests, and kept out of the pre-registered comparison set. Newer TabPFN releases (2.5 and later) are distributed
+under non-commercial licences behind an access agreement and were not used. FT-Transformer, SAINT and NODE require per-dataset GPU training and tuning, a different
+compute class from our CPU experts; they are discussed in Section 2 but not run.
+
+**Synthetic generalisation.** We evaluate on {{ S.n_syn_tasks }} tasks for each of eight suites. The ID suite draws
+fresh tasks from the training cells. The seven structurally OOD suites are: held-out families (Gompertz, SIR,
+hyperbolic); nested compositions $g(h(x))$, whereas training uses additive compositions only; parameter ranges
+stretched $\times2.5$; three-way interactions, whereas training has at most pairwise; piecewise-linear functions on
+Voronoi regions; Student-$t$ and Laplace noise; and softmax-gated mixtures of 2–4 regimes. Context sizes, dimensions,
+noise and missingness have comparable distributions across suites, so OOD differences reflect structure.
+
+**Pretraining protocol.** Variants P0 and A–D are each pretrained with three seeds for
+{{ S.steps }} steps on two shared GPUs. Ablation and sensitivity runs use seed 0. The full configuration is in
+{{ tref('table02_configuration') }}.
+
+{{ table('table02_configuration') }}
+
+**Metrics and statistics.** We report RMSE, MAE, $R^2$ and NRMSE = RMSE/SD($y_{\mathrm{test}}$), together with
+training time, inference time, peak memory and parameter counts. For real data, the unit of analysis is the dataset:
+metrics are averaged over repeats and pretraining seeds before testing, and folds are never treated as independent
+datasets [@dietterich1998approximate]. For synthetic suites, the unit is the task. We use the Friedman test with
+Nemenyi critical differences [@friedman1937use; @demsar2006statistical]. Following [@benavoli2016should], the primary
+pairwise tests are two-sided Wilcoxon signed-rank tests [@wilcoxon1945individual] with Holm correction
+[@holm1979simple; @garcia2008extension]. Effect sizes are matched-pairs rank-biserial correlations [@kerby2014simple],
+and confidence intervals use the bootstrap [@efron1979bootstrap]. A median relative difference below 1% is reported
+as practically negligible even when it is significant. The research questions and tests were fixed before any main
+experiment was run (repository file `research/novelty_assessment/research_questions.md`).

@@ -1,0 +1,37 @@
+\begin{table}[H]
+\caption{Mathematical task generator: function families, splits and sampling.}
+\label{tab:table12_generator}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+family & split & description & cells & mean attempts & final q (PFN-D) & uniform q \\
+\midrule
+linear & train & w\textasciicircum{}T x + b & 3 & 1 & 0.0472 & 0.0556 \\
+polynomial & train & sparse multivariate polynomial with interactions & 3 & 1.03 & 0.0583 & 0.0556 \\
+exponential & train & sum a exp(b z): growth and decay & 3 & 1.03 & 0.0529 & 0.0556 \\
+logarithmic & train & sum a log(u), u in (eps, hi) & 3 & 1.13 & 0.0548 & 0.0556 \\
+power\_law & train & a prod u\_j\textasciicircum{}p\_j & 3 & 1 & 0.0532 & 0.0556 \\
+rational & train & (a z1 + b)/(1 + c z2\textasciicircum{}2) or Lorentzian peaks & 3 & 1 & 0.0584 & 0.0556 \\
+trigonometric & train & sum a sin/cos(omega z + phi) & 3 & 1 & 0.0571 & 0.0556 \\
+rbf & train & sum of Gaussian bumps & 3 & 1.03 & 0.0564 & 0.0556 \\
+logistic & train & L/(1+exp(-k(z-z0))) & 3 & 1.07 & 0.0543 & 0.0556 \\
+michaelis\_menten & train & Vmax u/(Km+u) & 3 & 1 & 0.0509 & 0.0556 \\
+piecewise & train & hinge (piecewise-linear growth) & 3 & 1.03 & 0.054 & 0.0556 \\
+physics & train & inverse-square / energy / multiplicative laws & 3 & 1.07 & 0.0516 & 0.0556 \\
+damped\_oscillator & train & A exp(-zeta omega t) cos(omega\_d t + phi) & 3 & 1.07 & 0.0661 & 0.0556 \\
+logistic\_ode & train & closed-form logistic ODE N(t) & 3 & 1.07 & 0.0529 & 0.0556 \\
+lotka\_volterra & train & RK4 predator-prey, prey at time T & 3 & 1.03 & 0.0609 & 0.0556 \\
+conditional & train & hard two-regime switch on one feature & 3 & 1.07 & 0.0554 & 0.0556 \\
+interaction & train & pairwise products of g(x\_i) g(x\_k) & 3 & 1.03 & 0.0631 & 0.0556 \\
+discontinuous & train & linear trend plus step jumps & 3 & 1.03 & 0.0526 & 0.0556 \\
+gompertz & ood & a exp(-b exp(-k z)) & 3 & 1 & – & – \\
+sir & ood & RK4 SIR model, infected fraction at time T & 3 & 1.07 & – & – \\
+hyperbolic & ood & a sinh(b z1)/cosh(c z2) (+ cosh term) & 3 & 1.1 & – & – \\
+interaction3 & ood\_structure & three-way products & 3 & 1.1 & – & – \\
+voronoi & ood\_structure & piecewise-linear on Voronoi regions & 3 & 1 & – & – \\
+mixed\_regime & ood\_structure & softmax-gated mixture of regimes & 3 & 1.03 & – & – \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize Split: train = available to pretraining; ood = held-out family; ood\_structure = structure used only by OOD suites. Mean attempts = generator draws per valid task (validity checks). Final q = probability mass of the family in PFN-D's final sampling distribution (mean over 3 seeds), versus 1/18 uniform.}
+\end{table}

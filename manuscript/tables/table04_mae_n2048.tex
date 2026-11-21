@@ -1,0 +1,35 @@
+\begin{table}[H]
+\caption{MAE on the real-data benchmark (n\_train = 2048); mean $\pm$ SD over 3 split repeats (PFN rows: also over 3 pretraining seeds).}
+\label{tab:table04_mae_n2048}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccccc}
+\toprule
+dataset & Ridge & RF & ExtraTrees & XGBoost-T & LightGBM-T & CatBoost-T & Stack(experts) & PFN-SCM & PFN-A & PFN-D & MAPLE-F \\
+\midrule
+abalone & 1.57 $\pm$ 0.023 & 1.53 $\pm$ 0.0389 & 1.55 $\pm$ 0.0238 & 1.52 $\pm$ 0.0311 & 1.55 $\pm$ 0.0362 & 1.51 $\pm$ 0.0263 & \textbf{1.47} $\pm$ 0.0196 & 1.51 $\pm$ 0.0206 & 1.59 $\pm$ 0.0327 & 1.58 $\pm$ 0.0336 & \underline{1.48} $\pm$ 0.0187 \\
+brazilian\_houses & 1.64e+03 $\pm$ 40.3 & 1.62e+03 $\pm$ 142 & 1.53e+03 $\pm$ 80.3 & 2.18e+03 $\pm$ 715 & 2.95e+03 $\pm$ 1.58e+03 & \underline{1.53e+03} $\pm$ 70.4 & \textbf{1.52e+03} $\pm$ 85.5 & 2e+03 $\pm$ 528 & 1.8e+03 $\pm$ 394 & 1.84e+03 $\pm$ 420 & 1.55e+03 $\pm$ 152 \\
+california\_housing & 5e+04 $\pm$ 1.98e+03 & 4.03e+04 $\pm$ 802 & 4.24e+04 $\pm$ 1.33e+03 & 3.66e+04 $\pm$ 957 & 3.72e+04 $\pm$ 1.06e+03 & \textbf{3.59e+04} $\pm$ 989 & \underline{3.62e+04} $\pm$ 909 & 4.22e+04 $\pm$ 1.01e+03 & 4.9e+04 $\pm$ 1.24e+03 & 4.79e+04 $\pm$ 1.45e+03 & 3.69e+04 $\pm$ 1.16e+03 \\
+cps88wages & 246 $\pm$ 6.03 & 273 $\pm$ 11.3 & 293 $\pm$ 13.8 & 237 $\pm$ 11.1 & 240 $\pm$ 9.43 & 237 $\pm$ 8.32 & 238 $\pm$ 9.61 & 234 $\pm$ 6.27 & \underline{233} $\pm$ 8.13 & \textbf{232} $\pm$ 7.84 & 238 $\pm$ 10 \\
+cpu\_activity & 6.13 $\pm$ 0.35 & 1.86 $\pm$ 0.0395 & 1.76 $\pm$ 0.0474 & 1.77 $\pm$ 0.0998 & 1.73 $\pm$ 0.0597 & 1.76 $\pm$ 0.00786 & \underline{1.67} $\pm$ 0.0418 & 2.89 $\pm$ 0.104 & 2.15 $\pm$ 0.0179 & 2.14 $\pm$ 0.00736 & \textbf{1.64} $\pm$ 0.0316 \\
+diamonds & 732 $\pm$ 29.4 & 445 $\pm$ 13.8 & 426 $\pm$ 7.36 & 380 $\pm$ 13.2 & 392 $\pm$ 27.1 & \textbf{357} $\pm$ 20.2 & \underline{378} $\pm$ 6.39 & 646 $\pm$ 16.4 & 639 $\pm$ 20.4 & 636 $\pm$ 21.5 & 379 $\pm$ 5.43 \\
+fifa & 8.08e+03 $\pm$ 367 & \underline{4.29e+03} $\pm$ 291 & 4.4e+03 $\pm$ 294 & \textbf{4.29e+03} $\pm$ 276 & 4.55e+03 $\pm$ 129 & 4.32e+03 $\pm$ 356 & 4.37e+03 $\pm$ 282 & 4.85e+03 $\pm$ 203 & 4.58e+03 $\pm$ 213 & 4.6e+03 $\pm$ 219 & 4.37e+03 $\pm$ 250 \\
+fps\_benchmark & 11.4 $\pm$ 0.69 & 9.48 $\pm$ 0.295 & 19.8 $\pm$ 0.405 & \underline{3.57} $\pm$ 0.536 & 3.64 $\pm$ 0.535 & \textbf{1.94} $\pm$ 0.376 & 3.85 $\pm$ 0.159 & 34.8 $\pm$ 2.19 & 34.2 $\pm$ 2.02 & 34.6 $\pm$ 2.03 & 3.85 $\pm$ 0.159 \\
+grid\_stability & 0.0175 $\pm$ 1.59e-05 & 0.011 $\pm$ 0.0002 & 0.0102 $\pm$ 0.000238 & 0.0073 $\pm$ 9.27e-05 & 0.00712 $\pm$ 0.000168 & 0.00622 $\pm$ 0.000376 & \textbf{0.00612} $\pm$ 2.11e-05 & 0.0117 $\pm$ 0.000364 & 0.00822 $\pm$ 0.00043 & 0.00857 $\pm$ 0.000433 & \underline{0.00615} $\pm$ 7.91e-05 \\
+health\_insurance & 12.4 $\pm$ 0.258 & 11.8 $\pm$ 0.408 & 12.2 $\pm$ 0.461 & 11.7 $\pm$ 0.29 & \underline{11.7} $\pm$ 0.365 & \textbf{11.6} $\pm$ 0.42 & 12 $\pm$ 0.336 & 11.7 $\pm$ 0.36 & 11.7 $\pm$ 0.356 & 11.7 $\pm$ 0.338 & 11.7 $\pm$ 0.33 \\
+kin8nm & 0.163 $\pm$ 0.00125 & 0.128 $\pm$ 0.00255 & 0.124 $\pm$ 0.00123 & 0.115 $\pm$ 0.00638 & 0.107 $\pm$ 0.0031 & 0.0875 $\pm$ 0.0029 & \underline{0.0818} $\pm$ 0.00201 & 0.119 $\pm$ 0.00215 & 0.118 $\pm$ 0.00285 & 0.118 $\pm$ 0.00279 & \textbf{0.0817} $\pm$ 0.00218 \\
+kings\_county & 1.26e+05 $\pm$ 4.72e+03 & 8.53e+04 $\pm$ 983 & 8.45e+04 $\pm$ 2.31e+03 & \underline{7.87e+04} $\pm$ 2.75e+03 & 8.04e+04 $\pm$ 2.43e+03 & \textbf{7.76e+04} $\pm$ 3.05e+03 & 8e+04 $\pm$ 2.34e+03 & 1.1e+05 $\pm$ 5.89e+03 & 1.02e+05 $\pm$ 5.6e+03 & 1.02e+05 $\pm$ 5.39e+03 & 8.03e+04 $\pm$ 2.69e+03 \\
+miami\_housing & 1.15e+05 $\pm$ 1.77e+03 & 5.95e+04 $\pm$ 2.96e+03 & 5.53e+04 $\pm$ 2.97e+03 & 5.53e+04 $\pm$ 1.16e+03 & 5.42e+04 $\pm$ 2.35e+03 & \textbf{5.13e+04} $\pm$ 2.15e+03 & \underline{5.32e+04} $\pm$ 1.41e+03 & 6.84e+04 $\pm$ 1.03e+03 & 6.37e+04 $\pm$ 2.53e+03 & 6.36e+04 $\pm$ 2.45e+03 & 5.33e+04 $\pm$ 2.12e+03 \\
+naval\_propulsion\_plant & 0.00461 $\pm$ 9.91e-06 & 0.00119 $\pm$ 1.96e-05 & \textbf{0.000775} $\pm$ 2.08e-05 & 0.0011 $\pm$ 6.81e-05 & 0.00108 $\pm$ 2.39e-05 & 0.00109 $\pm$ 5.94e-05 & 0.000829 $\pm$ 4.7e-05 & 0.0124 $\pm$ 0.000197 & 0.0124 $\pm$ 0.000117 & 0.0124 $\pm$ 0.000163 & \underline{0.000788} $\pm$ 2.37e-05 \\
+physiochemical\_protein & 4.4 $\pm$ 0.0966 & 3.48 $\pm$ 0.0843 & \underline{3.39} $\pm$ 0.0895 & 3.44 $\pm$ 0.127 & 3.46 $\pm$ 0.109 & \textbf{3.39} $\pm$ 0.071 & 3.45 $\pm$ 0.0661 & 4.03 $\pm$ 0.0866 & 4.23 $\pm$ 0.0575 & 4.3 $\pm$ 0.0481 & 3.49 $\pm$ 0.0831 \\
+pumadyn32nh & 0.0266 $\pm$ 0.000952 & 0.0175 $\pm$ 0.000101 & \textbf{0.0173} $\pm$ 0.00019 & 0.0178 $\pm$ 0.000163 & 0.0179 $\pm$ 0.000444 & 0.0176 $\pm$ 0.000231 & \underline{0.0174} $\pm$ 0.000263 & 0.027 $\pm$ 0.00107 & 0.0257 $\pm$ 0.00112 & 0.0254 $\pm$ 0.00102 & 0.0175 $\pm$ 0.000193 \\
+sarcos & 4 $\pm$ 0.0873 & 3.91 $\pm$ 0.0986 & 3.38 $\pm$ 0.133 & 3.33 $\pm$ 0.0779 & 3.29 $\pm$ 0.243 & 3.09 $\pm$ 0.0981 & \textbf{2.68} $\pm$ 0.073 & 3.77 $\pm$ 0.189 & 4.18 $\pm$ 0.297 & 4.21 $\pm$ 0.281 & \underline{2.69} $\pm$ 0.139 \\
+space\_ga & 0.0974 $\pm$ 0.00291 & 0.0831 $\pm$ 0.00406 & 0.0835 $\pm$ 0.00451 & 0.0788 $\pm$ 0.00388 & 0.0788 $\pm$ 0.00485 & 0.0794 $\pm$ 0.0028 & \underline{0.0768} $\pm$ 0.00362 & 0.0921 $\pm$ 0.003 & 0.0933 $\pm$ 0.00368 & 0.0927 $\pm$ 0.00401 & \textbf{0.0763} $\pm$ 0.00428 \\
+superconductivity & 13.6 $\pm$ 0.183 & 7.77 $\pm$ 0.133 & \textbf{7.46} $\pm$ 0.218 & 7.64 $\pm$ 0.233 & \underline{7.48} $\pm$ 0.265 & 7.96 $\pm$ 0.0529 & 7.49 $\pm$ 0.23 & 14.1 $\pm$ 0.246 & 15.4 $\pm$ 0.387 & 15.6 $\pm$ 0.193 & 7.5 $\pm$ 0.198 \\
+video\_transcoding & 6.66 $\pm$ 0.323 & 1.76 $\pm$ 0.207 & 1.73 $\pm$ 0.139 & 1.52 $\pm$ 0.135 & 1.86 $\pm$ 0.217 & \textbf{1.35} $\pm$ 0.0516 & \underline{1.4} $\pm$ 0.148 & 5.32 $\pm$ 0.316 & 4.29 $\pm$ 0.409 & 4.47 $\pm$ 0.318 & 1.42 $\pm$ 0.144 \\
+wave\_energy & 6.52e+04 $\pm$ 297 & 5.37e+04 $\pm$ 1.18e+03 & 5.12e+04 $\pm$ 496 & 4.73e+04 $\pm$ 387 & 4.57e+04 $\pm$ 776 & 4.42e+04 $\pm$ 500 & \textbf{4.22e+04} $\pm$ 208 & 6.32e+04 $\pm$ 409 & 6.55e+04 $\pm$ 641 & 6.52e+04 $\pm$ 40.4 & \underline{4.24e+04} $\pm$ 498 \\
+white\_wine & 0.589 $\pm$ 0.00301 & 0.49 $\pm$ 0.0027 & \textbf{0.452} $\pm$ 0.0033 & 0.506 $\pm$ 0.0171 & 0.489 $\pm$ 0.0117 & 0.518 $\pm$ 0.0117 & \underline{0.469} $\pm$ 0.00434 & 0.549 $\pm$ 0.00384 & 0.549 $\pm$ 0.00499 & 0.548 $\pm$ 0.00668 & 0.479 $\pm$ 0.00375 \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize Lower is better; best in bold, second best underlined. MAE in the original target units. Abbreviations: RF, random forest; -T, tuned with a 10-trial random search (3-fold CV on the training split); Stack(experts), non-negative stacking of Ridge, kNN, ExtraTrees, HistGB, RBF kernel ridge; PFN-SCM, PFN pretrained on the conventional SCM/MLP prior (P0); PFN-A, uniform mathematical prior; PFN-D, disagreement-adaptive prior with floor; MAPLE-F, PFN-D with local competence routing.}
+\end{table}

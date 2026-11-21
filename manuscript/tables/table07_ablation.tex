@@ -1,0 +1,38 @@
+\begin{table}[H]
+\caption{Ablation study (pretraining seed 0; each row changes one component of PFN-D).}
+\label{tab:table07_ablation}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccc}
+\toprule
+model & ID NRMSE & OOD NRMSE & real NRMSE (n=512) & $\Delta$ synthetic vs D (\%) & p (synthetic) & $\Delta$ real vs D (\%) & p (real) \\
+\midrule
+D & 0.4326 & 0.5255 & 0.5895 & 0 & – & 0 & – \\
+P0 & 0.5625 & 0.6991 & 0.6074 & 24.91 & \textbf{1.741e-220} & 1.042 & 1 \\
+A & 0.429 & 0.5258 & 0.5905 & -0.2236 & 0.1627 & -0.1358 & 1 \\
+B & 0.4298 & 0.5224 & \textbf{0.5828} & 0.4444 & 1 & \textbf{-0.6022} & 0.166 \\
+C & 0.4274 & 0.5251 & 0.5939 & -0.1145 & 0.3578 & 0.1862 & 0.3712 \\
+budget\_0.25\_A & 0.497 & 0.5977 & 0.6067 & 10.13 & 6.371e-181 & 0.837 & 0.0324 \\
+budget\_0.25\_D & 0.4985 & 0.5986 & 0.6038 & 10.5 & \underline{9.878e-186} & 0.8459 & 0.305 \\
+budget\_0.5\_A & 0.4649 & 0.5578 & 0.5985 & 4.529 & 1.084e-100 & 1.384 & 0.1299 \\
+budget\_0.5\_D & 0.4628 & 0.5621 & 0.5983 & 5.004 & 1.369e-116 & 0.4594 & 0.3207 \\
+committee\_2 & 0.4279 & 0.5238 & 0.5927 & -0.4402 & 0.0007888 & 0.05165 & 1 \\
+committee\_3 & 0.429 & 0.5242 & 0.5933 & -0.2343 & 0.1578 & 0.3106 & 0.6199 \\
+complexity\_0 & 0.4387 & 0.5396 & 0.622 & 0.9652 & 1.341e-06 & 3.507 & \textbf{9.444e-07} \\
+complexity\_1 & 0.4294 & 0.5265 & 0.6025 & -0.09723 & 1 & 1.575 & \underline{1.272e-05} \\
+ema\_0.0 & 0.4278 & 0.5249 & 0.5907 & -0.09058 & 0.571 & 0.09182 & 1 \\
+ema\_0.9 & 0.4272 & 0.526 & 0.5901 & -0.2622 & 0.1351 & -0.0369 & 1 \\
+gamma\_0.3 & 0.4275 & 0.5257 & 0.5922 & -0.177 & 0.3616 & 0.1531 & 1 \\
+probes\_2 & 0.4296 & 0.5221 & \underline{0.5884} & \underline{-0.5733} & 0.001251 & \underline{-0.297} & 1 \\
+probes\_8 & 0.4278 & 0.5231 & 0.5919 & -0.4797 & 0.02792 & 0.313 & 1 \\
+score\_ambiguity & 0.4279 & 0.5237 & 0.5905 & -0.3277 & 0.1351 & -0.006024 & 1 \\
+score\_combined & 0.4323 & \underline{0.5219} & 0.5928 & -0.2244 & 0.2975 & 0.09919 & 1 \\
+score\_pairwise & \underline{0.4253} & \textbf{0.5218} & 0.5921 & \textbf{-0.688} & 8.091e-05 & 0.3428 & 0.6651 \\
+tau\_0.05 & \textbf{0.425} & 0.5239 & 0.5918 & -0.01514 & 0.4379 & 0.2126 & 1 \\
+tau\_1.0 & 0.4283 & 0.5235 & 0.5906 & -0.2649 & 0.1318 & -0.2645 & 1 \\
+update\_250 & 0.429 & 0.523 & 0.5929 & -0.2223 & 0.1351 & 0.2254 & 1 \\
+update\_4000 & 0.4297 & 0.527 & 0.5904 & 0.05735 & 1 & -0.1763 & 1 \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize NRMSE: lower is better. $\Delta$ = median over units of (row $-$ PFN-D)/PFN-D NRMSE, over synthetic tasks (all 8 suites) or real datasets (n\_train = 512); negative = better than PFN-D. p: two-sided Wilcoxon signed-rank, Holm-corrected across rows. Rows: P0 (no mathematical prior), A (no adaptive sampling), B (loss instead of disagreement), C (no diversity floor), committee\_k (k experts), score\_* (disagreement definition), update\_U (adaptation period), complexity\_c (max complexity), budget\_x (fraction of training steps).}
+\end{table}

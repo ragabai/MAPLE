@@ -1,0 +1,37 @@
+\begin{table}[H]
+\caption{Sensitivity of PFN-D to sampler and training hyperparameters (pretraining seed 0; synthetic suites).}
+\label{tab:table08_sensitivity}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+setting & run & ID NRMSE & OOD NRMSE \\
+\midrule
+$\tau$ (temperature) = 0.05 & tau\_0.05 & \textbf{0.4250} & 0.5239 \\
+$\tau$ (temperature) = 0.2 & D & 0.4326 & 0.5255 \\
+$\tau$ (temperature) = 1.0 & tau\_1.0 & 0.4283 & 0.5235 \\
+$\gamma$ (floor) = 0 & C & 0.4274 & 0.5251 \\
+$\gamma$ (floor) = 0.1 & D & 0.4326 & 0.5255 \\
+$\gamma$ (floor) = 0.3 & gamma\_0.3 & 0.4275 & 0.5257 \\
+m (probes/cell) = 2 & probes\_2 & 0.4296 & \textbf{0.5221} \\
+m (probes/cell) = 4 & D & 0.4326 & 0.5255 \\
+m (probes/cell) = 8 & probes\_8 & 0.4278 & 0.5231 \\
+$\lambda$ (EMA) = 0 & ema\_0.0 & 0.4278 & 0.5249 \\
+$\lambda$ (EMA) = 0.5 & D & 0.4326 & 0.5255 \\
+$\lambda$ (EMA) = 0.9 & ema\_0.9 & \underline{0.4272} & 0.5260 \\
+U (update period) = 250 & update\_250 & 0.4290 & \underline{0.5230} \\
+U (update period) = 1000 & D & 0.4326 & 0.5255 \\
+U (update period) = 4000 & update\_4000 & 0.4297 & 0.5270 \\
+committee size = 2 & committee\_2 & 0.4279 & 0.5238 \\
+committee size = 3 & committee\_3 & 0.4290 & 0.5242 \\
+committee size = 5 & D & 0.4326 & 0.5255 \\
+training budget = 0.25 & budget\_0.25\_D & 0.4985 & 0.5986 \\
+training budget = 0.5 & budget\_0.5\_D & 0.4628 & 0.5621 \\
+training budget = 1.0 & D & 0.4326 & 0.5255 \\
+max complexity = 0 & complexity\_0 & 0.4387 & 0.5396 \\
+max complexity = 1 & complexity\_1 & 0.4294 & 0.5265 \\
+max complexity = 2 & D & 0.4326 & 0.5255 \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize Lower is better. Default values: $\tau$ = 0.2, $\gamma$ = 0.1, m = 4, $\lambda$ = 0.5, U = 1000, 5 experts, full budget, max complexity 2 (row 'D'). OOD = mean over 7 OOD suites.}
+\end{table}

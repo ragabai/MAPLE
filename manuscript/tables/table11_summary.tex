@@ -1,0 +1,40 @@
+\begin{table}[H]
+\caption{Summary of performance across datasets for each training-set size.}
+\label{tab:table11_summary}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+method & mean NRMSE (n=128) & mean NRMSE (n=512) & mean NRMSE (n=2048) & mean rank (n=128) & mean rank (n=512) & mean rank (n=2048) & wins (n=128) & wins (n=512) & wins (n=2048) \\
+\midrule
+Mean & 1.004 & 1.002 & 1.001 & 25.681 & 26.424 & 26.682 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+Ridge & 0.711 & 0.648 & 0.621 & 16.222 & 20.970 & 21.227 & \underline{1.000} & \underline{1.000} & \textbf{0.000} \\
+ElasticNet & 0.719 & 0.658 & 0.630 & 16.153 & 20.970 & 21.364 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+kNN & 0.750 & 0.651 & 0.617 & 22.944 & 22.788 & 21.909 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+RF & 0.668 & 0.554 & 0.500 & 16.500 & 16.091 & 15.682 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+ExtraTrees & 0.660 & 0.559 & 0.503 & 14.417 & 14.576 & 12.909 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+HistGB & 0.690 & 0.556 & 0.485 & 20.056 & 16.667 & 13.523 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+RBF-KRR & 0.695 & 0.591 & 0.536 & 17.806 & 17.061 & 15.591 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+MLP & 0.806 & 0.559 & 0.471 & 20.556 & 16.061 & 12.045 & \textbf{0.000} & \textbf{0.000} & \underline{1.000} \\
+XGBoost & 0.730 & 0.573 & 0.501 & 22.250 & 19.303 & 16.864 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+LightGBM & 0.717 & 0.557 & 0.493 & 20.667 & 17.394 & 15.500 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+CatBoost & 0.647 & 0.511 & 0.448 & 13.556 & 11.303 & 8.318 & \textbf{0.000} & \underline{1.000} & \textbf{0.000} \\
+XGBoost-T & 0.654 & 0.550 & 0.477 & 15.111 & 12.030 & 10.000 & \underline{1.000} & \textbf{0.000} & \textbf{0.000} \\
+LightGBM-T & 0.683 & 0.528 & 0.490 & 18.611 & 13.515 & 11.818 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+CatBoost-T & 0.627 & 0.497 & 0.440 & 11.389 & 8.939 & 7.273 & \textbf{0.000} & \underline{1.000} & \textbf{0.000} \\
+Avg(experts) & 0.648 & 0.552 & 0.513 & 11.417 & 13.879 & 14.591 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+Stack(experts) & 0.616 & 0.494 & 0.435 & 8.111 & 5.955 & 6.091 & \textbf{0.000} & \textbf{0.000} & \underline{1.000} \\
+PFN-SCM & 0.671 & 0.608 & 0.632 & 11.500 & 16.394 & 20.045 & 2.000 & \textbf{0.000} & \textbf{0.000} \\
+PFN-A & 0.661 & 0.592 & 0.623 & 11.500 & 15.909 & 19.727 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+PFN-B & 0.658 & 0.586 & 0.617 & 11.444 & 14.364 & 18.636 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+PFN-C & 0.662 & 0.594 & 0.625 & 12.250 & 16.242 & 19.955 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+PFN-D & 0.661 & 0.592 & 0.624 & 11.500 & 16.242 & 20.000 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+Stack(PFN-D) & 0.612 & 0.493 & 0.446 & 7.139 & 5.379 & 6.045 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+MAPLE-E & 0.613 & 0.496 & 0.444 & 6.222 & 6.667 & 7.795 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} \\
+MAPLE-F & 0.614 & 0.498 & 0.443 & 7.306 & 7.364 & 8.182 & \underline{1.000} & \textbf{0.000} & \textbf{0.000} \\
+TabPFN-v2 & \underline{0.576} & \underline{0.455} & \underline{0.411} & \underline{5.028} & \underline{4.030} & \underline{4.273} & 8.000 & 6.000 & 4.000 \\
+TabICL & \textbf{0.561} & \textbf{0.436} & \textbf{0.400} & \textbf{2.667} & \textbf{1.485} & \textbf{1.955} & 23.000 & 24.000 & 16.000 \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize Lower is better for NRMSE and rank; wins = number of datasets on which the method is best. Only datasets with all methods present are used (N = \{128: 36, 512: 33, 2048: 22\}). Abbreviations: RF, random forest; -T, tuned with a 10-trial random search (3-fold CV on the training split); Stack(experts), non-negative stacking of Ridge, kNN, ExtraTrees, HistGB, RBF kernel ridge; PFN-SCM, PFN pretrained on the conventional SCM/MLP prior (P0); PFN-A, uniform mathematical prior; PFN-D, disagreement-adaptive prior with floor; MAPLE-F, PFN-D with local competence routing.}
+\end{table}

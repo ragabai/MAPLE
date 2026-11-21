@@ -1,0 +1,25 @@
+# Track only the manuscript, source code, and this ignore file.
+/*
+!/.gitignore
+!/manuscript/
+!/src/
+
+.superpowers/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+experiments/data/
+experiments/checkpoints/**/*.opt.pt
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+.ipynb_checkpoints/
+experiments/processed/cache/
+experiments/processed/syncache/
+experiments/processed/preds/
+experiments/checkpoints/**/ckpt.pt
+*.blg
+*-eps-converted-to.pdf

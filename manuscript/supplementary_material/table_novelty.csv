@@ -1,0 +1,12 @@
+work,synthetic ICL pretraining,math/scientific families,online,label-free,committee,diversity floor,guarantees,tabular regression
+TabPFN,✓,✗,✗,–,✗,–,–,✗
+TabPFN v2 / 2.5,✓,✗,✗ (offline),–,✗,–,–,✓
+Mitra,✓,~,✗ (offline mixture),–,✗,~,✗,✓
+Garg et al. 2022,✓,~,✗ (fixed schedule),–,✗,–,✗,✓
+Bandit ACL (Graves et al.),✗,✗,✓,✗,✗,~,✓,✗
+PLR / PAIRED,✗,✗,✓,✗,✗,~,~,✗
+Value-disagreement sampling,✗,✗,✓,✓,~,✗,✗,✗
+Adaptive task sampling / TR-MAML,✗,✗,✓,✗,✗,✗,~,✗
+Group DRO,✗,✗,✓,✗,✗,✗,✓,✗
+Query-by-committee,✗,✗,✓ (points),✓,✓,✗,✓,✗
+MAPLE (this work),✓,✓,✓,✓,✓,✓,✓,✓

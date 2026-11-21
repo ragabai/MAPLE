@@ -1,0 +1,55 @@
+\begin{table}[H]
+\caption{Pairwise statistical comparisons against MAPLE-F on real data (dataset = unit; NRMSE averaged over repeats and seeds).}
+\label{tab:table10_statistics}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+comparison & N & W & p & p (Holm, all comparisons in regime) & r\_rb & median rel. diff (\%) & 95\% CI (\%) & W/L/T \\
+\midrule
+n=128 MAPLE-F vs Ridge & 36 & 58 & 2.3e-06 & 1.61e-05 & 0.826 & 8.17 & [3.4, 17.1] & 30/6/0 \\
+n=128 MAPLE-F vs kNN & 36 & 0 & 2.91e-11 & 4.07e-10 & 1 & 15.1 & [10.2, 30.3] & 36/0/0 \\
+n=128 MAPLE-F vs RF & 36 & 11 & 1.6e-09 & 1.76e-08 & 0.967 & 6.6 & [4.9, 12.4] & 34/2/0 \\
+n=128 MAPLE-F vs ExtraTrees & 36 & 45 & 4.88e-07 & 4.39e-06 & 0.865 & 4.95 & [2.1, 9.2] & 31/5/0 \\
+n=128 MAPLE-F vs HistGB & 36 & 4 & 2.04e-10 & 2.44e-09 & 0.988 & 11.6 & [8.6, 13.8] & 35/1/0 \\
+n=128 MAPLE-F vs MLP & 36 & 2 & 8.73e-11 & 1.14e-09 & 0.994 & 14 & [8.6, 24.2] & 35/1/0 \\
+n=128 MAPLE-F vs XGBoost-T & 36 & 55 & 1.64e-06 & 1.31e-05 & 0.835 & 5.91 & [3.8, 8.4] & 33/3/0 \\
+n=128 MAPLE-F vs LightGBM-T & 36 & 18 & 7.36e-09 & 7.36e-08 & 0.946 & 9.78 & [7.1, 15.2] & 34/2/0 \\
+n=128 MAPLE-F vs CatBoost-T & 36 & 141 & 0.00196 & 0.00784 & 0.577 & 2.4 & [1.4, 4.9] & 29/7/0 \\
+n=128 MAPLE-F vs Stack(experts) & 36 & 290 & 0.509 & 0.509 & 0.129 & 0.114 & [-0.3, 0.8] & 19/17/0 \\
+n=128 MAPLE-F vs PFN-SCM & 36 & 161 & 0.006 & 0.018 & 0.517 & 1.89 & [-0.2, 8.7] & 22/14/0 \\
+n=128 MAPLE-F vs PFN-A & 36 & 103 & 0.000148 & 0.000738 & 0.691 & 1.97 & [0.5, 6.7] & 28/8/0 \\
+n=128 MAPLE-F vs PFN-D & 36 & 99 & 0.000108 & 0.000647 & 0.703 & 2.35 & [0.5, 6.6] & 27/9/0 \\
+n=128 MAPLE-F vs MAPLE-E & 36 & 182 & 0.0168 & 0.0335 & -0.453 & -0.313 & [-0.6, -0.1] & 9/27/0 \\
+n=512 MAPLE-F vs Ridge & 33 & 15 & 3.19e-08 & 3.51e-07 & 0.947 & 22 & [9.8, 42.2] & 31/2/0 \\
+n=512 MAPLE-F vs kNN & 33 & 2 & 6.98e-10 & 9.78e-09 & 0.993 & 23.8 & [16.4, 55.0] & 32/1/0 \\
+n=512 MAPLE-F vs RF & 33 & 5 & 2.33e-09 & 3.03e-08 & 0.982 & 8.45 & [4.0, 14.6] & 32/1/0 \\
+n=512 MAPLE-F vs ExtraTrees & 33 & 19 & 7.15e-08 & 7.15e-07 & 0.932 & 6.16 & [4.7, 11.0] & 31/2/0 \\
+n=512 MAPLE-F vs HistGB & 33 & 10 & 1e-08 & 1.2e-07 & 0.964 & 7.88 & [5.9, 11.1] & 29/4/0 \\
+n=512 MAPLE-F vs MLP & 33 & 42 & 2.63e-06 & 1.58e-05 & 0.85 & 7.79 & [6.6, 14.3] & 28/5/0 \\
+n=512 MAPLE-F vs XGBoost-T & 33 & 110 & 0.0017 & 0.00678 & 0.608 & 2.95 & [2.1, 6.2] & 25/8/0 \\
+n=512 MAPLE-F vs LightGBM-T & 33 & 54 & 1.14e-05 & 5.72e-05 & 0.807 & 5.17 & [2.5, 8.6] & 29/4/0 \\
+n=512 MAPLE-F vs CatBoost-T & 33 & 203 & 0.171 & 0.171 & 0.276 & 1.49 & [0.1, 3.4] & 22/11/0 \\
+n=512 MAPLE-F vs Stack(experts) & 33 & 157 & 0.0266 & 0.0798 & -0.44 & -0.561 & [-1.1, 0.2] & 12/21/0 \\
+n=512 MAPLE-F vs PFN-SCM & 33 & 21 & 1.04e-07 & 8.33e-07 & 0.925 & 8.42 & [3.2, 19.7] & 29/4/0 \\
+n=512 MAPLE-F vs PFN-A & 33 & 19 & 7.15e-08 & 7.15e-07 & 0.932 & 9.02 & [5.1, 16.5] & 30/3/0 \\
+n=512 MAPLE-F vs PFN-D & 33 & 21 & 1.04e-07 & 8.33e-07 & 0.925 & 9.77 & [4.5, 16.9] & 28/5/0 \\
+n=512 MAPLE-F vs MAPLE-E & 33 & 176 & 0.0626 & 0.125 & -0.373 & -0.572 & [-0.8, -0.0] & 11/22/0 \\
+n=2048 MAPLE-F vs Ridge & 22 & 13 & 4.2e-05 & 0.000336 & 0.897 & 45.1 & [21.9, 58.2] & 20/2/0 \\
+n=2048 MAPLE-F vs kNN & 22 & 0 & 4.77e-07 & 6.68e-06 & 1 & 26 & [17.4, 61.3] & 22/0/0 \\
+n=2048 MAPLE-F vs RF & 22 & 6 & 6.68e-06 & 6.01e-05 & 0.953 & 11.6 & [3.7, 27.3] & 21/1/0 \\
+n=2048 MAPLE-F vs ExtraTrees & 22 & 43 & 0.00528 & 0.0264 & 0.66 & 7.93 & [0.7, 19.3] & 16/6/0 \\
+n=2048 MAPLE-F vs HistGB & 22 & 5 & 4.77e-06 & 4.77e-05 & 0.96 & 3.81 & [2.3, 6.6] & 20/2/0 \\
+n=2048 MAPLE-F vs MLP & 22 & 75 & 0.0984 & 0.295 & 0.407 & 4.29 & [-1.5, 7.8] & 14/8/0 \\
+n=2048 MAPLE-F vs XGBoost-T & 22 & 69 & 0.0634 & 0.254 & 0.455 & 1.35 & [-0.7, 8.9] & 13/9/0 \\
+n=2048 MAPLE-F vs LightGBM-T & 22 & 35 & 0.00192 & 0.0134 & 0.723 & 3.87 & [0.5, 9.2] & 16/6/0 \\
+n=2048 MAPLE-F vs CatBoost-T & 22 & 109 & 0.588 & 1 & -0.138 & -1.02 & [-3.2, 3.9] & 10/12/0 \\
+n=2048 MAPLE-F vs Stack(experts) & 22 & 36 & 0.00219 & 0.0134 & -0.715 & -0.727 & [-1.1, -0.2] & 5/17/0 \\
+n=2048 MAPLE-F vs PFN-SCM & 22 & 4 & 3.34e-06 & 4.34e-05 & 0.968 & 37.4 & [13.1, 53.3] & 20/2/0 \\
+n=2048 MAPLE-F vs PFN-A & 22 & 4 & 3.34e-06 & 4.34e-05 & 0.968 & 32.3 & [14.3, 47.1] & 20/2/0 \\
+n=2048 MAPLE-F vs PFN-D & 22 & 4 & 3.34e-06 & 4.34e-05 & 0.968 & 33.8 & [15.6, 47.3] & 20/2/0 \\
+n=2048 MAPLE-F vs MAPLE-E & 22 & 107 & 0.545 & 1 & -0.154 & -0.195 & [-0.5, 0.3] & 9/13/0 \\
+\bottomrule
+\end{tabular}}
+\par\vspace{2pt}{\footnotesize Two-sided Wilcoxon signed-rank tests, Holm-corrected over all comparisons listed for a regime (a different family from the pre-registered families used in the text, so the adjusted p-values differ). r\_rb: matched-pairs rank-biserial correlation (positive = MAPLE-F better). Median relative difference = median over datasets of (other $-$ MAPLE-F)/MAPLE-F with a 95\% bootstrap CI; positive = MAPLE-F better. W/L/T = datasets where MAPLE-F wins/loses/ties. n=128: Friedman $\chi$$^2$(14) = 243.48, p = 6.4e-44, N = 36, Nemenyi CD = 3.57; n=512: Friedman $\chi$$^2$(14) = 223.78, p = 7.3e-40, N = 33, Nemenyi CD = 3.73; n=2048: Friedman $\chi$$^2$(14) = 162.89, p = 1.9e-27, N = 22, Nemenyi CD = 4.57.}
+\end{table}
